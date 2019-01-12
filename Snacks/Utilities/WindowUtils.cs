@@ -38,7 +38,7 @@ namespace Snacks
     {
         const double SECONDS_PER_MINUTE = 60.0;
         const double MINUTES_PER_HOUR = 60.0;
-        static double HOURS_PER_DAY = (GameSettings.KERBIN_TIME) ? 6.0 : 24.0;
+        static double HOURS_PER_DAY = KSPUtil.dateTimeFormatter.Day / 3600; // (GameSettings.KERBIN_TIME) ? 6.0 : 24.0;
         public static double SECONDS_PER_DAY = SECONDS_PER_MINUTE*MINUTES_PER_HOUR*HOURS_PER_DAY;
 
         public static double ToDegrees(double radians)
