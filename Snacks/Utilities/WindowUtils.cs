@@ -50,7 +50,13 @@ namespace Snacks
                 return KSPUtil.dateTimeFormatter.Hour / KSPUtil.dateTimeFormatter.Minute;
             }
         }
-        static double HOURS_PER_DAY = KSPUtil.dateTimeFormatter.Day / 3600; // (GameSettings.KERBIN_TIME) ? 6.0 : 24.0;
+        static double HOURS_PER_DAY
+        {
+            get
+            {
+                return KSPUtil.dateTimeFormatter.Day / KSPUtil.dateTimeFormatter.Hour; // (GameSettings.KERBIN_TIME) ? 6.0 : 24.0;
+            }
+        }
         public static double SECONDS_PER_DAY = SECONDS_PER_MINUTE*MINUTES_PER_HOUR*HOURS_PER_DAY;
 
         public static double ToDegrees(double radians)
