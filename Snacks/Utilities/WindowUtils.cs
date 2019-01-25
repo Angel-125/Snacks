@@ -43,7 +43,13 @@ namespace Snacks
                 return KSPUtil.dateTimeFormatter.Minute;
             }
         }
-        const double MINUTES_PER_HOUR = 60.0;
+        double MINUTES_PER_HOUR
+        {
+            get
+            {
+                return KSPUtil.dateTimeFormatter.Hour / KSPUtil.dateTimeFormatter.Minute;
+            }
+        }
         static double HOURS_PER_DAY = KSPUtil.dateTimeFormatter.Day / 3600; // (GameSettings.KERBIN_TIME) ? 6.0 : 24.0;
         public static double SECONDS_PER_DAY = SECONDS_PER_MINUTE*MINUTES_PER_HOUR*HOURS_PER_DAY;
 
