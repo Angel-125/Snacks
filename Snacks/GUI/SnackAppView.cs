@@ -67,7 +67,7 @@ namespace Snacks
                 //    return 6f;
                 //else
                 //    return 24f;
-                return (KSPUtil.dateTimeFormatter.Day / 3600);
+                return (KSPUtil.dateTimeFormatter.Day / KSPUtil.dateTimeFormatter.Hour);
             }
         }
 
