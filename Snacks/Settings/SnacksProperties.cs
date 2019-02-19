@@ -239,10 +239,11 @@ namespace Snacks
                         return 120;
 
                     case FaintTime.OneDay:
-                        if (GameSettings.KERBIN_TIME)
-                            return 360;
-                        else
-                            return 1440;
+                        //if (GameSettings.KERBIN_TIME)
+                        //    return 360;
+                        //else
+                        //    return 1440;
+                        return KSPUtil.dateTimeFormatter.Day;
                 }
             }
         }

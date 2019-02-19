@@ -40,10 +40,11 @@ namespace Snacks
         {
             get
             {
-                if (GameSettings.KERBIN_TIME)
-                    return 426.08f;
-                else
-                    return 365f;
+                //if (GameSettings.KERBIN_TIME)
+                //    return 426.08f;
+                //else
+                //    return 365f;
+                return (KSPUtil.dateTimeFormatter.Year / KSPUtil.dateTimeFormatter.Day);
             }
         }
 
@@ -62,10 +63,11 @@ namespace Snacks
         {
             get
             {
-                if (GameSettings.KERBIN_TIME)
-                    return 6f;
-                else
-                    return 24f;
+                //if (GameSettings.KERBIN_TIME)
+                //    return 6f;
+                //else
+                //    return 24f;
+                return (KSPUtil.dateTimeFormatter.Day / KSPUtil.dateTimeFormatter.Hour);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * WindowUtils.cs
  * 
  * Thunder Aerospace Corporation's library for the Kerbal Space Program, by Taranis Elsu
@@ -36,10 +36,13 @@ namespace Snacks
 {
     public static class WindowUtils
     {
-        const double SECONDS_PER_MINUTE = 60.0;
-        const double MINUTES_PER_HOUR = 60.0;
-        static double HOURS_PER_DAY = (GameSettings.KERBIN_TIME) ? 6.0 : 24.0;
-        public static double SECONDS_PER_DAY = SECONDS_PER_MINUTE*MINUTES_PER_HOUR*HOURS_PER_DAY;
+        public static double SECONDS_PER_MINUTE => KSPUtil.dateTimeFormatter.Minute;
+
+        public static double MINUTES_PER_HOUR => KSPUtil.dateTimeFormatter.Hour / KSPUtil.dateTimeFormatter.Minute;
+
+        public static double HOURS_PER_DAY => KSPUtil.dateTimeFormatter.Day / KSPUtil.dateTimeFormatter.Hour; // (GameSettings.KERBIN_TIME) ? 6.0 : 24.0;
+
+        public static double SECONDS_PER_DAY = KSPUtil.dateTimeFormatter.Day; // SECONDS_PER_MINUTE*MINUTES_PER_HOUR*HOURS_PER_DAY;
 
         public static double ToDegrees(double radians)
         {

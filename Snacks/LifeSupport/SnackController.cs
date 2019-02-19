@@ -417,10 +417,11 @@ namespace Snacks
         {
 //            snackFrequency = 5;
             //Seconds per day = 6 * 60 * 60 = 21600
-            if (GameSettings.KERBIN_TIME)
-                snackFrequency = (6 * 3600) / SnacksProperties.MealsPerDay;
-            else
-                snackFrequency = (24 * 3600) / SnacksProperties.MealsPerDay;
+            //if (GameSettings.KERBIN_TIME)
+            //    snackFrequency = (6 * 3600) / SnacksProperties.MealsPerDay;
+            //else
+            //    snackFrequency = (24 * 3600) / SnacksProperties.MealsPerDay;
+            snackFrequency = ((KSPUtil.dateTimeFormatter.Day) / SnacksProperties.MealsPerDay);
 
             //Make sure that the penalties know about the update
             foreach (ISnacksPenalty handler in penaltyHandlers)
