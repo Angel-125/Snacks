@@ -23,6 +23,9 @@ Copy the files in the zip folder over to GameData/Snacks
 
 REVISION HISTORY
 
+1.27.4
+- Minor Sandcastle compatibility fix.
+
 1.27.3
 - Recompiled for KSP 1.12.2.
 - Fixed issue where Snacks events weren't being processed correctly.

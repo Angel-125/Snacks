@@ -1479,6 +1479,8 @@ namespace Snacks
 
         private void onVesselLoaded(Vessel vessel)
         {
+            if (!HighLogic.LoadedSceneIsFlight)
+                return;
             int count = 0;
 
             string objectName = vessel.name;

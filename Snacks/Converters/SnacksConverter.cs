@@ -171,7 +171,7 @@ namespace Snacks
         /// Unique ID of the converter. Used to identify it during background processing.
         /// </summary>
         [KSPField(isPersistant = true)]
-        public string ID;
+        public string ID = "none";
         #endregion
 
         #region Timed Resource Fields
@@ -551,7 +551,7 @@ namespace Snacks
             base.OnStart(state);
 
             //Create unique ID if needed
-            if (string.IsNullOrEmpty(ID))
+            if (string.IsNullOrEmpty(ID) || ID == "none")
                 ID = Guid.NewGuid().ToString();
             else if (HighLogic.LoadedSceneIsEditor)
                 ResetSettings();

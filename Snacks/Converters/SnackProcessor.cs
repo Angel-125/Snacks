@@ -176,9 +176,7 @@ namespace Snacks
             if (!string.IsNullOrEmpty(ExperienceEffect))
             {
                 List<string> traits;
-                Experience.ExperienceSystemConfig config = new Experience.ExperienceSystemConfig();
-                config.LoadTraitConfigs();
-                traits = config.GetTraitsWithEffect(ExperienceEffect);
+                traits = GameDatabase.Instance.ExperienceConfigs.GetTraitsWithEffect(ExperienceEffect);
 
                 if (traits != null)
                 {
