@@ -1,0 +1,6 @@
+// For those who want an alternate name for Soil...
+@RESOURCE_DEFINITION[Soil]
+{
+	displayName = Mulch
+	abbreviation = ML
+}

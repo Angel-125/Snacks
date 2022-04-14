@@ -24,7 +24,7 @@ Copy the files in the zip folder over to GameData/Snacks
 REVISION HISTORY
 
 1.27.4
-- Minor Sandcastle compatibility fix.
+- Sandcastle compatibility update
 
 1.27.3
 - Recompiled for KSP 1.12.2.
