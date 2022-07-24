@@ -90,7 +90,7 @@ STORAGE_TEMPLATE
 
 //When a part with crew capacity is loaded in the editor and it lacks this resource, 
 //or when a vessel is loaded into the scene and its parts with crew capacity lack this resource, 
-//add it to the part. Doesn’t apply to kerbals going on EVA. Use SNACKS_EVA_RESOURCE for that.
+//add it to the part. Doesnâ€™t apply to kerbals going on EVA. Use SNACKS_EVA_RESOURCE for that.
 SNACKS_PART_RESOURCE
 {
 	name = FreshAir
@@ -284,14 +284,14 @@ SNACKS_RESOURCE_PROCESSOR
 	}
 }
 
-@PART[crewCabin,mk2CrewCabin]
+@PART[crewCabin,MK1CrewCabin,mk2CrewCabin,mk3CrewCabin,mk3Cockpit_Shuttle,Large_Crewed_Lab]
 {
 	MODULE
 	{
 		name = SnacksConverter
 		ConverterName = Air Scrubber
 		StartActionName = Start Air Scrubber
-		StopActionName = Stop Air Scribber
+		StopActionName = Stop Air Scrubber
 		AutoShutdown = false
 		GeneratesHeat = false
 		UseSpecialistBonus = false
@@ -299,115 +299,34 @@ SNACKS_RESOURCE_PROCESSOR
 		INPUT_RESOURCE
 		{
 			ResourceName = StaleAir
-			Ratio = 0.00074
+			Ratio = 0.000185
+			@Ratio *= #$../../CrewCapacity$
 			FlowMode = ALL_VESSEL
 		}
 
 		INPUT_RESOURCE
 		{
 			ResourceName = ElectricCharge
-			Ratio = 0.4
+			Ratio = 0.1
+			@Ratio *= #$../../CrewCapacity$
 			FlowMode = STAGE_PRIORITY_FLOW
 		}
 
 		OUTPUT_RESOURCE
 		{
 			ResourceName = FreshAir
-			Ratio = 0.000296
-			FlowMode = ALL_VESSEL
-		}
-	}
-
-	RESOURCE
-	{
-		name = StaleAir
-		amount = 0
-		maxAmount = 64
-	}
-}
-
-//These parts help clear the air
-@PART[MK1CrewCabin]
-{
-	MODULE
-	{
-		name = SnacksConverter
-		ConverterName = Air Scrubber
-		StartActionName = Start Air Scrubber
-		StopActionName = Stop Air Scribber
-		AutoShutdown = false
-		GeneratesHeat = false
-		UseSpecialistBonus = false
-		
-		INPUT_RESOURCE
-		{
-			ResourceName = StaleAir
-			Ratio = 0.00037
-			FlowMode = ALL_VESSEL
-		}
-
-		INPUT_RESOURCE
-		{
-			ResourceName = ElectricCharge
-			Ratio = 0.2
-			FlowMode = STAGE_PRIORITY_FLOW
-		}
-
-		OUTPUT_RESOURCE
-		{
-			ResourceName = FreshAir
-			Ratio = 0.000148
+			Ratio = 0.000074
+			@Ratio *= #$../../CrewCapacity$
 			FlowMode = ALL_VESSEL
 		}	
-}
-
-	RESOURCE
-	{
-		name = StaleAir
-		amount = 0
-		maxAmount = 32
-	}
-}
-
-@PART[mk3CrewCabin]
-{
-	MODULE
-	{
-		name = SnacksConverter
-		ConverterName = Air Scrubber
-		StartActionName = Start Air Scrubber
-		StopActionName = Stop Air Scribber
-		AutoShutdown = false
-		GeneratesHeat = false
-		UseSpecialistBonus = false
-		
-		INPUT_RESOURCE
-		{
-			ResourceName = StaleAir
-			Ratio = 0.00296
-			FlowMode = ALL_VESSEL
-		}
-
-		INPUT_RESOURCE
-		{
-			ResourceName = ElectricCharge
-			Ratio = 1.6
-			FlowMode = STAGE_PRIORITY_FLOW
-		}
-
-		OUTPUT_RESOURCE
-		{
-			ResourceName = FreshAir
-			Ratio = 0.001184
-			FlowMode = ALL_VESSEL
-		}
 	}
 
 	RESOURCE
 	{
 		name = StaleAir
 		amount = 0
-		maxAmount = 256
+		maxAmount = #$../CrewCapacity$
+		@maxAmount *= 16
 	}
 }
 
