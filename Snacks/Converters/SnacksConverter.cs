@@ -164,6 +164,12 @@ namespace Snacks
         /// </summary>
         [KSPField]
         public bool canBeShutdown = true;
+
+        /// <summary>
+        /// Flag to indicate that the converter's part must be splashed in order to function.
+        /// </summary>
+        [KSPField]
+        public bool requiresSplashed = false;
         #endregion
 
         #region Background Processing Fields
@@ -386,6 +392,10 @@ namespace Snacks
             SnacksRosterResource resource;
             SnacksRosterRatio ratio;
             Dictionary<string, SnacksRosterResource> rosterResources = SnacksRosterResource.LoadRosterResources();
+
+            // Splashed
+            if (requiresSplashed)
+                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + "\n - Requires vessel to be in water");
 
             //Home connection
             if (requiresHomeConnection)
@@ -728,6 +738,13 @@ namespace Snacks
                 PreProcessing();
                 recipe = PrepareRecipe(deltaTime);
                 count = recipe.Inputs.Count;
+
+                // Requires spashed
+                if (requiresSplashed && !part.vessel.Splashed)
+                {
+                    status = "Vessel must be in water";
+                    return;
+                }
 
                 //Handle required resources
                 if (requiresHomeConnection && CommNet.CommNetScenario.CommNetEnabled && !this.part.vessel.connection.IsConnectedHome)

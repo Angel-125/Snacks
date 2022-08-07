@@ -62,7 +62,7 @@ SKILL_LOSS_CONDITION
 }
 
 //A lack of air will definitely cause stress...
-@SNACKS_RESOURCE_PROCESSOR[Air]:FOR[SnacksFreshAir]
+@SNACKS_RESOURCE_PROCESSOR[Air]:NEEDS[SnacksFreshAir]
 {
 	OUTCOME
 	{
