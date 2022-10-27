@@ -2337,6 +2337,11 @@
             Flag to indicate that the converter's part must be splashed in order to function.
             </summary>
         </member>
+        <member name="F:Snacks.SnacksConverter.requiresOxygen">
+            <summary>
+            Flag indicating that the converter requires an oxygenated atmosphere in order to run.
+            </summary>
+        </member>
         <member name="F:Snacks.SnacksConverter.ID">
             <summary>
             Unique ID of the converter. Used to identify it during background processing.

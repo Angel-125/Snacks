@@ -970,6 +970,20 @@ namespace Snacks
                     }
                 }
             }
+
+            // Clear out data entries for astronauts that no longer exist.
+            string[] keys = crewData.Keys.ToArray();
+            KerbalRoster roster = HighLogic.CurrentGame.CrewRoster;
+            for (int index = 0; index < keys.Length; index++)
+            {
+                //rosterResources
+                if (!roster.Exists(keys[index]))
+                {
+                    crewData.Remove(keys[index]);
+                    if (rosterResources.ContainsKey(keys[index]))
+                        rosterResources.Remove(keys[index]);
+                }
+            }
         }
 
         public void OnDestroy()

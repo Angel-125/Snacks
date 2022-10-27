@@ -23,6 +23,9 @@ Copy the files in the zip folder over to GameData/Snacks
 
 REVISION HISTORY
 
+1.28.0
+- Buffalo 2 compatibility update
+
 1.27.5
 - Sandcastle compatibility update
 

@@ -170,6 +170,12 @@ namespace Snacks
         /// </summary>
         [KSPField]
         public bool requiresSplashed = false;
+
+        /// <summary>
+        /// Flag indicating that the converter requires an oxygenated atmosphere in order to run.
+        /// </summary>
+        [KSPField]
+        public bool requiresOxygen = false;
         #endregion
 
         #region Background Processing Fields
@@ -396,6 +402,10 @@ namespace Snacks
             // Splashed
             if (requiresSplashed)
                 moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + "\n - Requires vessel to be in water");
+
+            // Splashed
+            if (requiresOxygen)
+                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + "\n - Requires vessel to be on a planet with an oxygenated atmosphere");
 
             //Home connection
             if (requiresHomeConnection)
@@ -743,6 +753,12 @@ namespace Snacks
                 if (requiresSplashed && !part.vessel.Splashed)
                 {
                     status = "Vessel must be in water";
+                    return;
+                }
+
+                if (requiresOxygen && !part.vessel.mainBody.atmosphereContainsOxygen)
+                {
+                    status = "Requires oxygenated atmosphere";
                     return;
                 }
 
