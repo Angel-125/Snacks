@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP.IO;
+using KSP.Localization;
 
 /**
 The MIT License (MIT)
@@ -49,7 +50,7 @@ namespace Snacks
         {
             base.OnStart(state);
 
-            Fields["dailyOutput"].guiName = "Max Recycling";
+            Fields["dailyOutput"].guiName = Localizer.Format("#LOC_GUI_MAXRECY");//#LOC_GUI_MAXRECY="Max Recycling"
         }
 
         public override string GetInfo()
