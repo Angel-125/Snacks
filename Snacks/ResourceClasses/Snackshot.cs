@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  * */
 
+using KSP.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,22 +103,22 @@ namespace Snacks
             //Duration
             if (simulatorInterrupted)
             {
-                status.AppendLine("<color=white>Duration: Unavailable</color>");
+                status.AppendLine(Localizer.Format("#LOC_DURATION1"));//#LOC_DURATION1 = <color=white>Duration: Unavailable</color>
             }
             else if (estimatedTimeRemaining < 0)
             {
-                status.AppendLine("<color=white>Duration: Indefinite</color>");
+                status.AppendLine(Localizer.Format("#LOC_DURATION2"));//#LOC_DURATION2 = <color=white>Duration: Indefinite</color>
             }
             else if (isSimulatorRunning)
             {
-                status.AppendLine("<color=white>Duration: Calculating...</color>");
+                status.AppendLine(Localizer.Format("#LOC_DURATION3"));//#LOC_DURATION3 = <color=white>Duration: Calculating...</color>
             }
             else
             {
                 string timeString = SnacksScenario.FormatTime(estimatedTimeRemaining);
                 if (amount < 0.0001)
                     timeString = "0 Seconds";
-                status.AppendLine(colorTag + "Duration: " + timeString + endTag);
+                status.AppendLine(colorTag + Localizer.Format("#LOC_DURATION4") + timeString + endTag);//#LOC_DURATION4 = Duration:
             }
 
             return status.ToString();

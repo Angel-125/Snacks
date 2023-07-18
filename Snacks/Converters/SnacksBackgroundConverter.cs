@@ -30,6 +30,7 @@ using System.IO;
 using UnityEngine;
 using KSP.IO;
 using KSP.UI.Screens;
+using KSP.Localization;
 
 namespace Snacks
 {
@@ -935,28 +936,32 @@ namespace Snacks
             {
                 case SnacksBackroundEmailTypes.missingResources:
                     resourceDef = definitions[resourceName];
-                    titleMessage = " needs more resources";
-                    resultsMessage.AppendLine("Subject: Missing Resources");
-                    resultsMessage.AppendLine("There is no more " + resourceDef.displayName + " available to continue production. Operations cannot continue with the " + ConverterName + " until more resource becomes available.");
+                    titleMessage = Localizer.Format("#LOC_INFO_TITLE1");//#LOC_INFO_TITLE1 = needs more resources
+                    resultsMessage.AppendLine(Localizer.Format("#LOC_INFO_MISSINGRESOURCE"));//#LOC_INFO_MISSINGRESOURCE = Subject: Missing Resources
+                    resultsMessage.AppendLine(Localizer.Format("#LOC_INFO_PRDUCFAILD1",resourceDef.displayName, ConverterName));
+                    //#LOC_INFO_PRDUCFAILD1 = There is no more <<1>> available to continue production. Operations cannot continue with the <<2>> until more resource becomes available.
                     break;
 
                 case SnacksBackroundEmailTypes.missingRequiredResource:
                     resourceDef = definitions[resourceName];
-                    titleMessage = " needs a resource";
-                    resultsMessage.AppendLine("Subject: Missing Required Resource");
-                    resultsMessage.AppendLine(ConverterName + " needs " + resourceDef.displayName + " in order to function. Operations halted until the resource becomes available.");
+                    titleMessage = Localizer.Format("#LOC_INFO_TITLE2");//#LOC_INFO_TITLE2 = Subject:  needs a resource
+                    resultsMessage.AppendLine(Localizer.Format("#LOC_INFO_MISSINGREQRESOURCE"));//#LOC_INFO_MISSINGREQRESOURCE = Subject: Missing Resources
+                    resultsMessage.AppendLine(Localizer.Format("#LOC_INFO_PRDUCFAILD2", ConverterName, resourceDef.displayName));
+                    //#LOC_INFO_PRDUCFAILD2 = <<1>> needs <<2>> in order to function. Operations halted until the resource becomes available.
                     break;
 
                 case SnacksBackroundEmailTypes.containerFull:
                     resourceDef = definitions[resourceName];
-                    titleMessage = " is out of storage space";
-                    resultsMessage.AppendLine("Subject: Containers Are Full");
-                    resultsMessage.AppendLine("There is no more storage space available for " + resourceDef.displayName + ". Operations cannot continue with the " + ConverterName + " until more space becomes available.");
+                    titleMessage = Localizer.Format("#LOC_INFO_TITLE3");//#LOC_INFO_TITLE3 = is out of storage space
+                    resultsMessage.AppendLine(Localizer.Format("#LOC_INFO_CONTAINERFULL"));//#LOC_INFO_CONTAINERFULL = Subject: Containers Are Full
+                    resultsMessage.AppendLine(Localizer.Format("#LOC_INFO_PRDUCFAILD3", resourceDef.displayName, ConverterName));
+                    //#LOC_INFO_PRDUCFAILD3 = There is no more storage space available for <<1>> Operations cannot continue with the <<2>> until more space becomes available.
                     break;
 
                 case SnacksBackroundEmailTypes.yieldCriticalFail:
-                    titleMessage = " has suffered a critical failure in one of its converters";
-                    resultsMessage.AppendLine("A " + ConverterName + " has failed! The production yield has been lost. It must be repaired and/or restarted before it can begin production again.");
+                    titleMessage = Localizer.Format("#LOC_INFO_TITLE4");//#LOC_INFO_TITLE4 = has suffered a critical failure in one of its converters
+                    resultsMessage.AppendLine(Localizer.Format("#LOC_INFO_PRDUCFAILD4", ConverterName));
+                    //#LOC_INFO_PRDUCFAILD4 = A <<1>> has failed! The production yield has been lost. It must be repaired and/or restarted before it can begin production again.
                     break;
 
                 default:

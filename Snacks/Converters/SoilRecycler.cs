@@ -59,7 +59,7 @@ namespace Snacks
 
             infoBuilder.AppendLine(base.GetInfo());
             infoBuilder.AppendLine(" ");
-            infoBuilder.AppendLine("<b>Recycler Capacity: </b>" + RecyclerCapacity + " kerbals");
+            infoBuilder.AppendLine(Localizer.Format("#LOC_INFO_SOILRECYCAPA", RecyclerCapacity));//#LOC_INFO_SOILRECYCAPA=<b>Recycler Capacity: <<1>> kerbals
 
             return infoBuilder.ToString();
         }
@@ -71,7 +71,7 @@ namespace Snacks
             //We want the total recycler output, which is based on snacks per meal, meals per day, and recycler capacity.
             updateProductionEfficiency();
 
-            dailyOutput = string.Format("{0:f2} Soil/day", GetDailySnacksOutput());
+            dailyOutput = string.Format(Localizer.Format("#LOC_INFO_SOILPERDAY"), GetDailySnacksOutput());//#LOC_INFO_SOILPERDAY={0:f2} Soil/day
         }
 
         protected override void updateProductionEfficiency()

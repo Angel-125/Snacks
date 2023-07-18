@@ -401,20 +401,22 @@ namespace Snacks
 
             // Splashed
             if (requiresSplashed)
-                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + "\n - Requires vessel to be in water");
+                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + Localizer.Format("#LOC_INFO_REQSPLASH"));
+                // #LOC_INFO_REQSPLASH = \n - Requires vessel to be in water
 
             // Splashed
             if (requiresOxygen)
-                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + "\n - Requires vessel to be on a planet with an oxygenated atmosphere");
+                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + Localizer.Format("#LOC_INFO_REQOXY"));
+                // #LOC_INFO_REQOXY = \n - Requires vessel to be on a planet with an oxygenated atmosphere
 
             //Home connection
             if (requiresHomeConnection)
-                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + "\n - Requires connection to homeworld");
-
+                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + Localizer.Format("#LOC_INFO_REQCOMMU"));
+            // #LOC_INFO_REQCOMMU = \n - Requires connection to homeworld
             //Minimum crew
             if (minimumCrew > 0)
-                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + "\n - Minimum Crew: " + minimumCrew);
-
+                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + Localizer.Format("#LOC_INFO_REQCREW") + minimumCrew);
+                // #LOC_INFO_REQCREW = \n - Minimum Crew: 
             //Roster resources
             if (rosterInputList.Count == 0 && rosterOutputList.Count == 0)
                 setupRosterResources();
@@ -430,16 +432,16 @@ namespace Snacks
                     info.Append(": ");
                     if (ratio.AmountPerDay > 0)
                     {
-                        info.Append(string.Format("{0:f2}/day", ratio.AmountPerDay));
+                        info.Append(string.Format(Localizer.Format("#LOC_TIME_DAY"), ratio.AmountPerDay));//#LOC_TIME_DAY={0:f2}/day
                     }
                     else
                     {
                         if (ratio.AmountPerSecond < 0.0001)
-                            info.Append(string.Format(": {0:f2}/day", ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Day));
+                            info.Append(string.Format(Localizer.Format("#LOC_TIME_DAY"), ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Day));//#LOC_TIME_DAY={0:f2}/day
                         else if (ratio.AmountPerSecond < 0.01)
-                            info.Append(string.Format(": {0:f2}/hr", ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Hour));
+                            info.Append(string.Format(Localizer.Format("#LOC_TIME_HR"), ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Hour));//#LOC_TIME_HR={0:f2}/hr
                         else
-                            info.Append(string.Format(": {0:f2}/sec", ratio.AmountPerSecond));
+                            info.Append(string.Format(Localizer.Format("#LOC_TIME_SEC"), ratio.AmountPerSecond));//#LOC_TIME_SEC={0:f2}/sec
                     }
                 }
 
@@ -473,16 +475,16 @@ namespace Snacks
                     info.Append(": ");
                     if (ratio.AmountPerDay > 0)
                     {
-                        info.Append(string.Format("{0:f2}/day", ratio.AmountPerDay));
+                        info.Append(string.Format(Localizer.Format("#LOC_TIME_DAY"), ratio.AmountPerDay));
                     }
                     else
                     {
                         if (ratio.AmountPerSecond < 0.0001)
-                            info.Append(string.Format(": {0:f2}/day", ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Day));
+                            info.Append(string.Format(Localizer.Format("#LOC_TIME_DAY"), ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Day));
                         else if (ratio.AmountPerSecond < 0.01)
-                            info.Append(string.Format(": {0:f2}/hr", ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Hour));
+                            info.Append(string.Format(Localizer.Format("#LOC_TIME_HR"), ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Hour));
                         else
-                            info.Append(string.Format(": {0:f2}/sec", ratio.AmountPerSecond));
+                            info.Append(string.Format(Localizer.Format("#LOC_TIME_SEC"), ratio.AmountPerSecond));
                     }
                 }
 
@@ -535,13 +537,13 @@ namespace Snacks
                 if (node.HasValue("hoursPerCycle"))
                     double.TryParse(node.GetValue("hoursPerCycle"), out processTimeHours);
 
-                info.Append(" - Skill Needed: " + ExperienceEffect + "\r\n");
+                info.Append(Localizer.Format("#LOC_INFO_NEEDSKILL") + ExperienceEffect + "\r\n"); //#LOC_INFO_NEEDSKILL= - Skill Needed: 
                 if (processTimeHours > 0)
                 {
-                    info.Append(" - Process Time: ");
-                    info.Append(string.Format("{0:f1} hours\r\n", processTimeHours));
+                    info.Append(Localizer.Format("#LOC_INFO_PROCESSTIME"));//#LOC_INFO_PROCESSTIME= - Process Time: 
+                    info.Append(string.Format(Localizer.Format("#LOC_TIME_HR") + "\r\n", processTimeHours));
                 }
-                info.Append(" - Yield Resources\r\n");
+                info.Append(Localizer.Format("#LOC_INFO_YELDRES") + "\r\n");//#LOC_INFO_YELDRES= - Yield Resources
                 for (int yieldIndex = 0; yieldIndex < yieldNodes.Length; yieldIndex++)
                 {
                     yieldNode = yieldNodes[yieldIndex];
@@ -752,26 +754,26 @@ namespace Snacks
                 // Requires spashed
                 if (requiresSplashed && !part.vessel.Splashed)
                 {
-                    status = "Vessel must be in water";
+                    status = Localizer.Format("#LOC_STATUS_NOSPLASH");//#LOC_STATUS_NOSPLASH=Vessel must be in water
                     return;
                 }
 
                 if (requiresOxygen && !part.vessel.mainBody.atmosphereContainsOxygen)
                 {
-                    status = "Requires oxygenated atmosphere";
+                    status = Localizer.Format("#LOC_STATUS_NOOXY");//#LOC_STATUS_NOOXY=Requires oxygenated atmosphere
                     return;
                 }
 
                 //Handle required resources
                 if (requiresHomeConnection && CommNet.CommNetScenario.CommNetEnabled && !this.part.vessel.connection.IsConnectedHome)
                 {
-                    status = "Requires home connection";
+                    status = Localizer.Format("#LOC_STATUS_NOCOMMU");//#LOC_STATUS_NOCOMMU=Requires home connection
                     return;
                 }
 
                 if (minimumCrew > 0 && this.part.protoModuleCrew.Count < minimumCrew)
                 {
-                    status = "Needs more crew (" + this.part.protoModuleCrew.Count + "/" + minimumCrew + ")";
+                    status = Localizer.Format("#LOC_STATUS_NOCREW")+"(" + this.part.protoModuleCrew.Count + "/" + minimumCrew + ")";//#LOC_STATUS_NOCREW=Needs more crew
                     return;
                 }
 
@@ -844,7 +846,7 @@ namespace Snacks
                     amountObtained = this.part.RequestResource(resourceDef.id, -resourceRatio.Ratio, resourceRatio.FlowMode);
                     if (amountObtained >= maxAmount)
                     {
-                        status = resourceDef.displayName + " is full";
+                        status = resourceDef.displayName + Localizer.Format("#LOC_STATUS_NOSPLASH");//#LOC_STATUS_FULL= is full
                     }
                 }
 
@@ -1031,9 +1033,9 @@ namespace Snacks
 
             //Update status
             if (yieldsList.Count > 0)
-                status = "Progress: " + progress;
+                status = Localizer.Format("#LOC_STATUS_PROGRESS") + progress;//#LOC_STATUS_PROGRESS=Progress: 
             else if (string.IsNullOrEmpty(status))
-                status = "Running";
+                status = Localizer.Format("#LOC_STATUS_RUNNING");//#LOC_STATUS_RUNNING=Running
         }
         #endregion
 

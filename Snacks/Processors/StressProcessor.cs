@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  * */
 
+using KSP.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,8 +60,8 @@ namespace Snacks
         public const string StressResourceName = "Stress";
 
         const string StressConditionName = "Stressed Out";
-        const string StressPlayerMessage = "is stressed out and cannot work!";
-        const string StressRecoveryMessage = "recovered from stress.";
+        const string StressPlayerMessage = "is stressed out and cannot work!";//#LOC_INFO_STRESSOUT = is stressed out and cannot work!
+        const string StressRecoveryMessage = "recovered from stress.";//#LOC_INFO_STRESSOUTRECOVER = recovered from stress.
 
         /// <summary>
         /// The first N seats use the multiplier instead of the N^3 formula.
@@ -100,7 +101,7 @@ namespace Snacks
 
             secondsPerCycle = SnacksScenario.GetSecondsPerDay();
 
-            outcomes.Add(new OnStrikePenalty(StressConditionName, false, StressPlayerMessage));
+            outcomes.Add(new OnStrikePenalty(StressConditionName, false, Localizer.Format("#LOC_INFO_STRESSOUT")));
 
             SnacksScenario.onRosterResourceUpdated.Add(onRosterResourceUpdated);
         }
@@ -117,8 +118,8 @@ namespace Snacks
             //Calculate the space available.
             float space = CalculateSpace(currentCrewCount, crewCapacity);
 
-            results.AppendLine("Estimated Max Stress: A crew of " + currentCrewCount.ToString() + string.Format(" will be Stressed Out after {0:n2} days.", space));
-            results.AppendLine("This is based on a kerbal with no experience. Experienced kerbals can last longer.");
+            results.AppendLine(Localizer.Format("#LOC_GUI_STRESSMAXES", currentCrewCount.ToString(),space));//#LOC_GUI_STRESSMAXES=Estimated Max Stress: A crew of <<1>> will be Stressed Out after <<2>> days.
+            results.AppendLine(Localizer.Format("#LOC_GUI_STRESSMAXESNOTE"));//#LOC_GUI_STRESSMAXESNOTE=This is based on a kerbal with no experience. Experienced kerbals can last longer.
             results.AppendLine(" ");
         }
 
@@ -356,7 +357,7 @@ namespace Snacks
             {
                 astronautData.ClearCondition(StressConditionName);
                 SnacksScenario.Instance.RestoreSkillsIfNeeded(astronaut);
-                ScreenMessages.PostScreenMessage(astronaut.name + " " + StressRecoveryMessage, 5.0f, ScreenMessageStyle.UPPER_LEFT);
+                ScreenMessages.PostScreenMessage(astronaut.name + " " + Localizer.Format("#LOC_INFO_STRESSOUTRECOVER"), 5.0f, ScreenMessageStyle.UPPER_LEFT);
             }
 
             //If the resource has maxed out then add the stress condition

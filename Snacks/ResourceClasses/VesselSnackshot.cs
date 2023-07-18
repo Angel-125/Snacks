@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  * */
 
+using KSP.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,7 +81,7 @@ namespace Snacks
 
             //Crew capacity
             if (!vessel.isEVA)
-                status.AppendLine("<color=white>Crew: " + crewCount + "/" + maxCrewCount + "</color>");
+                status.AppendLine("<color=white> "+Localizer.Format("#LOC_GUI_CREW") + crewCount + "/" + maxCrewCount + "</color>");
 
             //Resource snapshots
             if (!showCrewView)
@@ -109,8 +110,8 @@ namespace Snacks
                     if (!string.IsNullOrEmpty(astronautData.conditionSummary))
                         conditionSummary = astronautData.conditionSummary;
                     else
-                        conditionSummary = "A-OK";
-                    status.AppendLine("<color=white> - Status: " + conditionSummary + "</color>");
+                        conditionSummary = Localizer.Format("#LOC_AOK");//#LOC_AOK=A-OK
+                    status.AppendLine("<color=white> "+Localizer.Format("#LOC_GUI_STATUS") + conditionSummary + "</color>");
 
                     string[] keys = astronautData.rosterResources.Keys.ToArray();
                     for (int rosterIndex = 0; rosterIndex < keys.Length; rosterIndex++)
