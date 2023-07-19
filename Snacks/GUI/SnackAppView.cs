@@ -61,7 +61,7 @@ namespace Snacks
         private StressProcessor stressProcessor = null;
 
         public SnackAppView() :
-        base("Vessel Status", 500, 500)
+        base(Localizer.Format("#LOC_GUI_VESSELSTATUS"), 500, 500)//#LOC_GUI_VESSELSTATUS=Vessel Status
         {
             Resizable = false;
         }
@@ -157,7 +157,7 @@ namespace Snacks
         public void drawEditorWindow()
         {
             //Rerun sim button
-            if (GUILayout.Button("Rerun Simulator"))
+            if (GUILayout.Button(Localizer.Format("#LOC_GUI_RERUNSIMULATOR")))//#LOC_GUI_RERUNSIMULATOR=Rerun Simulator
             {
                 //Reset crew count so that we'll trigger a rebuild of the simulator.
                 currentCrewCount = -1;
@@ -676,9 +676,9 @@ namespace Snacks
                 amount = resource.amount;
 
                 if (amount > maxAmount)
-                    GUILayout.Label("<color=white>" + astronautData.name + string.Format(Localizer.Format("LOC_GUI_STRESSES"), amount, maxAmount) + "</color>"+ Localizer.Format("LOC_GUI_STRESSOUT"));//#LOC_GUI_STRESSES =\n Estimated Stress: {0:n2}/{1:n2}
+                    GUILayout.Label("<color=white>" + astronautData.name + string.Format(Localizer.Format("#LOC_GUI_STRESSES"), amount, maxAmount) + "</color>"+ Localizer.Format("#LOC_GUI_STRESSOUT"));//#LOC_GUI_STRESSES =\n Estimated Stress: {0:n2}/{1:n2}
                 else
-                    GUILayout.Label("<color=white>" + astronautData.name + string.Format(Localizer.Format("LOC_GUI_STRESSES"), amount, maxAmount) + " </color>");//#LOC_GUI_STRESSOUT =\n<color=orange> Will likely get Stressed Out</color>
+                    GUILayout.Label("<color=white>" + astronautData.name + string.Format(Localizer.Format("#LOC_GUI_STRESSES"), amount, maxAmount) + " </color>");//#LOC_GUI_STRESSOUT =\n<color=orange> Will likely get Stressed Out</color>
             }
         }
 

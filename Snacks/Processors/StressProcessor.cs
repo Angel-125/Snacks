@@ -59,7 +59,7 @@ namespace Snacks
         #region Constants
         public const string StressResourceName = "Stress";
 
-        const string StressConditionName = "Stressed Out";
+        const string StressConditionName = "Stressed Out";//#LOC_INFO_STRESSOUTNAME = Stressed Out
         const string StressPlayerMessage = "is stressed out and cannot work!";//#LOC_INFO_STRESSOUT = is stressed out and cannot work!
         const string StressRecoveryMessage = "recovered from stress.";//#LOC_INFO_STRESSOUTRECOVER = recovered from stress.
 
@@ -101,7 +101,7 @@ namespace Snacks
 
             secondsPerCycle = SnacksScenario.GetSecondsPerDay();
 
-            outcomes.Add(new OnStrikePenalty(StressConditionName, false, Localizer.Format("#LOC_INFO_STRESSOUT")));
+            outcomes.Add(new OnStrikePenalty(Localizer.Format("#LOC_INFO_STRESSOUTNAME"), false, Localizer.Format("#LOC_INFO_STRESSOUT")));//
 
             SnacksScenario.onRosterResourceUpdated.Add(onRosterResourceUpdated);
         }

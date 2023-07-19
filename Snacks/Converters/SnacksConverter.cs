@@ -818,7 +818,7 @@ namespace Snacks
                     //Check for mininum EC
                     else if (resourceRatio.ResourceName == "ElectricCharge" && (amount / maxAmount) <= (minimumVesselPercentEC / 100.0f))
                     {
-                        status = "Needs more " + resourceDef.displayName;
+                        status = Localizer.Format("Needs more") + resourceDef.displayName;//#LOC_GUI_NEEDSMORE=Needs more
                         return;
                     }
                 }

@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  * */
 
+using KSP.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -205,7 +206,7 @@ namespace Snacks
                 AvailablePart.ResourceInfo resourceInfo = new AvailablePart.ResourceInfo();
                 resourceInfo.resourceName = resourceName;
                 resourceInfo.displayName = def.displayName;
-                resourceInfo.info = string.Format("Amount: {0:n1}\nMass: {1:n3}\nCost: {2:n1}", unitsToAdd, def.density * unitsToAdd, def.unitCost * unitsToAdd);
+                resourceInfo.info = string.Format(Localizer.Format("#LOC_GUI_SNACKSTORAGE1"), unitsToAdd, def.density * unitsToAdd, def.unitCost * unitsToAdd);//#LOC_GUI_SNACKSTORAGE1=Amount: {0:n1}\nMass: {1:n3}\nCost: {2:n1}
                 availablePart.resourceInfos.Add(resourceInfo);
             }
             MonoUtilities.RefreshContextWindows(part);

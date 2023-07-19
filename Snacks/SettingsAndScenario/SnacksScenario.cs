@@ -31,6 +31,7 @@ using System.IO;
 using UnityEngine;
 using KSP.IO;
 using KSP.UI.Screens;
+using KSP.Localization;
 
 namespace Snacks
 {
@@ -1704,15 +1705,15 @@ namespace Snacks
             else
             {
                 if (years > 0)
-                    timeBuilder.Append(string.Format(" {0:n2} Years,", years));
+                    timeBuilder.Append(string.Format(Localizer.Format("#LOC_TIME1"), years));//#LOC_TIME1={0:n2} Years,
                 if (days > 0)
-                    timeBuilder.Append(string.Format(" {0:n2} Days,", days));
+                    timeBuilder.Append(string.Format(Localizer.Format("#LOC_TIME2"), days));//#LOC_TIME2={0:n2} Days,
                 if (hours > 0)
-                    timeBuilder.Append(string.Format(" {0:n2} Hours,", hours));
+                    timeBuilder.Append(string.Format(Localizer.Format("#LOC_TIME3"), hours));//#LOC_TIME3={0:n2} Hours,
                 if (minutes > 0)
-                    timeBuilder.Append(string.Format(" {0:n2} Minutes,", minutes));
+                    timeBuilder.Append(string.Format(Localizer.Format("#LOC_TIME4"), minutes));//#LOC_TIME4={0:n2} Minutes,
                 if (seconds > 0.0001)
-                    timeBuilder.Append(string.Format(" {0:n2} Seconds", seconds));
+                    timeBuilder.Append(string.Format(Localizer.Format("#LOC_TIME5"), seconds));//#LOC_TIME5={0:n2} Seconds,
             }
 
             string timeDisplay = timeBuilder.ToString();
