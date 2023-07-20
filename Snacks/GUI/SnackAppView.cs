@@ -649,7 +649,7 @@ namespace Snacks
             AstronautData astronautData = null;
 
             //Show crew capacity
-            GUILayout.Label(string.Format(Localizer.Format("#LOC_GUI_CREWCAPA"), crewCapacity));//#LOC_GUI_CREWCAPA =<color=white>Estimated Crew Capacity: {0:n0}</color>
+            GUILayout.Label(Localizer.Format("#LOC_GUI_CREWCAPA",crewCapacity.ToString()));//#LOC_GUI_CREWCAPA =<color=white>Estimated Crew Capacity:<<1>></color>
 
             //Calculate the total space.
             float space = stressProcessor.CalculateSpace(activeVesselCrewCount, crewCapacity);
@@ -676,9 +676,9 @@ namespace Snacks
                 amount = resource.amount;
 
                 if (amount > maxAmount)
-                    GUILayout.Label("<color=white>" + astronautData.name + string.Format(Localizer.Format("#LOC_GUI_STRESSES"), amount, maxAmount) + "</color>"+ Localizer.Format("#LOC_GUI_STRESSOUT"));//#LOC_GUI_STRESSES =\n Estimated Stress: {0:n2}/{1:n2}
+                    GUILayout.Label("<color=white>" + astronautData.name + Localizer.Format("#LOC_GUI_STRESSES", amount.ToString("f2"), maxAmount.ToString("f2")) + "</color>"+ Localizer.Format("#LOC_GUI_STRESSOUT"));//#LOC_GUI_STRESSES =\n Estimated Stress: <<1>>/<<2>>
                 else
-                    GUILayout.Label("<color=white>" + astronautData.name + string.Format(Localizer.Format("#LOC_GUI_STRESSES"), amount, maxAmount) + " </color>");//#LOC_GUI_STRESSOUT =\n<color=orange> Will likely get Stressed Out</color>
+                    GUILayout.Label("<color=white>" + astronautData.name + Localizer.Format("#LOC_GUI_STRESSES", amount.ToString("f2"), maxAmount.ToString("f2")) + " </color>");//#LOC_GUI_STRESSOUT =\n<color=orange> Will likely get Stressed Out</color>
             }
         }
 

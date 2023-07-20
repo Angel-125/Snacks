@@ -437,11 +437,11 @@ namespace Snacks
                     else
                     {
                         if (ratio.AmountPerSecond < 0.0001)
-                            info.Append(string.Format(Localizer.Format("#LOC_TIME_DAY"), ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Day));//#LOC_TIME_DAY={0:f2}/day
+                            info.Append(Localizer.Format("#LOC_TIME_DAY",(ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Day).ToString()));//#LOC_TIME_DAY=<<1>>/day
                         else if (ratio.AmountPerSecond < 0.01)
-                            info.Append(string.Format(Localizer.Format("#LOC_TIME_HR"), ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Hour));//#LOC_TIME_HR={0:f2}/hr
+                            info.Append(Localizer.Format("#LOC_TIME_HR",(ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Hour).ToString("f2")));//#LOC_TIME_HR=<<1>>/hr
                         else
-                            info.Append(string.Format(Localizer.Format("#LOC_TIME_SEC"), ratio.AmountPerSecond));//#LOC_TIME_SEC={0:f2}/sec
+                            info.Append(Localizer.Format("#LOC_TIME_SEC", ratio.AmountPerSecond.ToString("f2")));//#LOC_TIME_SEC=<<1>>/sec
                     }
                 }
 
@@ -746,7 +746,7 @@ namespace Snacks
                 bool infiniteElectricity = CheatOptions.InfiniteElectricity;
 
                 //Do the pre-processing
-                status = "A-OK";
+                status = Localizer.Format("#LOC_AOK");
                 PreProcessing();
                 recipe = PrepareRecipe(deltaTime);
                 count = recipe.Inputs.Count;
@@ -787,7 +787,7 @@ namespace Snacks
                     this.part.GetConnectedResourceTotals(resourceDef.id, out amount, out maxAmount, true);
                     if (amount >= maxAmount)
                     {
-                        status = resourceDef.displayName + " is full";
+                        status = resourceDef.displayName + Localizer.Format("#LOC_STATUS_FULL");
                         if (AutoShutdown)
                             StopResourceConverter();
                         return;
@@ -809,7 +809,7 @@ namespace Snacks
                     this.part.GetConnectedResourceTotals(resourceDef.id, out amount, out maxAmount, true);
                     if (amount < resourceRatio.Ratio)
                     {
-                        status = "Missing " + resourceDef.displayName;
+                        status =Localizer.Format("#LOC_GUI_MISSING") + resourceDef.displayName;//#LOC_GUI_MISSING=Missing 
                         if (AutoShutdown)
                             StopResourceConverter();
                         return;
@@ -818,7 +818,7 @@ namespace Snacks
                     //Check for mininum EC
                     else if (resourceRatio.ResourceName == "ElectricCharge" && (amount / maxAmount) <= (minimumVesselPercentEC / 100.0f))
                     {
-                        status = Localizer.Format("Needs more") + resourceDef.displayName;//#LOC_GUI_NEEDSMORE=Needs more
+                        status = Localizer.Format(Localizer.Format("#LOC_GUI_NEEDSMORE")) + resourceDef.displayName;//#LOC_GUI_NEEDSMORE=Needs more
                         return;
                     }
                 }

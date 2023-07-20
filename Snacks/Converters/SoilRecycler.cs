@@ -71,7 +71,7 @@ namespace Snacks
             //We want the total recycler output, which is based on snacks per meal, meals per day, and recycler capacity.
             updateProductionEfficiency();
 
-            dailyOutput = string.Format(Localizer.Format("#LOC_INFO_SOILPERDAY"), GetDailySnacksOutput());//#LOC_INFO_SOILPERDAY={0:f2} Soil/day
+            dailyOutput = Localizer.Format("#LOC_INFO_SOILPERDAY", GetDailySnacksOutput().ToString("f2"));//#LOC_INFO_SOILPERDAY=<<1>> Soil/day
         }
 
         protected override void updateProductionEfficiency()

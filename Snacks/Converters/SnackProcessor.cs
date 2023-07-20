@@ -119,7 +119,7 @@ namespace Snacks
         {
             updateProductionEfficiency();
 
-            dailyOutput = string.Format("{0:f2} Snacks/day", GetDailySnacksOutput());
+            dailyOutput = Localizer.Format("#LOC_GUI_SNACKPERDAY", GetDailySnacksOutput().ToString("f2"));
         }
 
         protected override void PreProcessing()

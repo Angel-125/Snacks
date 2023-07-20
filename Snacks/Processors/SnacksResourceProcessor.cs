@@ -76,8 +76,8 @@ namespace Snacks
 
             //Outcomes
             outcomes.Clear();
-            outcomes.Add(new FundingPenalty(true, Localizer.Format("#LOC_INFO_FUND"), SnacksProperties.FinePerKerbal));//#LOC_INFO_FUND = Kerbals are hungry for snacks! You have been fined {0:N2} Funds
-            outcomes.Add(new RepPenalty(true, SnacksProperties.RepLostWhenHungry, Localizer.Format("#LOC_INFO_BADREP")));//#LOC_INFO_BADREP = Kerbals are hungry for snacks! Your reputation has decreased by {0:N3}
+            outcomes.Add(new FundingPenalty(true, Localizer.Format("#LOC_INFO_FUND",(SnacksProperties.FinePerKerbal).ToString("n2")), SnacksProperties.FinePerKerbal));//#LOC_INFO_FUND = Kerbals are hungry for snacks! You have been fined <<1>> Funds
+            outcomes.Add(new RepPenalty(true, SnacksProperties.RepLostWhenHungry, Localizer.Format("#LOC_INFO_BADREP",(SnacksProperties.RepLostWhenHungry).ToString("n3"))));//#LOC_INFO_BADREP = Kerbals are hungry for snacks! Your reputation has decreased by <<1>>
             outcomes.Add(new SciencePenalty(true));
             if (SnacksProperties.CanStarveToDeath)
                 outcomes.Add(new DeathPenalty(SnacksProperties.SnacksResourceName, SnacksProperties.MealsSkippedBeforeDeath, Localizer.Format("#LOC_INFO_DEATH")));//#LOC_INFO_DEATH = has died from a lack of Snacks!
