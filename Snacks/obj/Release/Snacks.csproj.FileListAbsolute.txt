@@ -62,3 +62,4 @@ D:\_work\_project\KSPMOD_Snacks\Snacks\bin\Release\KSPAssets.XmlSerializers.dll
 D:\_work\_project\KSPMOD_Snacks\Snacks\obj\Release\Snacks.csproj.CopyComplete
 D:\_work\_project\KSPMOD_Snacks\Snacks\obj\Release\SnacksUtils.dll
 D:\_work\_project\KSPMOD_Snacks\Snacks\obj\Release\SnacksUtils.pdb
+D:\_work\_project\KSPMOD_Snacks\Snacks\bin\Release\SnacksUtils.xml
