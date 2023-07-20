@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  * */
 
+using KSP.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,13 +76,13 @@ namespace Snacks
 
             //Outcomes
             outcomes.Clear();
-            outcomes.Add(new FundingPenalty(true, "Kerbals are hungry for snacks! You have been fined {0:N2} Funds", SnacksProperties.FinePerKerbal));
-            outcomes.Add(new RepPenalty(true, SnacksProperties.RepLostWhenHungry, "Kerbals are hungry for snacks! Your reputation has decreased by {0:N3}"));
+            outcomes.Add(new FundingPenalty(true, Localizer.Format("#LOC_INFO_FUND",(SnacksProperties.FinePerKerbal).ToString("n2")), SnacksProperties.FinePerKerbal));//#LOC_INFO_FUND = Kerbals are hungry for snacks! You have been fined <<1>> Funds
+            outcomes.Add(new RepPenalty(true, SnacksProperties.RepLostWhenHungry, Localizer.Format("#LOC_INFO_BADREP",(SnacksProperties.RepLostWhenHungry).ToString("n3"))));//#LOC_INFO_BADREP = Kerbals are hungry for snacks! Your reputation has decreased by <<1>>
             outcomes.Add(new SciencePenalty(true));
             if (SnacksProperties.CanStarveToDeath)
-                outcomes.Add(new DeathPenalty(SnacksProperties.SnacksResourceName, SnacksProperties.MealsSkippedBeforeDeath, "has died from a lack of Snacks!"));
+                outcomes.Add(new DeathPenalty(SnacksProperties.SnacksResourceName, SnacksProperties.MealsSkippedBeforeDeath, Localizer.Format("#LOC_INFO_DEATH")));//#LOC_INFO_DEATH = has died from a lack of Snacks!
             if (SnacksProperties.FaintWhenHungry)
-                outcomes.Add(new FaintPenalty(SnacksProperties.SnacksResourceName, SnacksProperties.MealsBeforeFainting, SnacksProperties.NapTime * 60f, "has fainted from a lack of Snacks!"));
+                outcomes.Add(new FaintPenalty(SnacksProperties.SnacksResourceName, SnacksProperties.MealsBeforeFainting, SnacksProperties.NapTime * 60f, Localizer.Format("#LOC_INFO_FAINTE")));//#LOC_INFO_FAINTE = has fainted from a lack of Snacks!
 
             if (SnacksScenario.Instance.rosterResources.ContainsKey(StressProcessor.StressResourceName))
                 outcomes.Add(new ProduceResource(StressProcessor.StressResourceName, 1.0, false, string.Empty));

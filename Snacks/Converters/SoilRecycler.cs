@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP.IO;
+using KSP.Localization;
 
 /**
 The MIT License (MIT)
@@ -49,7 +50,7 @@ namespace Snacks
         {
             base.OnStart(state);
 
-            Fields["dailyOutput"].guiName = "Max Recycling";
+            Fields["dailyOutput"].guiName = Localizer.Format("#LOC_GUI_MAXRECY");//#LOC_GUI_MAXRECY="Max Recycling"
         }
 
         public override string GetInfo()
@@ -58,7 +59,7 @@ namespace Snacks
 
             infoBuilder.AppendLine(base.GetInfo());
             infoBuilder.AppendLine(" ");
-            infoBuilder.AppendLine("<b>Recycler Capacity: </b>" + RecyclerCapacity + " kerbals");
+            infoBuilder.AppendLine(Localizer.Format("#LOC_INFO_SOILRECYCAPA", RecyclerCapacity));//#LOC_INFO_SOILRECYCAPA=<b>Recycler Capacity: <<1>> kerbals
 
             return infoBuilder.ToString();
         }
@@ -70,7 +71,7 @@ namespace Snacks
             //We want the total recycler output, which is based on snacks per meal, meals per day, and recycler capacity.
             updateProductionEfficiency();
 
-            dailyOutput = string.Format("{0:f2} Soil/day", GetDailySnacksOutput());
+            dailyOutput = Localizer.Format("#LOC_INFO_SOILPERDAY", GetDailySnacksOutput().ToString("f2"));//#LOC_INFO_SOILPERDAY=<<1>> Soil/day
         }
 
         protected override void updateProductionEfficiency()

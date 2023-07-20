@@ -1,0 +1,2982 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SnacksUtils</name>
+    </assembly>
+    <members>
+        <member name="T:Snacks.CheckBreathableAir">
+            <summary>
+            This precondition checks to see if a kerbal or vessel is in an environemnt with breathable air, and matches it with the expected parameter.
+            The vessel's celestial body must have an atmosphere with oxygen, and the vessel altitude must be between sea level and half the atmosphere height.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckBreathableAir
+                mustExist = false
+            }
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckBreathableAir.mustExist">
+            <summary>
+            Flag to indicate pressence (true) or absence (false) of the value to check.
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckBreathableAir.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckBreathableAir"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckSkillLevel">
+            <summary>
+            This precondition checks to see if a kerbal's experience level matches the desired value and type of check to make. For instance you could check to see if a kerbal is above 3 stars.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckSkillLevel
+                valueToCheck = 3
+                checkType = checkGreaterOrEqual //Default value
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckSkillLevel.valueToCheck">
+            <summary>
+            The value to check for
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckSkillLevel.checkType">
+            <summary>
+            Type of check to make
+            Default: checkGreaterOrEqual
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckSkillLevel.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckSkillLevel"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckSkill">
+            <summary>
+            This precondition checks to see if a kerbal's skill matches the desired parameter. For instance, you could check to see if a kerbal has the ScienceSkill.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckSkill
+                skillToCheck = ScienceSkill
+                mustExist = true
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckSkill.skillToCheck">
+            <summary>
+            Name of the skill to check
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckSkill.mustExist">
+            <summary>
+            Flag to indicate pressence (true) or absence (false) of the value to check.
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckSkill.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckSkill"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckTrait">
+            <summary>
+            This precondition checks to see if a kerbal's trait matches the desired parameter. For instance, you could check to see if a kerbal is an Engineer.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckTrait
+                traitToCheck = Engineer
+                mustExist = true
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckTrait.traitToCheck">
+            <summary>
+            Name of the trait to check
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckTrait.mustExist">
+            <summary>
+            Flag to indicate pressence (true) or absence (false) of the value to check.
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckTrait.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckTrait"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckCourage">
+            <summary>
+            This precondition checks to see if a kerbal's courage matches the desired value and type of check to make.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckCourage
+                valueToCheck = 0.5
+                checkType = checkEquals //Default value
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckCourage.valueToCheck">
+            <summary>
+            The value to check for
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckCourage.checkType">
+            <summary>
+            Type of check to make
+            Default: checkEquals
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckCourage.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckCourage"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckStupidity">
+            <summary>
+            This precondition checks to see if a kerbal's stupidity matches the desired value and type of check to make.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckStupidity
+                valueToCheck = 0.5
+                checkType = checkEquals //Default value
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckStupidity.valueToCheck">
+            <summary>
+            The value to check for
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckStupidity.checkType">
+            <summary>
+            Type of check to make
+            Default: checkEquals
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckStupidity.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckStupidity"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Snacks.CheckHomeworldConnection" -->
+        <member name="F:Snacks.CheckHomeworldConnection.mustExist">
+            <summary>
+            Flag to indicate pressence (true) or absence (false) of the value to check.
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckHomeworldConnection.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckHomeworldConnection"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckCrewCount">
+            <summary>
+            This precondition checks to see if a vessel's crew count matches the desired parameter.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckCrewCount
+                valueToCheck = 1
+                checkType = checkEquals //Default value
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckCrewCount.valueToCheck">
+            <summary>
+            The value to check for
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckCrewCount.checkType">
+            <summary>
+            Type of check to make
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckCrewCount.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckCrewCount"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckBadass">
+            <summary>
+            This precondition checks to see if a kerbal's badass status against the badassExists flag. Both must match in order for the precondition to be validated.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckBadass
+                mustExist = true
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckBadass.mustExist">
+            <summary>
+            Flag to indicate pressence (true) or absence (false) of the value to check.
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckBadass.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckBadass"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckVesselStatus">
+            <summary>
+            This precondition checks the vessel status against the supplied parameters.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckVesselStatus
+                situation = LANDED
+                situation = SPLASHED
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckVesselStatus.situationsToCheck">
+            <summary>
+            List of situations to check the vessel against. In the config file, separate each situation to check on
+            a separate line.
+            Ex: 
+            situation = LANDED
+            situation = SPLASHED
+            Valid situations: LANDED, SPLASHED, ESCAPING, FLYING, ORBITING, SUB_ORBITAL, PRELAUNCH
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckVesselStatus.bodyName">
+            <summary>
+            Optional name of the planetary body where the vessel must be located.
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckVesselStatus.metersAltitude">
+            <summary>
+            Optional altitude in meters that the vessel must be at.
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckVesselStatus.checkType">
+            <summary>
+            The type of check to make against metersAltitude.
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckVesselStatus.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckVesselStatus"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckGravityLevel">
+            <summary>
+            This precondition checks to see if a vessel or roster resource meets the supplied parameters. Gravity checks can be negated by setting CheckGravityLevel.checkType, where checkType is one
+            of the conditional qualifiers. For instance, CheckGravityLevel.checkLesserOrEqual will disqualify any microgravity event checks and is useful for centrifuges.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckGravityLevel
+                valueToCheck = 0.1
+                checkType = checkLesserOrEqual //Default value
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckGravityLevel.valueToCheck">
+            <summary>
+            The value to check for
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckGravityLevel.checkType">
+            <summary>
+            The conditional type to use during the validation.
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckGravityLevel.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckGravityLevel"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckValueConditionals">
+            <summary>
+            This enum represents the key-value conditionals to check.
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckValueConditionals.checkEquals">
+            <summary>
+            Key-value must be equal to the supplied value.
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckValueConditionals.checkNotEqual">
+            <summary>
+            Key-value must not be equal to the supplied value.
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckValueConditionals.checkGreaterThan">
+            <summary>
+            Key-value must be greater than the supplied value.
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckValueConditionals.checkLessThan">
+            <summary>
+            Key-value must be less than the supplied value.
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckValueConditionals.checkGreaterOrEqual">
+            <summary>
+            Key-value must be greater than or equal to the supplied value.
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckValueConditionals.checkLesserOrEqual">
+            <summary>
+            Key-value must be less than or equal to the supplied value.
+            </summary>
+        </member>
+        <member name="T:Snacks.CheckKeyValue">
+            <summary>
+            This precondition Checks a kerbal's key-value and validates it against the supplied parameters.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckKeyValue
+                keyValueName = State
+                checkType = checkEquals
+                stringValue = Bored
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckKeyValue.keyValueName">
+            <summary>
+            Name of the key-value
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckKeyValue.stringValue">
+            <summary>
+            String value of the key. Takes precedence over the int values.
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckKeyValue.intValue">
+            <summary>
+            Integer value of the key
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckKeyValue.checkType">
+            <summary>
+            Type of check to make
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckKeyValue.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckKeyValue"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckCondition">
+            <summary>
+            This precondition Checks a kerbal's condition summary to see if it exists or not. The precondition is valid if the kerbal's condition summary matches the parameters of the precondition.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckCondition
+                conditionSummary = Sleepy
+                mustExist = true
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckCondition.conditionSummary">
+            <summary>
+            Name of the condition to check
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckCondition.mustExist">
+            <summary>
+            Flag to indicate pressence (true) or absence (false) of the value to check.
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckCondition.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckCondition"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckRandomChance">
+            <summary>
+            This precondition rolls a random die between a minimum and maximum value and compares it to a target number. If the roll meets or exceeds the target number then the precondition passes.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckRandomChance
+                dieRollMin = 1
+                dieRollMax = 1000
+                targetNumber = 999
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckRandomChance.dieRollMin">
+            <summary>
+            Minimum value on the die roll
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckRandomChance.dieRollMax">
+            <summary>
+            Maximum value on the die roll
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckRandomChance.targetNumber">
+            <summary>
+            Target number required to declare the precondition valid.
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckRandomChance.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckRandomChance"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.CheckResultTypes">
+            <summary>
+            Enumerator with the type of results to check.
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckResultTypes.resultConsumptionSuccess">
+            <summary>
+            Check for a successful consumption
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckResultTypes.resultConsumptionFailure">
+            <summary>
+            Check for a consumption failure
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckResultTypes.resultProductionSuccess">
+            <summary>
+            Check for a production success
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckResultTypes.resultProductionFailure">
+            <summary>
+            Check for a production failure
+            </summary>
+        </member>
+        <member name="T:Snacks.CheckProcessorResult">
+            <summary>
+            This precondition checks the specified processor for desired results.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckProcessorResult
+                type = resultConsumptionFailure
+                processorName = Snacks!
+                resourceName = Snacks
+                cyclesRequired = 1
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckProcessorResult.resultType">
+            <summary>
+            The type of result to check
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckProcessorResult.processorName">
+            <summary>
+            The name of the processor to check
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckProcessorResult.resourceName">
+            <summary>
+            The name of the resource to check
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckProcessorResult.cyclesRequired">
+            <summary>
+            The number of process cycles to check
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckProcessorResult.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckProcessorResult"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.ClearKeyValue">
+            <summary>
+            This outcome removes the desired key-value from the affected kerbals
+            Example definition:
+            OUTCOME 
+            {
+                name  = ClearKeyValues
+                conditionSummary = Sick
+            }
+            </summary>  
+        </member>
+        <member name="F:Snacks.ClearKeyValue.keyValueName">
+            <summary>
+            Name of the key-value
+            </summary>
+        </member>
+        <member name="M:Snacks.ClearKeyValue.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.ClearKeyValue"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.ClearCondition">
+            <summary>
+            This outcome removes the desired condition on the affected kerbals
+            Example definition:
+            OUTCOME 
+            {
+                name  = ClearCondition
+                conditionSummary = Sick
+            }
+            </summary>   
+        </member>
+        <member name="F:Snacks.ClearCondition.conditionName">
+            <summary>
+            Name of the condition to set
+            </summary>
+        </member>
+        <member name="M:Snacks.ClearCondition.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.ClearCondition"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.ConsumeResource">
+            <summary>
+            This outcome consumes the specified resource in the desired amount. It can be a vessel resource or a roster resource.
+            Example definition:
+            OUTCOME 
+            {
+                name  = ConsumeResource
+                resourceName = Stress
+                amount = 1
+            }
+            </summary>
+        </member>
+        <member name="F:Snacks.ConsumeResource.resourceName">
+            <summary>
+            Name of the resource to produce
+            </summary>
+        </member>
+        <member name="F:Snacks.ConsumeResource.randomMin">
+            <summary>
+            Optional minimum value of random amount to produce.
+            </summary>
+        </member>
+        <member name="F:Snacks.ConsumeResource.randomMax">
+            <summary>
+            Optional maximum value of random amount to produce.
+            </summary>
+        </member>
+        <member name="F:Snacks.ConsumeResource.amount">
+            <summary>
+            Amount of resource to consume. Takes presedence over randomMin and randomMax
+            </summary>
+        </member>
+        <member name="M:Snacks.ConsumeResource.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.ConsumeResource"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.BasePrecondition">
+            <summary>
+            A precondition is a check of some type that prevents outcomes from being applied unless the precondition's check suceeds.
+            </summary>
+        </member>
+        <member name="F:Snacks.BasePrecondition.name">
+            <summary>
+            Name of the precondition.
+            </summary>
+        </member>
+        <member name="M:Snacks.BasePrecondition.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.BasePrecondition"/> class.
+            </summary>
+            <param name="node">A ConfigNode specifying the initialization parameters.</param>
+        </member>
+        <member name="M:Snacks.BasePrecondition.IsValid(ProtoCrewMember,Vessel)">
+            <summary>
+            Determines if the precondition is valid.
+            </summary>
+            <param name="astronaut">The ProtoCrewModule to check.</param>
+            <param name="vessel">The Vessel to check</param>
+            <returns></returns>
+        </member>
+        <member name="M:Snacks.BasePrecondition.IsValid(ProtoCrewMember)">
+            <summary>
+            Determines if the precondition is valid.
+            </summary>
+            <param name="astronaut">The ProtoCrewModule to check.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Snacks.OnStrikePenalty">
+            <summary>
+            This outcome sets a condition on the affected kerbals. If that condition is defined in a
+            SKILL_LOSS_CONDITION config node, then the kerbals' skills will be removed until the 
+            condition is cleared.
+            Example definition:
+            OUTCOME 
+            {
+                name  = ClearCondition
+                conditionSummary = Stressed Out
+            }
+            </summary>   
+        </member>
+        <member name="F:Snacks.OnStrikePenalty.conditionName">
+            <summary>
+            The name of the condition to set. If defined in a SKILL_LOSS_CONDITION node then the affected kerbals
+            will lose their skills until the condition is cleared.
+            </summary>
+        </member>
+        <member name="M:Snacks.OnStrikePenalty.#ctor(System.String,System.Boolean,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.OnStrikePenalty"/> class.
+            </summary>
+            <param name="conditionName">The name of the condition to set. It must be added to a SKILL_LOSS_CONDITION
+            config node in order for the kerbal to lose its skills.</param>
+            <param name="canBeRandom">If set to <c>true</c> it can be randomly selected from the outcomes list.</param>
+            <param name="playerMessage">A string containing the bad news.</param>
+        </member>
+        <member name="M:Snacks.OnStrikePenalty.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.OnStrikePenalty"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.ProduceResource">
+            <summary>
+            This outcome produces the specified resource in the desired amount. It can be a vessel resource or a roster resource.
+            Example definition:
+            OUTCOME 
+            {
+                name  = ProduceResource
+                resourceName = Stress
+                amount = 1
+            }
+            </summary>
+        </member>
+        <member name="F:Snacks.ProduceResource.resourceName">
+            <summary>
+            Name of the resource to produce
+            </summary>
+        </member>
+        <member name="F:Snacks.ProduceResource.randomMin">
+            <summary>
+            Optional minimum value of random amount to produce.
+            </summary>
+        </member>
+        <member name="F:Snacks.ProduceResource.randomMax">
+            <summary>
+            Optional maximum value of random amount to produce.
+            </summary>
+        </member>
+        <member name="F:Snacks.ProduceResource.amount">
+            <summary>
+            Amount of resource to produce. Takes presedence over randomMin and randomMax
+            </summary>
+        </member>
+        <member name="M:Snacks.ProduceResource.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.ProduceResource"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="M:Snacks.ProduceResource.#ctor(System.String,System.Double,System.Boolean,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.ProduceResource"/> class.
+            </summary>
+            <param name="resourceName">The name of the resource to produce. It can be a roster resource.</param>
+            <param name="amount">The amount of resource to produce</param>
+            <param name="canBeRandom">If set to <c>true</c> it can be randomly selected from the outcomes list.</param>
+            <param name="playerMessage">A message for the player.</param>
+        </member>
+        <member name="T:Snacks.CheckResource">
+            <summary>
+            This precondition checks to see if a vessel or roster resource meets the supplied parameters.
+            Example definition:
+            PRECONDITION 
+            {
+                name  = CheckResource
+                resourceName = Stress
+                checkType = checkEquals
+                valueToCheck = 3.0
+            }
+            </summary> 
+        </member>
+        <member name="F:Snacks.CheckResource.resourceName">
+            <summary>
+            Name of the resource to check
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckResource.checkType">
+            <summary>
+            The conditional type to use during the validation.
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckResource.valueToCheck">
+            <summary>
+            The value to check for
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckResource.checkMaxAmount">
+            <summary>
+            Flag to indicate whether or not to check the resource's max amount instead of the curren amount;
+            </summary>
+        </member>
+        <member name="F:Snacks.CheckResource.checkAsPercentage">
+            <summary>
+            Flag to indicate whether or not to check the resource levels as a percentage.
+            </summary>
+        </member>
+        <member name="M:Snacks.CheckResource.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.CheckResource"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. parameters from the 
+            <see cref="T:Snacks.BasePrecondition"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.ProcessedResource">
+            <summary>
+            This class represents resources consumed or produced by a SnacksResourceProcessor. Consumption and production is applied vessel-wide, or to individual kerbal roster entries depending on the configuration.
+            If applied vessel-wide, the resource can be produced or consumed per kerbal. Finally, the resource can be displayed in the Snapshots view.
+            </summary>
+        </member>
+        <member name="F:Snacks.ProcessedResource.resourceName">
+            <summary>
+            Name of the consumed/produced resource
+            </summary>
+        </member>
+        <member name="F:Snacks.ProcessedResource.dependencyResourceName">
+            <summary>
+            Name of the dependency resource if the resource to process depends upon the results of another resource's process result. E.G. 1 unit of Soil is produced for 1 unt of Snacks consumed.
+            </summary>
+        </member>
+        <member name="F:Snacks.ProcessedResource.isRosterResource">
+            <summary>
+            Flag to indicate whether or not the resource is applied to roster entries instead of parts and vessels. if set to true, then appliedPerCrew is ignored.
+            Default: false
+            </summary>
+        </member>
+        <member name="F:Snacks.ProcessedResource.showInSnapshot">
+            <summary>
+            Flag to indicate whether or not to show the resource in the Snapshots window. Ignored if isRosterResource is set to true.
+            Default: true
+            </summary>
+        </member>
+        <member name="F:Snacks.ProcessedResource.failureResultAppliesOutcomes">
+            <summary>
+            Flag to indicate whether or not a failure result applies the processor's outcomes.
+            Default: true
+            </summary>
+        </member>
+        <member name="F:Snacks.ProcessedResource.amount">
+            <summary>
+            The amount of resource to consume or produce. If appliedPerCrew is true, then the amount consumed/produced is multiplied by the number of crew aboard the vessel.
+            If isRosterResource is true, then each individual crew member's roster entry will be affected instead.
+            Default: 0
+            </summary>
+        </member>
+        <member name="F:Snacks.ProcessedResource.clearDataDuringRecovery">
+            <summary>
+            Flag to indicate that astronaut data should be cleared when a vessel is recovered.
+            Default: true
+            </summary>
+        </member>
+        <member name="M:Snacks.ProcessedResource.Load(ConfigNode)">
+            <summary>
+            Loads the fields from the config node.
+            </summary>
+            <param name="node">A ConfigNode containing fields to load.</param>
+        </member>
+        <member name="M:Snacks.ProcessedResource.Save">
+            <summary>
+            Saves current values to a ConfigNode.
+            </summary>
+            <returns>A ConfigNode containing the field data.</returns>
+        </member>
+        <member name="M:Snacks.ProcessedResource.ConsumeResource(Vessel,System.Double,System.Int32,System.Int32)">
+            <summary>
+            Consumes the resource.
+            </summary>
+            <param name="vessel">The vessel to work on</param>
+            <param name="elapsedTime">Elapsed seconds</param>
+            <param name="crewCount">Current crew count</param>
+            <param name="crewCapacity">Current crew capacity</param>
+            <returns>A SnacksConsumerResult containing the resuls of the consumption.</returns>
+        </member>
+        <member name="M:Snacks.ProcessedResource.ProduceResource(Vessel,System.Double,System.Int32,System.Int32,System.Collections.Generic.Dictionary{System.String,Snacks.SnacksProcessorResult})">
+            <summary>
+            Produces the resource
+            </summary>
+            <param name="vessel">The vessel to work on</param>
+            <param name="elapsedTime">Elapsed seconds</param>
+            <param name="crewCount">Current crew count</param>
+            <param name="crewCapacity">Current crew capacity</param>
+            <param name="consumptionResults">Results of resource consumption.</param>
+            <returns>A SnacksConsumerResult containing the resuls of the production.</returns>
+        </member>
+        <member name="T:Snacks.SnacksProcessorResult">
+            <summary>
+            This is a result that has data regarding what happened during resource consumption or production.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksProcessorResult.resourceName">
+            <summary>
+            Name of the resource that was processed.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksProcessorResult.resultType">
+            <summary>
+            Type of result
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksProcessorResult.completedSuccessfully">
+            <summary>
+            Flag to indicate whether or not the process completed successfully.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksProcessorResult.appliedPerCrew">
+            <summary>
+            Flag indicating if the process was applied per crew member.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksProcessorResult.affectedKerbalCount">
+            <summary>
+            Number of kerbals affected by the process.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksProcessorResult.currentAmount">
+            <summary>
+            Current amount of the resource in the vessel/kerbal.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksProcessorResult.maxAmount">
+            <summary>
+            Max amount of the resource in the vessel/kerbal.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksProcessorResult.crewCount">
+            <summary>
+            Current number of crew aboard the vessel
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksProcessorResult.crewCapacity">
+            <summary>
+            Total crew capacity.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksProcessorResult.afftectedAstronauts">
+            <summary>
+            List of individual astronauts affected by the result.
+            </summary>
+        </member>
+        <member name="T:Snacks.BaseResourceProcessor">
+            <summary>
+            This is the base class for a resource processor. Similar to ModuleResourceConverter, the consumer will consume resources and produce resources, but it happens at the vessel level, not the part level.
+            It's also designed to work with both loaded and unloaded vessels. Another important difference is that consumed/produced resources can occur on a per crewmember basis; a vessel with 5 crew will
+            consume and/or produce 5 times the resources as a vessel with 1 crewmember. The configuration of a BaseResourceProcessor is done through config files.
+            </summary>
+        </member>
+        <member name="F:Snacks.BaseResourceProcessor.name">
+            <summary>
+            Name of the resource processor
+            </summary>
+        </member>
+        <member name="F:Snacks.BaseResourceProcessor.secondsPerCycle">
+            <summary>
+            Number of seconds that must pass before running the consumer.
+            </summary>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.onKerbalEVA(ProtoCrewMember,Part)">
+            <summary>
+            Handles the situation where the kerbal went on EVA.
+            </summary>
+            <param name="astronaut">The kerbal that went on EVA.</param>
+            <param name="part">The part that the kerbal left.</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.onKerbalBoardedVessel(ProtoCrewMember,Part)">
+            <summary>
+            Handles the situation where a kerbal boards a vessel.
+            </summary>
+            <param name="astronaut">The kerbal boarding a vessel.</param>
+            <param name="part">The part boarded.</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.onKerbalAdded(ProtoCrewMember)">
+            <summary>
+            Handles adding of a new kerbal, giving the consumer a chance to add custom roster data.
+            </summary>
+            <param name="astronaut">The kerbal being added.</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.onKerbalRemoved(ProtoCrewMember)">
+            <summary>
+            Handles removal of a kerbal, giving the consumer a chance to update custom data if needed.
+            </summary>
+            <param name="astronaut">The kerbal being removed.</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.onKerbalNameChanged(ProtoCrewMember,System.String,System.String)">
+            <summary>
+            Handles a kerbal's name change.
+            </summary>
+            <param name="astronaut">The kerbal whose name has changed. Note that roster data is already being carried over, this event is used to give consumers a chance to update custom data kept outside of the roster.</param>
+            <param name="previousName">The kerbal's previous name.</param>
+            <param name="newName">The kerbal's new name.</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.onVesselLoaded(Vessel)">
+            <summary>
+            Handles vessel loaded event, for instance, adding resources that should be on the vessel.
+            </summary>
+            <param name="vessel">The vessel that was loaded.</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.onVesselDockUndock(Vessel)">
+            <summary>
+            Handles vessel dock/undock event.
+            </summary>
+            <param name="vessel">The vessel that was loaded.</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.onVesselRecovered(ProtoVessel)">
+            <summary>
+            Handles the vessel recovery event
+            </summary>
+            <param name="protoVessel">The ProtoVessel being recovered</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.onVesselGoOffRails(Vessel)">
+            <summary>
+            Handles the situation where the vessel goes off rails.
+            </summary>
+            <param name="vessel">The Vessel going off rails</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.OnGameSettingsApplied">
+            <summary>
+            Handles changes to game settings.
+            </summary>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.GetRosterResourceEstimatesForEditor(System.Int32,System.Int32,System.Text.StringBuilder,ShipConstruct)">
+            <summary>
+            Retrieves the editor estimates for roster resources, if any.
+            </summary>
+            <param name="currentCrewCount">An int containing the current crew count.</param>
+            <param name="crewCapacity">An int containing the vessel's crew capacity.</param>
+            <param name="results">A StringBuilder that will hold the results.</param>
+            <param name="ship">A ShipConstruct that is the current ship design in the editor.</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.LoadProcessors">
+            <summary>
+            Loads the SNACKS_RESOURCE_PROCESSOR config nodes and returns a list of processors.
+            </summary>
+            <returns>A list of resource processors.</returns>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.Initialize">
+            <summary>
+            Initializes the consumer
+            </summary>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.Destroy">
+            <summary>
+            Cleanup as processor is about to be destroyed
+            </summary>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.OnLoad(ConfigNode)">
+            <summary>
+            De-serializes persistence data
+            </summary>
+            <param name="node">The ConfigNode with the persistence data</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.OnSave">
+            <summary>
+            Saves persistence data to a ConfigNode and returns it.
+            </summary>
+            <returns>A ConfigNode containing persistence data, if any.</returns>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.AddConsumedAndProducedResources(Vessel,System.Double,System.Collections.Generic.List{ResourceRatio},System.Collections.Generic.List{ResourceRatio})">
+            <summary>
+            Used primarily for simulations, returns the consumed and produced resources for the given unit of time.
+            </summary>
+            <param name="vessel">The vessel to query for data.</param>
+            <param name="secondsPerCycle">The number of seconds to calculate total inputs and outputs.</param>
+            <param name="consumedResources">The list of consumed resources to add the inputs to.</param>
+            <param name="producedResources">The list of produced resources to add the outputs to.</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.AddConsumedAndProducedResources(System.Int32,System.Double,System.Collections.Generic.List{ResourceRatio},System.Collections.Generic.List{ResourceRatio})">
+            <summary>
+            Used primarily for simulations, returns the consumed and produced resources for the given unit of time.
+            </summary>
+            <param name="crewCount">The number of crew to simulate.</param>
+            <param name="secondsPerCycle">The number of seconds to calculate total inputs and outputs.</param>
+            <param name="consumedResources">The list of consumed resources to add the inputs to.</param>
+            <param name="producedResources">The list of produced resources to add the outputs to.</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.GetUnloadedResourceTotals(ProtoVessel,System.String,System.Double@,System.Double@)">
+            <summary>
+            Returns the amount and max amount of the desired resource in the unloaded vessel.
+            </summary>
+            <param name="protoVessel">The vessel to query for the resource totals.</param>
+            <param name="resourceName">The name of the resource to query.</param>
+            <param name="amount">The amount of the resource that the entire vessel has.</param>
+            <param name="maxAmount">The max amount of the resource that the entire vessel has.</param>
+        </member>
+        <member name="M:Snacks.BaseResourceProcessor.ProcessResources(Vessel,System.Double,System.Int32,System.Int32)">
+            <summary>
+            Runs the processor, consuming input resources, producing output resources, and collating results.
+            </summary>
+            <param name="vessel">The vessel to run the consumer on.</param>
+            <param name="elapsedTime">Number of seconds that have passed.</param>
+            <param name="crewCount">Number of crew aboard the vessel.</param>
+            <param name="crewCapacity">The vessel's total crew capacity.</param>
+        </member>
+        <member name="T:Snacks.AstronautData">
+            <summary>
+            This class contains data related to a kerbal. Information includes
+            roster resources (characteristics of the kerbal akin to Courage and Stupidity),
+            a condition summary specifying what states the kerbal is in,
+            a list of disqualified conditions that will auto-fail precondition checks,
+            a list of processor successes and failures,
+            a key-value map suitable for tracking states in the event system,
+            an exempt flag that exempts the kerbal from all outcomes.
+            </summary>
+        </member>
+        <member name="F:Snacks.AstronautData.name">
+            <summary>
+            Name of the kerbal.
+            </summary>
+        </member>
+        <member name="F:Snacks.AstronautData.experienceTrait">
+            <summary>
+            The kerba's current experience trait.
+            </summary>
+        </member>
+        <member name="F:Snacks.AstronautData.lastUpdated">
+            <summary>
+            Timestamp of when the astronaut data was last update.
+            </summary>
+        </member>
+        <member name="F:Snacks.AstronautData.isExempt">
+            <summary>
+            Flag to indicate that the kerbal is exempt from outcomes.
+            </summary>
+        </member>
+        <member name="F:Snacks.AstronautData.conditionSummary">
+            <summary>
+            Summary of all the conditions that the kerbal currently has. If a
+            condition in the summary is defined in a SKILL_LOSS_CONDITION config node,
+            then the kerbal will lose its skills until the condition is cleared.
+            </summary>
+        </member>
+        <member name="F:Snacks.AstronautData.keyValuePairs">
+            <summary>
+            A map of key-value pairs.
+            </summary>
+        </member>
+        <member name="F:Snacks.AstronautData.processedResourceSuccesses">
+            <summary>
+            Map of successful process cycles. The key is the name of the processor,
+            the value is the number of successes.
+            </summary>
+        </member>
+        <member name="F:Snacks.AstronautData.processedResourceFailures">
+            <summary>
+            Map of unsuccessfull process cycles. The key is the name of the processor,
+            the value is the number of failures.
+            </summary>
+        </member>
+        <member name="F:Snacks.AstronautData.rosterResources">
+            <summary>
+            A map of roster resources (characteristics of the kerbal), similar to
+            vessel resources.
+            </summary>
+        </member>
+        <member name="F:Snacks.AstronautData.disqualifiedPreconditions">
+            <summary>
+            Conditions that will automatically disqualify a precondition check.
+            </summary>
+        </member>
+        <member name="F:Snacks.AstronautData.resources">
+            <summary>
+            List of resources that the kerbal uses.
+            </summary>
+        </member>
+        <member name="M:Snacks.AstronautData.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.AstronautData"/> class.
+            </summary>
+        </member>
+        <member name="M:Snacks.AstronautData.Load(ConfigNode)">
+            <summary>
+            Loads the astronaut data from the config node supplied.
+            </summary>
+            <returns>A map keyed kerbal name that contains astronaut data.</returns>
+            <param name="node">The ConfigNode to read data from.</param>
+        </member>
+        <member name="M:Snacks.AstronautData.Save(DictionaryValueList{System.String,Snacks.AstronautData},ConfigNode)">
+            <summary>
+            Saves persistent astronaut data to the supplied config node.
+            </summary>
+            <param name="crewData">A map of astronaut data, keyed by kerbal name.</param>
+            <param name="node">The ConfigNode to save the data to.</param>
+        </member>
+        <member name="M:Snacks.AstronautData.SetDisqualifier(System.String)">
+            <summary>
+            Sets a disqualifier that will automatically fail a precondition check.
+            </summary>
+            <param name="disqualifier">The name of the disqualifier to set.</param>
+        </member>
+        <member name="M:Snacks.AstronautData.ClearDisqualifier(System.String)">
+            <summary>
+            Clears a disqualifier that will no longer fail a precondition check.
+            </summary>
+            <param name="disqualifier">The name of the disqualifier to clear.</param>
+        </member>
+        <member name="M:Snacks.AstronautData.SetCondition(System.String)">
+            <summary>
+            Sets a condition that could result in loss of skills if defined in a SKILL_LOSS_CONDITION config node.
+            The condition will appear in the kerbal's condition summary in the status window.
+            </summary>
+            <param name="condition">The name of the condition to set.</param>
+        </member>
+        <member name="M:Snacks.AstronautData.ClearCondition(System.String)">
+            <summary>
+            Clears a condition, removing it from the condition summary display. If the condition is defined in
+            a SKILL_LOSS_CONDITION config node, and the kerbal has no other conditions that result from skill loss,
+            then the kerbal will regain its skills.
+            </summary>
+            <param name="condition">The name of the condition to clear.</param>
+        </member>
+        <member name="M:Snacks.AstronautData.SetKeyValue(System.String,System.String)">
+            <summary>
+            Sets the key/value pair.
+            </summary>
+            <param name="key">The key to use.</param>
+            <param name="value">The value of the key.</param>
+        </member>
+        <member name="M:Snacks.AstronautData.GetValueForKey(System.String)">
+            <summary>
+            Returns the value for the desired key.
+            </summary>
+            <param name="key">A string containing the desired key.</param>
+            <returns>A string with the value, or null if it doesn't exist.</returns>
+        </member>
+        <member name="M:Snacks.AstronautData.GetDoubleValueForKey(System.String)">
+            <summary>
+            Returns the value for the desired key.
+            </summary>
+            <param name="key">A string containing the desired key.</param>
+            <returns>A double with the value, or NaN if it doesn't exist.</returns>
+        </member>
+        <member name="M:Snacks.AstronautData.RemoveKeyValue(System.String)">
+            <summary>
+            Removes the key/value pair.
+            </summary>
+            <param name="key">A string containing the key/value key to remove.</param>
+        </member>
+        <member name="M:Snacks.AstronautData.SetResourceAmounts(System.String,System.Double,System.Double)">
+            <summary>
+            Sets the resource to the desired amount and max amount.
+            </summary>
+            <param name="resourceName">A string containing the name of the resource.</param>
+            <param name="amount">A double containing the resource amount.</param>
+            <param name="maxAmount">A double containing the resource max amount.</param>
+        </member>
+        <member name="M:Snacks.AstronautData.GetResourceAmounts(System.String,System.Double@,System.Double@)">
+            <summary>
+            Retrieves the resource's amount and max amount if they exist.
+            </summary>
+            <param name="resourceName">A string containing the name of the resource.</param>
+            <param name="amount">A double containing the amount of resource.</param>
+            <param name="maxAmount">A double containing the max amount of the resource.</param>
+            <returns>true if the resource was successfully retrieved, false if not.</returns>
+        </member>
+        <member name="M:Snacks.AstronautData.RemoveResource(System.String)">
+            <summary>
+            Removes the desired resource from the map.
+            </summary>
+            <param name="resourceName">A string containing the name of the resource to remove.</param>
+        </member>
+        <member name="M:Snacks.AstronautData.HasResource(System.String)">
+            <summary>
+            Determines whether or not the resource exists.
+            </summary>
+            <param name="resourceName">A string containing the name of the resource.</param>
+            <returns>true if the resource exists, false if not.</returns>
+        </member>
+        <member name="T:Snacks.DeathPenalty">
+            <summary>
+            This outcome causes affected kerbals to die.
+            Example definition:
+            OUTCOME 
+            {
+                name  = DeathPenalty
+                resourceName = Snacks
+                cyclesBeforeDeath = 10
+            }
+            </summary>   
+        </member>
+        <member name="F:Snacks.DeathPenalty.resourceName">
+            <summary>
+            The name of the resource to check for failed processor cycles.
+            </summary>
+        </member>
+        <member name="F:Snacks.DeathPenalty.cyclesBeforeDeath">
+            <summary>
+            The number of cycles that must fail before the kerbal dies.
+            </summary>
+        </member>
+        <member name="M:Snacks.DeathPenalty.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.DeathPenalty"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="M:Snacks.DeathPenalty.#ctor(System.String,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.DeathPenalty"/> class.
+            </summary>
+            <param name="resourceName">The name of the resource to check. If no processor has a failed cycle with the resource
+            then the outcome is invalidated.</param>
+            <param name="cyclesBeforeDeath">The number of failed processor cycles required before applying the outcome.</param>
+            <param name="playerMessage">A string containing the bad news for the player.</param>
+        </member>
+        <member name="T:Snacks.FaintPenalty">
+            <summary>
+            This outcome causes affected kerbals to faint.
+            Example definition:
+            OUTCOME 
+            {
+                name  = FaintPenalty
+                resourceName = Snacks
+                cyclesBeforeFainting = 3
+                faintDurationSeconds = 180
+            }
+            </summary>   
+        </member>
+        <member name="F:Snacks.FaintPenalty.resourceName">
+            <summary>
+            The name of the resource to check for failed processor cycles.
+            </summary>
+        </member>
+        <member name="F:Snacks.FaintPenalty.cyclesBeforeFainting">
+            <summary>
+            The number of cycles that must fail before the kerbal faints.
+            </summary>
+        </member>
+        <member name="F:Snacks.FaintPenalty.faintDurationSeconds">
+            <summary>
+            The number of seconds that the kerbal will faint for.
+            </summary>
+        </member>
+        <member name="M:Snacks.FaintPenalty.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.FaintPenalty"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="M:Snacks.FaintPenalty.#ctor(System.String,System.Int32,System.Single,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.FaintPenalty"/> class.
+            </summary>
+            <param name="resourceName">The name of the resource to check. If none of the resource processors have failed cycles
+            containing the resource then the outcome is invalidated.</param>
+            <param name="cyclesBeforeFainting">The number of failed cycles required before applying the outcome..</param>
+            <param name="faintDurationSeconds">Faint duration seconds.</param>
+            <param name="playerMessage">A string containing the bad news for the player.</param>
+        </member>
+        <member name="T:Snacks.FundingPenalty">
+            <summary>
+            This outcome fines the space agency by a certain amount per affected kerbal.
+            Example definition:
+            OUTCOME 
+            {
+                name  = FundingPenalty
+                finePerKerbal = 1000
+            }
+            </summary>   
+        </member>
+        <member name="F:Snacks.FundingPenalty.finePerKerbal">
+            <summary>
+            The amount of Funds to lose per kerbal.
+            </summary>
+        </member>
+        <member name="M:Snacks.FundingPenalty.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.FundingPenalty"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="M:Snacks.FundingPenalty.#ctor(System.Boolean,System.String,System.Double)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.FundingPenalty"/> class.
+            </summary>
+            <param name="canBeRandom">If set to <c>true</c> the outcome can be randomly selected from the outcome list.</param>
+            <param name="playerMessage">A string containing the bad news.</param>
+            <param name="finePerKerbal">The amount of Funds lost per affected kerval.</param>
+        </member>
+        <member name="T:Snacks.SnacksRosterResource">
+            <summary>
+            This class represents a resource that's tied to individual kerbals instead of a part. One example is Stress, an abstracted habitation mechanic.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksRosterResource.resourceName">
+            <summary>
+            The name of the roster resource.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksRosterResource.displayName">
+            <summary>
+            Public display name of the resource.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksRosterResource.showInSnapshot">
+            <summary>
+            Flag to indicate whether or not to show the resource in the Snapshots window.
+            Default: true
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksRosterResource.amount">
+            <summary>
+            The amount of resource available.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksRosterResource.maxAmount">
+            <summary>
+            The maximum amount of resource allowed.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "F:Snacks.SnacksRosterResource.statusFormat" -->
+        <member name="F:Snacks.SnacksRosterResource.experienceBonusAmount">
+            <summary>
+            The amount of resource to add when the kerbal levels up.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksRosterResource.experienceBonusMaxAmount">
+            <summary>
+            The maximum amount of resource to add when the kerbal levels up.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksRosterResource.onKerbalLevelUp(ProtoCrewMember)">
+            <summary>
+            Handles the kerbal level up event
+            </summary>
+            <param name="astronaut">The ProtoCrewMember that has leveled up.</param>
+        </member>
+        <member name="M:Snacks.SnacksRosterResource.onCrewBoardedVessel(Part,Part)">
+            <summary>
+            Handles the crew boarded event. The resource is removed from the kerbal and added to the vessel.
+            </summary>
+            <param name="evaKerbal">The kerbal that is returning from EVA</param>
+            <param name="boardedPart">The part that the kerbal boarded</param>
+        </member>
+        <member name="M:Snacks.SnacksRosterResource.onCrewEVA(Part,Part)">
+            <summary>
+            Handles the crew eva event. The kerbal gains the EVA resource and the vessel loses a corresponding amount.
+            </summary>
+            <param name="evaKerbal">The kerbal that went on EVA</param>
+            <param name="partExited">The part that the kerbal exited</param>
+        </member>
+        <member name="M:Snacks.SnacksRosterResource.addResourceIfNeeded(ProtoCrewMember)">
+            <summary>
+            Adds the roster resource to the kerbal if needed
+            </summary>
+            <param name="astronaut">The ProtoCrewMember to check.</param>
+        </member>
+        <member name="M:Snacks.SnacksRosterResource.addResourceIfNeeded(Vessel)">
+            <summary>
+            Adds the roster resource to the vessel's kerbal if needed
+            </summary>
+            <param name="vessel">The Vessel whose crew to check</param>
+        </member>
+        <member name="T:Snacks.StressRosterResource">
+            <summary>
+            This is a helper class to handle the unique conditions of a kerbal leveling up with the Stress resource.
+            </summary>
+        </member>
+        <member name="T:Snacks.StressProcessor">
+            <summary>
+            The Stress processor is designed to work with the Stress roster resource.
+            Essentially, Stress is an abstracted habitation mechanic that takes
+            into account a variety of different events. The main thing that causes
+            Stress is being aboard a vessel; you don't want to send kerbals to Jool
+            in a Mk1 command pod! NASA allocates 25 m^3 of space per astronaut per
+            year aboard the ISS, and Stress is based off that number. The larger the
+            habitable volume, the greater a kerbal's maximum Stress becomes, and it's
+            dynamically updated whenever a kerbal changes craft. Assuming no other
+            events, a kerbal will accumulate 1 point of Stress per day, and when the
+            kerbal reaches it's maximum Stress, bad things happen.
+            </summary>
+        </member>
+        <member name="F:Snacks.StressProcessor.MaxSeatsForMultiplier">
+            <summary>
+            The first N seats use the multiplier instead of the N^3 formula.
+            </summary>
+        </member>
+        <member name="F:Snacks.StressProcessor.SpacePerSeatMultiplier">
+            <summary>
+            How much Space a single seat provides, assuming that the vessel's
+            number of seats is less than or equal to MaxSeatsForMultiplier.
+            </summary>
+        </member>
+        <member name="M:Snacks.StressProcessor.CalculateSpace(Vessel)">
+            <summary>
+            Calculates how much Space a vessel has. It is a function of
+            crew capacity and is influenced by the number of crew currently
+            aboard.
+            </summary>
+            <returns>The amount of Space aboard the vessel.</returns>
+            <param name="vessel">The Vessel to query.</param>
+        </member>
+        <member name="M:Snacks.StressProcessor.CalculateSpace(System.Int32,System.Int32)">
+            <summary>
+            Calculates how much Space a vessel has. It is a function of
+            crew capacity and is influenced by the number of crew currently
+            aboard.
+            </summary>
+            <param name="crewCount">Current crew count aboard the vessel</param>
+            <param name="crewCapacity">Current crew capacity of the vessel</param>
+            <returns>The amount of Space aboard the vessel.</returns>
+        </member>
+        <member name="T:Snacks.SnacksEventCategories">
+            <summary>
+            Enumerator specifying the different types of events
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEventCategories.categoryPostProcessCycle">
+            <summary>
+            Event is processed after the resource process cycle completes.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEventCategories.categoryEventCard">
+            <summary>
+            The event is chosen at random once per process cycle.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEventCategories.categoryKerbalLevelUp">
+            <summary>
+            The event is processed when a kerbal levels up.
+            </summary>
+        </member>
+        <member name="T:Snacks.KerbalsAffectedTypes">
+            <summary>
+            Enumerator specifying which kerbals are affected by the preconditions.
+            </summary>
+        </member>
+        <member name="F:Snacks.KerbalsAffectedTypes.affectsRandomAvailable">
+            <summary>
+            A single available kerbal is chosen at random.
+            </summary>
+        </member>
+        <member name="F:Snacks.KerbalsAffectedTypes.affectsRandomAssigned">
+            <summary>
+            A single assigned kerbal is chosen at random.
+            </summary>
+        </member>
+        <member name="F:Snacks.KerbalsAffectedTypes.affectsAllAvailable">
+            <summary>
+            All available kerbals are affected.
+            </summary>
+        </member>
+        <member name="F:Snacks.KerbalsAffectedTypes.affectsAllAssigned">
+            <summary>
+            All assigned kerbals are affected.
+            </summary>
+        </member>
+        <member name="F:Snacks.KerbalsAffectedTypes.affectsRandomCrewPerVessel">
+            <summary>
+            A single random kerbal is chosesn amongst each crewed vessel.
+            </summary>
+        </member>
+        <member name="T:Snacks.SnacksEvent">
+            <summary>
+            This class represents an "event" in Snacks. Events consist of one or more preconditions and one or more outcomes. Preconditions are things like random numbers, the pressence of specific conditions, and the like.
+            All preconditions must be met before the event outcomes can be applied. The outcomes include all the Snacks penalties as well as other things such as setting conditions.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEvent.eventCategory">
+            <summary>
+            The event's category
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEvent.affectedKerbals">
+            <summary>
+            The type of kerbals affected by the event.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEvent.secondsBetweenChecks">
+            <summary>
+            Number of seconds that must pass before the event can be checked.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEvent.daysBetweenChecks">
+            <summary>
+            The number of day that must pass before the event can be checked. Overrides secondsBetweenChecks.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEvent.playerMessage">
+            <summary>
+            Player-friendly message to display when outcomes are going to be applied.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEvent.name">
+            <summary>
+            Name of the event
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksEvent.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.SnacksEvent"/> class.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksEvent.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.SnacksEvent"/> class.
+            </summary>
+            <param name="node">A ConfigNode specifying the initialization parameters.</param>
+        </member>
+        <member name="M:Snacks.SnacksEvent.ApplyOutcomes(ProtoCrewMember,Vessel)">
+            <summary>
+            Applies outcomes to the supplied astronaut
+            </summary>
+            <param name="astronaut">The ProtoCrewMember to apply outcomes to.</param>
+            <param name="vessel">The Vessel to check</param>
+        </member>
+        <member name="M:Snacks.SnacksEvent.ApplyOutcomes(ProtoCrewMember)">
+            <summary>
+            Applies outcomes to the supplied astronaut
+            </summary>
+            <param name="astronaut">The ProtoCrewMember to apply outcomes to.</param>
+        </member>
+        <member name="M:Snacks.SnacksEvent.PreconditionsValid(ProtoCrewMember,Vessel)">
+            <summary>
+            Checks all preconditions against the supplied astronaut
+            </summary>
+            <param name="astronaut">The ProtoCrewMember to check</param>
+            <param name="vessel">The Vessel to check</param>
+            <returns></returns>
+        </member>
+        <member name="M:Snacks.SnacksEvent.PreconditionsValid(ProtoCrewMember)">
+            <summary>
+            Checks all preconditions against the supplied astronaut
+            </summary>
+            <param name="astronaut">The ProtoCrewMember to check</param>
+            <returns></returns>
+        </member>
+        <member name="M:Snacks.SnacksEvent.IsTimeToCheck(System.Double)">
+            <summary>
+            Determines if the event can be evaluated based on the supplied elapsed time.
+            </summary>
+            <param name="elapsedTime">The number of seconds that have passed since the last inquiry.</param>
+            <returns>true if it's time to evaluate the event, false if not.</returns>
+        </member>
+        <member name="M:Snacks.SnacksEvent.ProcessEvent(System.Double)">
+            <summary>
+            Processes the event based on elapsed time, event type, and kerbals affected.
+            </summary>
+            <param name="elapsedTime">The elapsed time since the last process cycle, ignored for event cards.</param>
+        </member>
+        <member name="M:Snacks.SnacksEvent.Load(ConfigNode)">
+            <summary>
+            Loads the persistent data.
+            </summary>
+            <param name="node">A ConfigNode with persistent data.</param>
+        </member>
+        <member name="M:Snacks.SnacksEvent.Save">
+            <summary>
+            Saves the persistent data.
+            </summary>
+            <returns>A ConfigNode with persistent data.</returns>
+        </member>
+        <member name="T:Snacks.SetCondition">
+            <summary>
+            This outcome sets the desired condition on the affected kerbals
+            Example definition:
+            OUTCOME 
+            {
+                name  = SetCondition
+                conditionSummary = Sick
+            }
+            </summary>   
+        </member>
+        <member name="F:Snacks.SetCondition.conditionName">
+            <summary>
+            Name of the condition to set
+            </summary>
+        </member>
+        <member name="M:Snacks.SetCondition.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.SetCondition"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.SetKeyValue">
+            <summary>
+            This outcome sets the desired key-vale on the affected kerbals
+            Example definition:
+            OUTCOME 
+            {
+                name  = SetKeyValue
+                keyValueName = DaysBored
+                intValue = 1
+            }
+            </summary>  
+        </member>
+        <member name="F:Snacks.SetKeyValue.keyValueName">
+            <summary>
+            Name of the key-value
+            </summary>
+        </member>
+        <member name="F:Snacks.SetKeyValue.stringValue">
+            <summary>
+            String value of the key. Takes precedence over the int values.
+            </summary>
+        </member>
+        <member name="F:Snacks.SetKeyValue.intValue">
+            <summary>
+            Integer value of the key
+            </summary>
+        </member>
+        <member name="F:Snacks.SetKeyValue.addIntValue">
+            <summary>
+            Integer value to add to the existing key value. If key doesn't exist then it will be set to this value instead. Taks precedence over intValue.
+            </summary>
+        </member>
+        <member name="M:Snacks.SetKeyValue.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.SetKeyValue"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="T:Snacks.SnacksDisqualifier">
+            <summary>
+            This part module is designed to negate one or more preconditions so long as the kerbal resides in the part.
+            An example would be a centrifuge
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksDisqualifier.disqualifiedPreconditions">
+            <summary>
+            Contains the disqualified preconditions such as CheckGravityLevel.checkLesserOrEqual for low gravity checks. Separate disqualified preconditions by semicolon.
+            Most of the preconditions can be disqualified simply by stating their name. If a precondition requires something different, be sure to check its documentation.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksVesselModule.sciencePenalties">
+            <summary>
+            Number of science penalties to apply when the vessel becomes active.
+            </summary>
+        </member>
+        <member name="T:Snacks.RepPenalty">
+            <summary>
+            This outcome reduces the space agency's reputation based on the supplied parameters.
+            Example definition:
+            OUTCOME 
+            {
+                name  = RepPenalty
+                repLossPerKerbal = 5
+            }
+            </summary>   
+        </member>
+        <member name="F:Snacks.RepPenalty.repLossPerKerbal">
+            <summary>
+            The rep loss per kerbal.
+            </summary>
+        </member>
+        <member name="M:Snacks.RepPenalty.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.RepPenalty"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="M:Snacks.RepPenalty.#ctor(System.Boolean,System.Single,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.RepPenalty"/> class.
+            </summary>
+            <param name="canBeRandom">If set to <c>true</c> it can be randomly selected from the outcomes list.</param>
+            <param name="repLossPerKerbal">Rep loss per kerbal.</param>
+            <param name="playerMessage">A string containing the bad news.</param>
+        </member>
+        <member name="T:Snacks.SciencePenalty">
+            <summary>
+            This outcome disrupts science experiments aboard a vessel.
+            Example definition:
+            OUTCOME 
+            {
+                name  = SciencePenalty
+            }
+            </summary>   
+        </member>
+        <member name="M:Snacks.SciencePenalty.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.SciencePenalty"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters. Parameters in the
+            <see cref="T:Snacks.BaseOutcome"/> class also apply.</param>
+        </member>
+        <member name="M:Snacks.SciencePenalty.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.SciencePenalty"/> class.
+            </summary>
+            <param name="canBeRandom">If set to <c>true</c> it can be randomly selected from the outcomes list.</param>
+        </member>
+        <member name="T:Snacks.ISnacksPenalty">
+            <summary>
+            Interface for creating and running penalties when a processor resource runs out or has too much aboard the vessel or kerbal.
+            </summary>
+        </member>
+        <member name="M:Snacks.ISnacksPenalty.IsEnabled">
+            <summary>
+            Indicates whether or not the penalty is enabled.
+            </summary>
+            <returns>true if inabled, false if not.</returns>
+        </member>
+        <member name="M:Snacks.ISnacksPenalty.AlwaysApply">
+            <summary>
+            Indicates whether or not the penalty is always applied instead of randomly chosen.
+            </summary>
+            <returns>true if the penalty should always be applied, false if not.</returns>
+        </member>
+        <member name="M:Snacks.ISnacksPenalty.ApplyPenalty(System.Int32,Vessel)">
+            <summary>
+            Applies the penalty to the affected kerbals
+            </summary>
+            <param name="affectedKerbals">An int containing the number of kerbals affected by the penalty.</param>
+            <param name="vessel">The vessel to apply the penalty to.</param>
+        </member>
+        <member name="M:Snacks.ISnacksPenalty.RemovePenalty(Vessel)">
+            <summary>
+            Removes penalty effects.
+            </summary>
+            <param name="vessel">The vessel to remove the penalt effects from.</param>
+        </member>
+        <member name="M:Snacks.ISnacksPenalty.GameSettingsApplied">
+            <summary>
+            Handles changes in game settings, if any.
+            </summary>
+        </member>
+        <member name="T:Snacks.SnacksScenario">
+            <summary>
+            The SnacksScenario class is the heart of Snacks. It runs all the processes.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.onSnapshotsUpdated">
+            <summary>
+            Tells listeners that snapshots were created.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.onSimulatorCreated">
+            <summary>
+            Tells listeners that a simulator was created. Gives mods a chance to add custom converters not covered by Snacks.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.onBackgroundConvertersCreated">
+            <summary>
+            Tells listeners that background converters were created. Gives mods a chance to add custom converters not covered by Snacks.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.onSnackTime">
+            <summary>
+            Signifies that snacking has occurred.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.onRosterResourceUpdated">
+            <summary>
+            Signifies that the roster resource has been updated
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.Instance">
+            <summary>
+            Instance of the scenario.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.LoggingEnabled">
+            <summary>
+            Flag indicating whether or not logging is enabled.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.sciencePenalties">
+            <summary>
+            Map of sciecnce penalties sorted by vessel.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.crewData">
+            <summary>
+            Map of astronaut data, keyed by astronaut name.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.exemptKerbals">
+            <summary>
+            List of kerbals that are exempt from outcome effects.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.cycleStartTime">
+            <summary>
+            Last time the processing cycle started.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.backgroundConverters">
+            <summary>
+            Map of the background conveters list, keyed by vessel.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.resourceProcessors">
+            <summary>
+            List of resource processors that handle life support consumption and waste production.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.snacksPartResources">
+            <summary>
+            List of resources that will be added to parts as they are created or loaded.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.snacksEVAResources">
+            <summary>
+            List of resources that are added to kerbals when they go on EVA.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.snapshotMap">
+            <summary>
+            Map of snapshots, keyed by vessel, that give a status of each vessel's visible life support resources and crew status.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.bodyVesselCountMap">
+            <summary>
+            Helper that gives a count, by celestial body id, of how many vessels are on or around the celestial body.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.rosterResources">
+            <summary>
+            Map of all roster resources to add to kerbals as they are created.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.lossOfSkillConditions">
+            <summary>
+            List of conditions that will cause a skill loss. These conditions are defined via SKILL_LOSS_CONDITION nodes.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.converterWatchlist">
+            <summary>
+            List of converters to watch for when creating snapshot simulations.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.simulatorSecondsPerCycle">
+            <summary>
+            How many simulated seconds pass per simulator cycle.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.maxSimulatorCycles">
+            <summary>
+            Maximum number of simulator cycles to run.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksScenario.maxThreads">
+            <summary>
+            Max number of simulator threads to create.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksScenario.UpdateSnapshots">
+            <summary>
+            Updates the resource snapshots for each vessel in the game that isn't Debris, a Flag, a SpaceObject, or Unknown.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksScenario.GetCrewCapacity(Vessel)">
+            <summary>
+            Returns the crew capacity of the vessel
+            </summary>
+            <returns>The crew capacity.</returns>
+            <param name="vessel">The Vessel to query.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.FixedUpdate">
+            <summary>
+            FixedUpdate handles all the processing tasks related to life support resources and event processing.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksScenario.RunSnackCyleImmediately(System.Double)">
+            <summary>
+            Runs the snack cyle immediately.
+            </summary>
+            <param name="secondsElapsed">Seconds elapsed.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.FindVessel(ProtoCrewMember)">
+            <summary>
+            Finds the vessel that the kerbal is residing in.
+            </summary>
+            <returns>The Vessel where the kerbal resides.</returns>
+            <param name="astronaut">The astronaut to check.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.ShouldRemoveSkills(ProtoCrewMember)">
+            <summary>
+            Determines whether or not the kerbal's skills should be removed.
+            </summary>
+            <returns><c>true</c>, if remove skills should be removed, <c>false</c> otherwise.</returns>
+            <param name="astronaut">the ProtoCrewMember to investigate.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.RemoveSkillsIfNeeded(ProtoCrewMember)">
+            <summary>
+            Removes the skills if needed. The supplied kerbal must have at least one condition
+            registered in a SKILL_LOSS_CONDITION config node in order to remove the skills.
+            </summary>
+            <param name="astronaut">The kerbal to check.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.RestoreSkillsIfNeeded(ProtoCrewMember)">
+            <summary>
+            Restores the skills if needed. The kerbal in question must not have any conditions that would result in a loss of skill.
+            </summary>
+            <param name="astronaut">The kerbal to query.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.RemoveSkills(ProtoCrewMember)">
+            <summary>
+            Removes skills from the desired kerbal. Does not check to see if they should be removed based on condition summary.
+            </summary>
+            <param name="astronaut">The ProtoCrewMember to remove skills from.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.RestoreSkills(ProtoCrewMember)">
+            <summary>
+            Restores skills to the desired kerbal. Does not check to see if they can be restored based on condition summary.
+            </summary>
+            <param name="astronaut"></param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.SetExemptCrew(System.String)">
+            <summary>
+            Adds the name of the kerbal to the exemptions list.
+            </summary>
+            <param name="exemptedCrew">The name of the kerbal to add to the list.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.RegisterCrew(Vessel)">
+            <summary>
+            Registers crew into the astronaut database.
+            </summary>
+            <param name="vessel">The vessel to search for crew.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.UnregisterCrew(ProtoVessel)">
+            <summary>
+            Unregisters the crew from the astronaut database.
+            </summary>
+            <param name="protoVessel">The vessel to search for crew to unregister.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.UnregisterCrew(Vessel)">
+            <summary>
+            Unregisters the crew from the astronaut database.
+            </summary>
+            <param name="vessel">The vessel to search for crew to unregister.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.RegisterCrew(ProtoCrewMember)">
+            <summary>
+            Registers the astronaut into the astronaut database.
+            </summary>
+            <param name="astronaut">The astronaut to register.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.UnregisterCrew(ProtoCrewMember)">
+            <summary>
+            Unregisters the astronaut from the astronaut database.
+            </summary>
+            <param name="astronaut">The astronaut to unregister.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.UnregisterCrew(Snacks.AstronautData)">
+            <summary>
+            Unregisters the astronaut data from the astronaut database.
+            </summary>
+            <param name="data">The astronaut data to unregister.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.GetNonExemptCrewCount(Vessel)">
+            <summary>
+            Returns the number of crew that aren't exempt.
+            </summary>
+            <param name="vessel">The vessel to query for crew.</param>
+            <returns>The number of victims. Er, number of non-exempt crew.</returns>
+        </member>
+        <member name="M:Snacks.SnacksScenario.GetNonExemptCrew(Vessel)">
+            <summary>
+            Returns the non-exempt crew in the vessel.
+            </summary>
+            <param name="vessel">The Vessel to query.</param>
+            <returns>An array of ProtoCrewMember objects if there are non-exempt crew, or null if not.</returns>
+        </member>
+        <member name="M:Snacks.SnacksScenario.GetAstronautData(ProtoCrewMember)">
+            <summary>
+            Returns the astronaut data associated with the astronaut.
+            </summary>
+            <param name="astronaut">The ProtoCrewMember to check for astronaut data.</param>
+            <returns>The AstronautData associated with the kerbal.</returns>
+        </member>
+        <member name="M:Snacks.SnacksScenario.SetAstronautData(Snacks.AstronautData)">
+            <summary>
+            Saves the astronaut data into the database.
+            </summary>
+            <param name="data">The AstronautData to save.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.AddStressToCrew(Vessel,System.Single)">
+            <summary>
+            Adds the stress to crew if Stress is enabled. This is primarily
+            used by 3rd party mods like BARIS.
+            </summary>
+            <param name="vessel">The Vessel to query for crew.</param>
+            <param name="stressAmount">The amount of Stress to add.</param>
+        </member>
+        <member name="M:Snacks.SnacksScenario.FormatTime(System.Double,System.Boolean)">
+            <summary>
+            Formats the supplied seconds into a string.
+            </summary>
+            <param name="secondsToFormat">The number of seconds to format.</param>
+            <param name="showCompact">A flag to indicate whether or not to show the compact form.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Snacks.SnacksScenario.GetSecondsPerDay">
+            <summary>
+            Gets the number of seconds per day on the homeworld.
+            </summary>
+            <returns>The lenght of the solar day in seconds of the homeworld.</returns>
+        </member>
+        <member name="M:Snacks.SnacksScenario.GetSolarFlux(Vessel)">
+            <summary>
+            Gets the solar flux based on vessel location.
+            </summary>
+            <param name="vessel">The vessel to query.</param>
+            <returns>The level of solar flux at the vessel's location.</returns>
+        </member>
+        <member name="M:Snacks.SnacksScenario.CreatePrecondition(ConfigNode)">
+            <summary>
+            Creates a new precondition based on the config node data passed in.
+            </summary>
+            <param name="node">The ConfigNode containing data to parse.</param>
+            <returns>A BasePrecondition containing the precondition object, or null if the config node couldn't be parsed.</returns>
+        </member>
+        <member name="M:Snacks.SnacksScenario.CreateOutcome(ConfigNode)">
+            <summary>
+            Creates a new outcome based on the config node data passed in.
+            </summary>
+            <returns>The outcome corresponding to the desired config.</returns>
+            <param name="node">The ConfigNode containing data to parse.</param>
+        </member>
+        <member name="T:Snacks.SnackProcessor">
+            <summary>
+            The SnacksProcessor grinds out Snacks from Ore. It is derived from the SnacksConverter. The output of the
+            processor is affected by the game settings.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnackProcessor.dailyOutput">
+            <summary>
+            A status field showing the daily output of Snacks.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnackProcessor.originalSnacksRatio">
+            <summary>
+            Helper field describing the original output ratio of Snacks.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnackProcessor.sourceInputRatio">
+            <summary>
+            Helper field to describe the original input ratio of Ore
+            </summary>
+        </member>
+        <member name="M:Snacks.SnackProcessor.GetDailySnacksOutput">
+            <summary>
+            Gets the daily snacks output.
+            </summary>
+            <returns>The amount of Snacks produced daily, subjected to game settings.</returns>
+        </member>
+        <member name="T:Snacks.SnacksBackroundEmailTypes">
+            <summary>
+            This enum specifies the diffent types of emails to send during background processing.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackroundEmailTypes.missingResources">
+            <summary>
+            The processor is missing an input resource.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackroundEmailTypes.missingRequiredResource">
+            <summary>
+            The processor is missing a required resource.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackroundEmailTypes.containerFull">
+            <summary>
+            The vessel is out of room.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackroundEmailTypes.yieldCriticalFail">
+            <summary>
+            The yield experienced a critical failure.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackroundEmailTypes.yieldCriticalSuccess">
+            <summary>
+            The yield has had a critical success.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackroundEmailTypes.yieldLower">
+            <summary>
+            The yield amount was lower than normal.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackroundEmailTypes.yieldNominal">
+            <summary>
+            The yield amount was normal.
+            </summary>
+        </member>
+        <member name="T:Snacks.SnacksBackgroundConverter">
+            <summary>
+            This class runs active converters in the background, consuming inputs, producing outputs, and yielding resources.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackgroundConverter.ConverterName">
+            <summary>
+            Name of the converter
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackgroundConverter.moduleName">
+            <summary>
+            Name of the converter part module.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackgroundConverter.IsActivated">
+            <summary>
+            Flag indicating that the converter is active.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackgroundConverter.isMissingResources">
+            <summary>
+            Flag indicating that the converter is missing resources.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackgroundConverter.isContainerFull">
+            <summary>
+            Flag indicating that the container is full.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackgroundConverter.inputEfficiency">
+            <summary>
+            The input efficiency.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackgroundConverter.outputEfficiency">
+            <summary>
+            The output efficiency.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksBackgroundConverter.playerEmailed">
+            <summary>
+            Flag to indicate that the player has been emailed. Used so we don't spam the player's inbox.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksBackgroundConverter.GetBackgroundConverters">
+            <summary>
+            Parses a vessel to find active converters to run in the background.
+            </summary>
+            <returns>A map keyed by Vessel that has a list of running converters to run in the background.</returns>
+        </member>
+        <member name="M:Snacks.SnacksBackgroundConverter.#ctor(ProtoPartSnapshot,ProtoPartModuleSnapshot,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.SnacksBackgroundConverter"/> class.
+            </summary>
+            <param name="protoPart">The ProtPartSnapshot that hosts the converter.</param>
+            <param name="protoModule">The ProtoPartModuleSnapshot representing the converter.</param>
+            <param name="moduleIndex">The module index.</param>
+        </member>
+        <member name="M:Snacks.SnacksBackgroundConverter.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.SnacksBackgroundConverter"/> class.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksBackgroundConverter.CheckRequiredResources(ProtoVessel,System.Double)">
+            <summary>
+            Checks to be sure the vessel has the required resources.
+            </summary>
+            <param name="vessel">The Vessel to check.</param>
+            <param name="elapsedTime">The seconds that have elapsed.</param>
+        </member>
+        <member name="M:Snacks.SnacksBackgroundConverter.ConsumeInputResources(ProtoVessel,System.Double)">
+            <summary>
+            Consumes the input resources.
+            </summary>
+            <param name="vessel">The Vessel to consume resources from.</param>
+            <param name="elapsedTime">Converter elapsed time.</param>
+        </member>
+        <member name="M:Snacks.SnacksBackgroundConverter.ProduceOutputResources(ProtoVessel,System.Double)">
+            <summary>
+            Produces the output resources.
+            </summary>
+            <param name="vessel">The Vessel to add resources to.</param>
+            <param name="elapsedTime">Converter elapsed time.</param>
+        </member>
+        <member name="M:Snacks.SnacksBackgroundConverter.ProduceyieldsList(ProtoVessel)">
+            <summary>
+            Produces the yield resources
+            </summary>
+            <param name="vessel">The Vessel to add resources to.</param>
+        </member>
+        <member name="M:Snacks.SnacksBackgroundConverter.PrepareToProcess(ProtoVessel)">
+            <summary>
+            Prepares the converter to process.
+            </summary>
+            <param name="vessel">The Vessel to check for preparations.</param>
+        </member>
+        <member name="M:Snacks.SnacksBackgroundConverter.PostProcess(ProtoVessel)">
+            <summary>
+            Handles post process tasks for the converter.
+            </summary>
+            <param name="vessel">The Vessel to update.</param>
+        </member>
+        <member name="T:Snacks.SnacksRosterRatio">
+            <summary>
+            The SnacksRosterRatio is a helper struct that is similar to a ResourceRatio,
+            but it's designed for use with roster resources (characteristics of a kerbal).
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksRosterRatio.ResourceName">
+            <summary>
+            The name of the resource.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksRosterRatio.AmountPerDay">
+            <summary>
+            The amount per day. This value overwrites AmountPerSecond and is based
+            on the homeworld's second per day.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksRosterRatio.AmountPerSecond">
+            <summary>
+            The amount per second.
+            </summary>
+        </member>
+        <member name="T:Snacks.SnacksConverter">
+            <summary>
+            An enhanced version of ModuleResourceConverter, the SnacksConverter offers a number of enhancements including
+            producing resources after a set number of hours have elapsed (defined by YIELD_RESOURCES nodes), the ability to
+            produce the yield resources based on the result of a random number generation, an optional flag that results in the part
+            exploding as a result of a critical failure roll, an optional flag that can prevent the converter from being
+            shut off, the ability to play effects, and the ability to be run in the background (when the vessel isn't loaded
+            into the scene).
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.startEffect">
+            <summary>
+            Name of the effect to play when the converter starts.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.stopEffect">
+            <summary>
+            Name of the effect to play when the converter stops.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.runningEffect">
+            <summary>
+            Name of the effect to play while the converter is running.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.ecPerSec">
+            <summary>
+            This field describes how much ElectricCharge is consumed per second. A negative number indicates consumption.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.minimumVesselPercentEC">
+            <summary>
+            This is a threshold value to ensure that the converter will shut off if the vessel's
+            ElectricCharge falls below the specified percentage. It is ignored if the converter doesn't
+            use ElectricCharge.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.requiresHomeConnection">
+            <summary>
+            This flag tells the converter to check for a connection to the homeworld if set to true.
+            If no connection is present, then the converter operations are suspended. It requires
+            CommNet to be enabled.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.minimumCrew">
+            <summary>
+            This field specifies the minimum number of crew required to operate the converter. If the part
+            lacks the minimum required crew, then operations are suspended.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.conditionSummary">
+            <summary>
+            This field specifies the condition summary to set when a kerbal enters the part and the converter is
+            running. For example, the kerbal could be Relaxing. The condition summary appears in the kerbal's
+            condition summary display. Certain conditions will result a loss of skills for the duration that the 
+            converter is running. For that to happen, be sure to define a SKILL_LOSS_CONDITION config node with
+            the name of the condition.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.canBeShutdown">
+            <summary>
+            This field indicates whether or not the converter can be shut down. If set to false, then the converter
+            will remove the shutdown and toggle actions and disable the shutdown button.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.ID">
+            <summary>
+            Unique ID of the converter. Used to identify it during background processing.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.dieRollMin">
+            <summary>
+            Minimum die roll
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.dieRollMax">
+            <summary>
+            Maximum die roll
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.minimumSuccess">
+            <summary>
+            On a roll of dieRollMin - dieRollMax, the minimum roll required to declare a successful resource yield. Set to 0 if you don't want to roll for success.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.criticalSuccess">
+            <summary>
+            On a roll of dieRollMin - dieRollMax, minimum roll for a resource yield to be declared a critical success.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.criticalFail">
+            <summary>
+            On a roll of dieRollMin - dieRollMax, the maximum roll for a resource yield to be declared a critical failure.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.hoursPerCycle">
+            <summary>
+            How many hours to wait before producing resources defined by YIELD_RESOURCE nodes.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.cycleStartTime">
+            <summary>
+            The time at which we started a new resource production cycle.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.progress">
+            <summary>
+            Current progress of the production cycle
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.timeRemainingDisplay">
+            <summary>
+            Display field to show time remaining on the production cycle.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.lastAttempt">
+            <summary>
+            Results of the last production cycle attempt.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.criticalSuccessMultiplier">
+            <summary>
+            If the yield check is a critical success, multiply the units produced by this number. Default is 1.0.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.failureMultiplier">
+            <summary>
+            If the yield check is a failure, multiply the units produced by this number. Default is 1.0.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.explodeUponCriticalFail">
+            <summary>
+            Flag to indicate whether or not the part explodes if the yield roll critically fails.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.elapsedTime">
+            <summary>
+            The amount of time that has passed since the converter was last checked if it should produce yield resources.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.secondsPerCycle">
+            <summary>
+            The number of seconds per yield cycle.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.yieldsList">
+            <summary>
+            The list of resources to produce after the elapsedTime matches the secondsPerCycle.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.rosterInputList">
+            <summary>
+            Similar to an input list, this list contains the roster resources to consume during the
+            converter's processing.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.rosterOutputList">
+            <summary>
+            Similar to an output list, this list contains the roster resources to produce during the converter's processing.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.missingResources">
+            <summary>
+            The converter is missing resources. If set to true then the converter's operations are suspended.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksConverter.crewEfficiencyBonus">
+            <summary>
+            The efficieny bonus of the crew.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksConverter.PerformAnalysis">
+            <summary>
+            Performs the analysis roll to determine how many yield resources to produce.
+            The roll must meet or exceed the minimumSuccess required in order to produce a nominal
+            yield (the amount specified in a YIELD_RESOURCE's Ratio entry). If the roll fails,
+            then a lower than normal yield is produced. If the roll exceeds the criticalSuccess number,
+            then a higher than normal yield is produced. If the roll falls below the criticalFailure number,
+            then no yield is produced, and the part will explode if the explodeUponCriticalFailure flag is set.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksConverter.CalculateProgress">
+            <summary>
+            Calculates and updates the progress of the yield production cycle.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksConverter.RemoveConditionIfNeeded">
+            <summary>
+            Removes the summaryCondition from all kerbals in the part if they have it set.
+            </summary>
+        </member>
+        <member name="T:Snacks.SnacksResourceProcessor">
+            <summary>
+            The SnacksResourceProcessor is a specialized version of the BaseResourceProcessor. It has the distict advantage of making use of the game settings for Snacks, whereas BaseResourceProcessor
+            is entirely configured via config files.
+            </summary>
+        </member>
+        <member name="T:Snacks.SnacksPartResource">
+            <summary>
+            When a part with crew capacity is loaded in the editor and it lacks this resource, or when a vessel is loaded into the scene and its parts with crew capacity lack this resource, 
+            add it to the part. Doesn’t apply to kerbals going on EVA. Use SNACKS_EVA_RESOURCE for that. Use the SNACKS_PART_RESOURCE to define resources to add.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksPartResource.resourceName">
+            <summary>
+            Name of the resource
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksPartResource.amount">
+            <summary>
+            Amount to add
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksPartResource.maxAmount">
+            <summary>
+            Max amount possible
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksPartResource.unitsPerDay">
+            <summary>
+            How many units per day that will be consumed. Overrides amount and maxAmount.
+            For Snacks, this is dynamically calculated based on game settings for Snacks per meal and meals per day.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksPartResource.daysLifeSupport">
+            <summary>
+            Specifies how many days of life support to provide.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksPartResource.capacityAffectingModules">
+            <summary>
+            Parts with at least one of the modules on this list affect the part's capacity to store the resource (their equipment takes up additional space, for instance).
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksPartResource.capacityMultiplier">
+            <summary>
+            If a part has at least one part module on the capacityAffectingModules list then multiply resource amount and max amount by this multiplier. Default is 1.0
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksPartResource.isPerKerbal">
+            <summary>
+            If true (which is the default), then amount and maxAmount added are multiplied by the part's crew capacity.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksPartResource.LoadPartResources">
+            <summary>
+            Loads the SNACKS_PART_RESOURCE config nodes, if any, and returns SnacksPartResource objects.
+            </summary>
+            <returns>A list of SnacksPartResource objects.</returns>
+        </member>
+        <member name="M:Snacks.SnacksPartResource.addResourcesIfNeeded(Part,AvailablePart)">
+            <summary>
+            If the part with crew capacity doesn't have the resource, then add it.
+            </summary>
+            <param name="part"></param>
+        </member>
+        <member name="M:Snacks.SnacksPartResource.addResourcesIfNeeded(Vessel)">
+            <summary>
+            If the loaded vessel's parts with crew capacity don't have the resource, then load it.
+            </summary>
+            <param name="vessel"></param>
+        </member>
+        <member name="T:Snacks.SnacksEVAResource">
+            <summary>
+            When a kerbal goes on EVA, take this resource along and remove a corresponding amount from the vessel. Use the SNACKS_EVA_RESOURCE to define the resource to add.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEVAResource.resourceName">
+            <summary>
+            Name of the resource
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEVAResource.amount">
+            <summary>
+            Amount to add
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEVAResource.maxAmount">
+            <summary>
+            Max amount possible
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEVAResource.warningAmount">
+            <summary>
+            When the resource amount drops to or below this value, display the warning message.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEVAResource.warningMessage">
+            <summary>
+            Message to display when the kerbal's resource has dropped to or below the warningAmount.
+            </summary>
+        </member>
+        <member name="F:Snacks.SnacksEVAResource.snacksEVAResource">
+            <summary>
+            The EVA resource that defines how many Snacks the kerbal gets. We track this so that we can update its amount and max amount based on game settings.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnacksEVAResource.LoadEVAResources">
+            <summary>
+            Loads the SNACKS_EVA_RESOURCE config nodes, if any, and returns SnacksEVAResource objects.
+            </summary>
+            <returns>A list of SnacksEVAResource objects.</returns>
+        </member>
+        <member name="M:Snacks.SnacksEVAResource.onCrewBoardedVessel(Part,Part)">
+            <summary>
+            Handles the crew boarded event. The resource is removed from the kerbal and added to the vessel.
+            </summary>
+            <param name="evaKerbal">The kerbal that is returning from EVA</param>
+            <param name="boardedPart">The part that the kerbal boarded</param>
+        </member>
+        <member name="M:Snacks.SnacksEVAResource.onCrewEVA(Part,Part)">
+            <summary>
+            Handles the crew eva event. The kerbal gains the EVA resource and the vessel loses a corresponding amount.
+            </summary>
+            <param name="evaKerbal">The kerbal that went on EVA</param>
+            <param name="partExited">The part that the kerbal exited</param>
+        </member>
+        <member name="T:Snacks.Snackshot">
+            <summary>
+            Represents a snapshot of the current and max units of a particular resource that is displayed in the Snapshots window.
+            </summary>
+        </member>
+        <member name="F:Snacks.Snackshot.resourceName">
+            <summary>
+            Name of the resource
+            </summary>
+        </member>
+        <member name="F:Snacks.Snackshot.amount">
+            <summary>
+            Current amount in the vessel
+            </summary>
+        </member>
+        <member name="F:Snacks.Snackshot.maxAmount">
+            <summary>
+            Max amount in the vessel
+            </summary>
+        </member>
+        <member name="F:Snacks.Snackshot.showTimeRemaining">
+            <summary>
+            Flag to indicate whether to include the time remaining estimate in the display.
+            </summary>
+        </member>
+        <member name="F:Snacks.Snackshot.isSimulatorRunning">
+            <summary>
+            Flag to indicate whether or not simulator is running.
+            </summary>
+        </member>
+        <member name="F:Snacks.Snackshot.estimatedTimeRemaining">
+            <summary>
+            Estimated time remaining in seconds.
+            </summary>
+        </member>
+        <member name="F:Snacks.Snackshot.simulatorInterrupted">
+            <summary>
+            Flag to indicate whether or not the simulator was interrupted.
+            </summary>
+        </member>
+        <member name="T:Snacks.SnackSimThread">
+            <summary>
+            This class represents a single simulator job. It will check its job list for jobs to process and synchronize with other simulator jobs.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnackSimThread.Start">
+            <summary>
+            Starts the thread.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnackSimThread.Stop">
+            <summary>
+            Stops all current and pending jobs and kills the thread.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnackSimThread.AddJob(Snacks.SimSnacks)">
+            <summary>
+            Adds a simulator job to the job list.
+            </summary>
+            <param name="simSnacks">The simulator to add to the jobs list.</param>
+        </member>
+        <member name="M:Snacks.SnackSimThread.HasJobs">
+            <summary>
+            Determines whether or not the simulator thread has jobs.
+            </summary>
+            <returns>true if the simulator has job, false if not.</returns>
+        </member>
+        <member name="M:Snacks.SnackSimThread.ClearJobs">
+            <summary>
+            Clears all pending and running jobs.
+            </summary>
+        </member>
+        <member name="T:Snacks.SimResource">
+            <summary>
+            This struct tracks vessel resources in the simulator. For the sake of simplicity, simulated resources aren't locked and are considered flow mode ALL_VESSEL.
+            </summary>
+        </member>
+        <member name="T:Snacks.SimConverter">
+            <summary>
+            This class is a simulated ModuleResourceConverter. It processes inputs, produces outputs, and when the time's up, generates yield resources. For the sake of simplicity, all vessel resources are available.
+            </summary>
+        </member>
+        <member name="M:Snacks.SimConverter.ProcessResources(System.Collections.Generic.Dictionary{System.String,Snacks.SimResource},System.Double)">
+            <summary>
+            Processes resources, consuming inputs, producing outputs, and when time expires, producing yield resources.
+            For the purposes of simulation, we assume dumpExcess = true, yield resources always suceed, no heat generation, and no crew bonuses.
+            </summary>
+            <param name="resources">The map of vessel resources to process.</param>
+            <param name="secondsPerSimulatorCycle">The number of seconds per simulator cycle.</param>
+        </member>
+        <member name="T:Snacks.OnConvertersRunCompleteDelegate">
+            <summary>
+            Signifies that the converters have completed their run.
+            </summary>
+            <param name="simulator">The simulator that invoked the delegate method.</param>
+        </member>
+        <member name="T:Snacks.OnConsumersRunCompleteDelegate">
+            <summary>
+            Signifies that the consumers have completed their run.
+            </summary>
+            <param name="simulator">The simulator that invoked the delegate method.</param>
+        </member>
+        <member name="T:Snacks.OnSimulatorCycleCompleteDelegate">
+            <summary>
+            Signifies that the simulation cycle has completed.
+            </summary>
+            <param name="simulator">The simulator that invoked the delegate method.</param>
+        </member>
+        <member name="T:Snacks.OnSimulationCompleteDelegate">
+            <summary>
+            Signifies that the simulation has completed.
+            </summary>
+            <param name="simulator">The simulator that invoked the delegate method.</param>
+        </member>
+        <member name="T:Snacks.OnSimulatorExceptionDelegate">
+            <summary>
+            Signifies that the simulation experienced an error.
+            </summary>
+            <param name="simulator">The simulator generating the error.</param>
+            <param name="ex">The Exception that was generated.</param>
+        </member>
+        <member name="T:Snacks.SimulatedVesselTypes">
+            <summary>
+            Type of vessel being simulated
+            </summary>
+        </member>
+        <member name="T:Snacks.SimulatorContext">
+            <summary>
+            Context for how the simulator is being created. Typically used when Snacks fires an event to give mods a chance to add additional custom converters not covered by Snacks.
+            </summary>
+        </member>
+        <member name="F:Snacks.SimulatorContext.simulatedVesselType">
+            <summary>
+            Type of vessel being simulated.
+            </summary>
+        </member>
+        <member name="F:Snacks.SimulatorContext.vessel">
+            <summary>
+            Vessel object for loaded/unloaded vessels being simulated.
+            </summary>
+        </member>
+        <member name="F:Snacks.SimulatorContext.shipConstruct">
+            <summary>
+            Ship constructor for editor vessel being simulated.
+            </summary>
+        </member>
+        <member name="T:Snacks.SimSnacks">
+            <summary>
+            This class determines how long consumed resources like Snacks will last by simulating resource consumption and simulating running converters like soil recyclers and snacks processors.
+            It is designed to allow for an arbitrary number of resource production chains and an arbitrary number of consumed resources.
+            
+            Conditions:
+            The only inputs allowed into the system are those consumed by kerbals. Ex: kerbals eat Snacks and produce Soil.
+            Resources aboard the vessel that aren't directly involved in resource consumption are fixed. Ex: Resource harvesters that produce Ore aren't accounted for.
+            Running simulations is computationally expensive. This class should be run in a thread.
+            </summary>
+        </member>
+        <member name="M:Snacks.SimSnacks.CreateSimulator(ShipConstruct)">
+            <summary>
+            Creates a simulator from the supplied ship construct
+            </summary>
+            <param name="ship">A ShipConstruct to simulate</param>
+            <returns>A SimSnacks simulator</returns>
+        </member>
+        <member name="M:Snacks.SimSnacks.CreateSimulator(ProtoVessel)">
+            <summary>
+            Creates a simulator from the proto vessel
+            </summary>
+            <param name="protoVessel">The unloaded vessel to query for resources and converters.</param>
+            <returns>A SimSnacks simulator.</returns>
+        </member>
+        <member name="M:Snacks.SimSnacks.CreateSimulator(Vessel)">
+            <summary>
+            Creates a simulator from a loaded vessel
+            </summary>
+            <param name="vessel">The Vessel object to query for resources and converters.</param>
+            <returns>A SimSnacks simulator.</returns>
+        </member>
+        <member name="T:Snacks.SnackSimThreadPool">
+            <summary>
+            This class handles simulator thread creation, data synching, and the job list.s
+            </summary>
+        </member>
+        <member name="F:Snacks.SnackSimThreadPool.maxThreads">
+            <summary>
+            Max number of threads allowed
+            </summary>
+        </member>
+        <member name="F:Snacks.SnackSimThreadPool.jobList">
+            <summary>
+            List of simulator jobs waiting to be run
+            </summary>
+        </member>
+        <member name="M:Snacks.SnackSimThreadPool.OnThreadSimulationComplete(Snacks.SimSnacks)">
+            <summary>
+            Handles the completion of a thread's simulation.
+            </summary>
+            <param name="simulator">The simulator that just finished.</param>
+        </member>
+        <member name="M:Snacks.SnackSimThreadPool.OnThreadSimulatorCycleComplete(Snacks.SimSnacks)">
+            <summary>
+            Handles completion of a thread's simulation cycle.
+            </summary>
+            <param name="simulator">The simulator that just completed its cycle.</param>
+        </member>
+        <member name="M:Snacks.SnackSimThreadPool.OnSimulatorException(Snacks.SimSnacks,System.Exception)">
+            <summary>
+            Handles the exception generated by a simulator.
+            </summary>
+            <param name="simulator">The simulator that generated the exception.</param>
+            <param name="ex">The Exception generated.</param>
+        </member>
+        <member name="M:Snacks.SnackSimThreadPool.LockResourceDurations">
+            <summary>
+            Locks the vessel resource durations so that we can query them.
+            Be sure to call UnlockResourceDurations when done.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnackSimThreadPool.UnlockResourceDurations">
+            <summary>
+            Unlocks resource durations so that threads can operate on them.
+            </summary>
+        </member>
+        <member name="M:Snacks.SnackSimThreadPool.GetVesselResourceDurations(Vessel)">
+            <summary>
+            Returns the vessel resource definitions for the requested vessel.
+            Be sure to call LockResourceDurations before calling this method.
+            Be sure to call UnlockResourceDurations after you're done.
+            </summary>
+            <param name="vessel">The vessel to query</param>
+            <returns>The resource durations for the specified vessel, or null if they don't exist.</returns>
+        </member>
+        <member name="M:Snacks.SnackSimThreadPool.ConvertersAssumedActive(Vessel)">
+            <summary>
+            Determines whether or not the simulator had to assume that converters were on.
+            </summary>
+            <param name="vessel">The vessel to query</param>
+            <returns>true if the simulator couldn't determine activation state and had to assume converters were on; false if not.</returns>
+        </member>
+        <member name="M:Snacks.SnackSimThreadPool.RemoveVesselResourceDurations(Vessel)">
+            <summary>
+            Removes the vessel resource durations for the specified vessel if they exist.
+            Be sure to call LockResourceDurations before calling this method.
+            Be sure to call UnlockResourceDurations after you're done.
+            </summary>
+            <param name="vessel">The vessel that will no longer have resource durations.</param>
+        </member>
+        <member name="M:Snacks.SnackSimThreadPool.AddSimulatorJob(Snacks.SimSnacks)">
+            <summary>
+            Adds a simulator to the job list.
+            </summary>
+            <param name="simulator">The SimSnacks simulator to add to the list.</param>
+        </member>
+        <member name="M:Snacks.SnackSimThreadPool.StopAllJobs">
+            <summary>
+            Stops all current and pending jobs.
+            </summary>
+        </member>
+        <member name="T:Snacks.SoilRecycler">
+            <summary>
+            The SoilRecycler is designed to recycle Soil into Snacks. It is derived from SnacksProcessor (<see cref="T:Snacks.ClearCondition"/>),
+            which is derived from SnacksConverter. SoilRecycler config nodes should be calibrated
+            to turn 1 Soil into 1 Snacks; game settings will adjust the recycler based on desired difficulty.
+            </summary>
+        </member>
+        <member name="F:Snacks.SoilRecycler.RecyclerCapacity">
+            <summary>
+            The number of kerbals that the recycler supports.
+            </summary>
+        </member>
+        <member name="F:Snacks.VesselSnackshot.bodyID">
+            <summary>
+            ID of the celestial body where the vessel is located.
+            </summary>
+        </member>
+        <member name="F:Snacks.VesselSnackshot.vesselName">
+            <summary>
+            Name of the vessel
+            </summary>
+        </member>
+        <member name="F:Snacks.VesselSnackshot.crewCount">
+            <summary>
+            Current number of crew in the vessel
+            </summary>
+        </member>
+        <member name="F:Snacks.VesselSnackshot.maxCrewCount">
+            <summary>
+            Max number of crew in the vessel
+            </summary>
+        </member>
+        <member name="F:Snacks.VesselSnackshot.vessel">
+            <summary>
+            Reference to the vessel itself
+            </summary>
+        </member>
+        <member name="F:Snacks.VesselSnackshot.snackshots">
+            <summary>
+            List of resource snapshots
+            </summary>
+        </member>
+        <member name="F:Snacks.VesselSnackshot.convertersAssumedActive">
+            <summary>
+            Flag to indicate that the simulator couldn't determine if the converters were active, so it assumed that they were.
+            </summary>
+        </member>
+        <member name="M:Snacks.VesselSnackshot.GetStatusDisplay(System.Boolean)">
+            <summary>
+            Returns the status of the vessel and its resources.
+            </summary>
+            <param name="showCrewView">A flag to indicate whether to show crew status instead of vessel resource status.</param>
+            <returns>A string containing the vessel's status.</returns>
+        </member>
+        <member name="T:Snacks.BaseOutcome">
+            <summary>
+            The BaseOutcome class is the basis for all outcome processing. An outcome is used with the resource processors as well as 
+            by the event system. It represents the consequences (or benefits) of a process result as well as the actions
+            to take when an event's preconditions are met.
+            </summary>
+        </member>
+        <member name="F:Snacks.BaseOutcome.canBeRandom">
+            <summary>
+            Flag to indicate whether or not the outcome can be randomly selected.
+            Requires random outcomes to be turned on. If it isn't then the 
+            outcome is always applied.
+            </summary>
+        </member>
+        <member name="F:Snacks.BaseOutcome.selectRandomCrew">
+            <summary>
+            Flag to indicate whether or not to select a random crew member for the outcome
+            instead of applying the outcome to the entire crew.
+            </summary>
+        </member>
+        <member name="F:Snacks.BaseOutcome.playerMessage">
+            <summary>
+            Optional message to display to the player.
+            </summary>
+        </member>
+        <member name="F:Snacks.BaseOutcome.childOutcomes">
+            <summary>
+            Optional list of child outcomes to apply when the parent outcome is applied.
+            Child outcomes use same vessel/kerbal as the parent.
+            </summary>
+        </member>
+        <member name="M:Snacks.BaseOutcome.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.BaseOutcome"/> class.
+            </summary>
+        </member>
+        <member name="M:Snacks.BaseOutcome.#ctor(ConfigNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.BaseOutcome"/> class.
+            </summary>
+            <param name="node">A ConfigNode containing initialization parameters.</param>
+        </member>
+        <member name="M:Snacks.BaseOutcome.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.BaseOutcome"/> class.
+            </summary>
+            <param name="canBeRandom">If set to <c>true</c>, the outcome can be randomly selected.</param>
+        </member>
+        <member name="M:Snacks.BaseOutcome.#ctor(System.Boolean,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Snacks.BaseOutcome"/> class.
+            </summary>
+            <param name="canBeRandom">If set to <c>true</c>, the outcome can be randomly selected.</param>
+            <param name="playerMessage">A string containing a message to the player that is shown when the outcome
+            is applied..</param>
+        </member>
+        <member name="M:Snacks.BaseOutcome.Load(ConfigNode)">
+            <summary>
+            Loads the configuration
+            </summary>
+            <param name="node">A ConfigNode containing data to load.</param>
+        </member>
+        <member name="M:Snacks.BaseOutcome.IsEnabled">
+            <summary>
+            Indicates whether or not the outcome is enabled.
+            </summary>
+            <returns>true if inabled, false if not.</returns>
+        </member>
+        <member name="M:Snacks.BaseOutcome.ApplyOutcome(Vessel,Snacks.SnacksProcessorResult)">
+            <summary>
+            Applies the outcome to the vessel's crew
+            </summary>
+            <param name="vessel">The Vessel being processed.</param>
+            <param name="result">The Result of the processing attempt.</param>
+        </member>
+        <member name="M:Snacks.BaseOutcome.RemoveOutcome(Vessel,System.Boolean)">
+            <summary>
+            Removes the outcome from the vessel's crew.
+            </summary>
+            <param name="vessel">The Vessel to process.</param>
+            <param name="informPlayer">A Bool indicating whether or not to inform the player.</param>
+        </member>
+    </members>
+</doc>

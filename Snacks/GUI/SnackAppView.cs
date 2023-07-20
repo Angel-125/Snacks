@@ -6,6 +6,7 @@ using System.Threading;
 using UnityEngine;
 using KSP.UI;
 using Highlighting;
+using KSP.Localization;
 
 /**
 The MIT License (MIT)
@@ -60,7 +61,7 @@ namespace Snacks
         private StressProcessor stressProcessor = null;
 
         public SnackAppView() :
-        base("Vessel Status", 500, 500)
+        base(Localizer.Format("#LOC_GUI_VESSELSTATUS"), 500, 500)//#LOC_GUI_VESSELSTATUS=Vessel Status
         {
             Resizable = false;
         }
@@ -156,7 +157,7 @@ namespace Snacks
         public void drawEditorWindow()
         {
             //Rerun sim button
-            if (GUILayout.Button("Rerun Simulator"))
+            if (GUILayout.Button(Localizer.Format("#LOC_GUI_RERUNSIMULATOR")))//#LOC_GUI_RERUNSIMULATOR=Rerun Simulator
             {
                 //Reset crew count so that we'll trigger a rebuild of the simulator.
                 currentCrewCount = -1;
@@ -214,13 +215,13 @@ namespace Snacks
                 if (partCount == 0)
                 {
                     snackshots.Clear();
-                    simulationResults = "<color=yellow><b>Vessel has no crewed parts to simulate.</b></color>";
+                    simulationResults = Localizer.Format("#LOC_GUI_SIMU1");//#LOC_GUI_SIMU1=<color=yellow><b>Vessel has no crewed parts to simulate.</b></color>
                     simulationComplete = false;
                 }
                 else if (currentCrewCount == 0)
                 {
                     snackshots.Clear();
-                    simulationResults = "<color=yellow><b>Vessel needs crew to run simulation.</b></color>";
+                    simulationResults = Localizer.Format("#LOC_GUI_SIMU2");//#LOC_GUI_SIMU2=<color=yellow><b>Vessel needs crew to run simulation.</b></color>
                     simulationComplete = false;
                 }
 
@@ -231,7 +232,7 @@ namespace Snacks
                 if (simSnacks != null)
                 {
                     simulationComplete = false;
-                    simulationResults = "<color=white><b>Simulation in progress, please wait...</b></color>";
+                    simulationResults = Localizer.Format("#LOC_GUI_SIMU3");//#LOC_GUI_SIMU3=<color=white><b>Simulation in progress, please wait...</b></color>
                     snackshots.Clear();
 
                     //Get consumer resource lists
@@ -291,7 +292,7 @@ namespace Snacks
                 }
                 else
                 {
-                    simulationResults = "<color=yellow><b>Vessel has no crewed parts to simulate.</b></color>";
+                    simulationResults = Localizer.Format("#LOC_GUI_SIMU1");
                 }
             }
         }
@@ -303,7 +304,7 @@ namespace Snacks
             Snackshot snackshot;
 
             //current/max crew
-            simResults.AppendLine("<color=white>Crew: " + currentCrewCount + "/" + crewCapacity + "</color>");
+            simResults.AppendLine("<color=white>"+ Localizer.Format("#LOC_GUI_CREW") + currentCrewCount + "/" + crewCapacity + "</color>");//#LOC_GUI_CREW=Crew:
 
             //Snackshot list
             for (int index = 0; index < count; index++)
@@ -321,7 +322,7 @@ namespace Snacks
 
             //Converter assumption
             if (convertersAssumedActive)
-                simResults.AppendLine("<color=orange>Assumes converters are active; be sure to turn them on.</color>");
+                simResults.AppendLine(Localizer.Format("#LOC_GUI_ASSUMEACTIVE"));//#LOC_GUI_ASSUMEACTIVE=<color=orange>Assumes converters are active; be sure to turn them on.</color>
 
             simulationResults = simResults.ToString();
         }
@@ -349,15 +350,15 @@ namespace Snacks
 
         public void drawSpaceCenterWindow()
         {
-            GUILayout.Label("<color=white><b>Exempt Kerbals:</b> separate names by semicolon, first name only</color>");
-            GUILayout.Label("<color=yellow>These kerbals won't consume Snacks and won't suffer penalties from a lack of Snacks.</color>");
+            GUILayout.Label(Localizer.Format("#LOC_GUI_EXEMPTKERB"));//#LOC_GUI_EXEMPTKERB = <color=white><b>Exempt Kerbals:</b> separate names by semicolon, first name only</color>
+            GUILayout.Label(Localizer.Format("#LOC_GUI_EXEMPTKERB_INTRO"));//#LOC_GUI_EXEMPTKERB_INTRO = <color=yellow>These kerbals won't consume Snacks and won't suffer penalties from a lack of Snacks.</color>
             if (string.IsNullOrEmpty(exemptKerbals))
                 exemptKerbals = string.Empty;
             exemptKerbals = GUILayout.TextField(exemptKerbals);
 
             if (SnacksProperties.DebugLoggingEnabled)
             {
-                if (GUILayout.Button("Snack Time!"))
+                if (GUILayout.Button(Localizer.Format("#LOC_GUI_SNACKTIME")))//#LOC_GUI_SNACKTIME = Snack Time!
                 {
                     SnacksScenario.Instance.RunSnackCyleImmediately(SnacksScenario.GetSecondsPerDay() / SnacksProperties.MealsPerDay);
                 }
@@ -389,7 +390,7 @@ namespace Snacks
             GUILayout.EndHorizontal();
 
             //Draw stop simulators button
-            if (GUILayout.Button("Stop simulators (Estimates will be unavailable)"))
+            if (GUILayout.Button(Localizer.Format("#LOC_GUI_STOPSIM")))//#LOC_GUI_STOPSIM = Stop simulators (Estimates will be unavailable)
             {
                 SnacksScenario.Instance.threadPool.StopAllJobs();
                 for (int index = 0; index < keys.Count; index++)
@@ -411,7 +412,7 @@ namespace Snacks
 
             if (SnacksProperties.DebugLoggingEnabled && HighLogic.LoadedSceneIsFlight)
             {
-                if (GUILayout.Button("Snack Time!"))
+                if (GUILayout.Button(Localizer.Format("#LOC_GUI_SNACKTIME")))
                 {
                     SnacksScenario.Instance.RunSnackCyleImmediately(SnacksScenario.GetSecondsPerDay() / SnacksProperties.MealsPerDay);
                 }
@@ -482,7 +483,7 @@ namespace Snacks
             }
             else
             {
-                GUILayout.Label("<color=white>No crewed vessels found on or around any world or in solar orbit.</color>");
+                GUILayout.Label(Localizer.Format("#LOC_GUI_SIMU4"));//#LOC_GUI_SIMU4=<color=white>No crewed vessels found on or around any world or in solar orbit.</color>
             }
 
             GUILayout.EndScrollView();
@@ -507,14 +508,14 @@ namespace Snacks
             GUILayout.BeginVertical();
             if (SnacksScenario.Instance.rosterResources.Count > 0)
             {
-                showCrewView = GUILayout.Toggle(showCrewView, "Show Crew View");
+                showCrewView = GUILayout.Toggle(showCrewView, Localizer.Format("#LOC_GUI_CREWVIEW"));//#LOC_GUI_CREWVIEW=Show Crew View
                 if (showCrewView)
-                    showAvailableCrew = GUILayout.Toggle(showAvailableCrew, "Show Available Crew");
+                    showAvailableCrew = GUILayout.Toggle(showAvailableCrew, Localizer.Format("#LOC_GUI_CREWVIEWA"));//#LOC_GUI_CREWVIEWA=Show Available Crew
 
                 //Stresstimator button
                 if (SnacksScenario.Instance.rosterResources.ContainsKey(StressProcessor.StressResourceName) && HighLogic.LoadedSceneIsFlight)
                 {
-                    if (GUILayout.Button("Open Stresstimator"))
+                    if (GUILayout.Button(Localizer.Format("#LOC_GUI_STRESSSIM")))//#LOC_GUI_STRESSSIM=Open Stresstimator
                     {
                         showStresstimator = true;
                         return;
@@ -540,7 +541,7 @@ namespace Snacks
                     //Get status
                     statusDisplay = vesselSnackshot.GetStatusDisplay(showCrewView);
                     if (vesselSnackshot.convertersAssumedActive && !showCrewView)
-                        statusDisplay = statusDisplay + "<color=orange>Assumes converters are active; be sure to turn them on.</color>";
+                        statusDisplay = statusDisplay + Localizer.Format("#LOC_GUI_ASSUMEACTIVE");
 
                     //Print status
                     GUILayout.Label(statusDisplay);
@@ -573,8 +574,8 @@ namespace Snacks
                         if (!string.IsNullOrEmpty(astronautData.conditionSummary))
                             conditionSummary = astronautData.conditionSummary;
                         else
-                            conditionSummary = "Cleared for flight";
-                        status.AppendLine("<color=white> - Status: " + conditionSummary + "</color>");
+                            conditionSummary = Localizer.Format("#LOC_GUI_COF");//#LOC_GUI_COF = Cleared for flight
+                        status.AppendLine("<color=white> "+ Localizer.Format("#LOC_GUI_STATUS") + conditionSummary + "</color>");//#LOC_GUI_STATUS = - Status: 
 
                         string[] rosterResourceKeys = astronautData.rosterResources.Keys.ToArray();
                         for (int rosterIndex = 0; rosterIndex < rosterResourceKeys.Length; rosterIndex++)
@@ -586,8 +587,8 @@ namespace Snacks
                     else
                     {
                         status.AppendLine("<color=orange><i>" + astronaut.name + "</i></color>");
-                        conditionSummary = "Cleared for flight";
-                        status.AppendLine("<color=white> - Status: " + conditionSummary + "</color>");
+                        conditionSummary = Localizer.Format("#LOC_GUI_COF");//#LOC_GUI_COF = Cleared for flight
+                        status.AppendLine("<color=white> " + Localizer.Format("#LOC_GUI_STATUS") + conditionSummary + "</color>");
                     }
                 }
                 GUILayout.Label(status.ToString());
@@ -621,7 +622,7 @@ namespace Snacks
             GUILayout.BeginVertical();
             scrollPos = GUILayout.BeginScrollView(scrollPos, flightWindowRightPaneOptions);
 
-            GUILayout.Label("<color=white>Your kerbals might get Stressed Out if you transfer them to a docked vessel and then undock. Will that happen? Click on the habitable parts of the docked vessel to find out. Parts highlighted in blue will count towards the estimate.</color>");
+            GUILayout.Label(Localizer.Format("#LOC_GUI_STRESSNOTE"));//#LOC_GUI_STRESSNOTE = <color=white>Your kerbals might get Stressed Out if you transfer them to a docked vessel and then undock. Will that happen? Click on the habitable parts of the docked vessel to find out. Parts highlighted in blue will count towards the estimate.</color>
 
             //Highlight all habitable parts
             highlightHabitableParts();
@@ -631,7 +632,7 @@ namespace Snacks
 
             GUILayout.EndScrollView();
 
-            if (GUILayout.Button("Close Stresstimator"))
+            if (GUILayout.Button(Localizer.Format("#LOC_GUI_STRESSCLOSE")))//#LOC_GUI_STRESSCLOSE =Close Stresstimator
             {
                 unhighlightHabitableParts();
                 showStresstimator = false;
@@ -648,7 +649,7 @@ namespace Snacks
             AstronautData astronautData = null;
 
             //Show crew capacity
-            GUILayout.Label(string.Format("<color=white>Estimated Crew Capacity: {0:n0}</color>", crewCapacity));
+            GUILayout.Label(Localizer.Format("#LOC_GUI_CREWCAPA",crewCapacity.ToString()));//#LOC_GUI_CREWCAPA =<color=white>Estimated Crew Capacity:<<1>></color>
 
             //Calculate the total space.
             float space = stressProcessor.CalculateSpace(activeVesselCrewCount, crewCapacity);
@@ -675,9 +676,9 @@ namespace Snacks
                 amount = resource.amount;
 
                 if (amount > maxAmount)
-                    GUILayout.Label("<color=white>" + astronautData.name + string.Format("\n Estimated Stress: {0:n2}/{1:n2}", amount, maxAmount) + "</color>\n<color=orange> Will likely get Stressed Out</color>");
+                    GUILayout.Label("<color=white>" + astronautData.name + Localizer.Format("#LOC_GUI_STRESSES", amount.ToString("f2"), maxAmount.ToString("f2")) + "</color>"+ Localizer.Format("#LOC_GUI_STRESSOUT"));//#LOC_GUI_STRESSES =\n Estimated Stress: <<1>>/<<2>>
                 else
-                    GUILayout.Label("<color=white>" + astronautData.name + string.Format("\n Estimated Stress: {0:n2}/{1:n2}", amount, maxAmount) + "</color>");
+                    GUILayout.Label("<color=white>" + astronautData.name + Localizer.Format("#LOC_GUI_STRESSES", amount.ToString("f2"), maxAmount.ToString("f2")) + " </color>");//#LOC_GUI_STRESSOUT =\n<color=orange> Will likely get Stressed Out</color>
             }
         }
 

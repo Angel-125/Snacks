@@ -27,7 +27,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP.IO;
-
+using KSP.Localization;
 
 namespace Snacks
 {
@@ -60,7 +60,7 @@ namespace Snacks
 
             StringBuilder info = new StringBuilder();
 
-            info.AppendLine("<b>Resource Options</b>");
+            info.AppendLine(Localizer.Format("#LOC_GUI_RESOURCEOPTION"));//#LOC_GUI_RESOURCEOPTION = <b>Resource Options</b>
             info.AppendLine(" ");
 
             ResourceOption option;

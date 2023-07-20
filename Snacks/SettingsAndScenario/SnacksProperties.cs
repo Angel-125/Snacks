@@ -28,6 +28,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP.IO;
+using KSP.Localization;
 
 namespace Snacks
 {
@@ -52,36 +53,47 @@ namespace Snacks
     public class SnackPenalties : GameParameters.CustomParameterNode
     {
         [GameParameters.CustomParameterUI("Enable random penalties", toolTip = "If enabled, then one of the enabled penalties will be randomly chosen", autoPersistance = true, gameMode = GameParameters.GameMode.CAREER)]
+
         public bool enableRandomPenalties = true;
 
         [GameParameters.CustomParameterUI("Hungry kerbals hurt your reputation.", toolTip = "When kerbals go hungry, you lose Reputation", autoPersistance = true, gameMode = GameParameters.GameMode.CAREER)]
+
         public bool loseRepWhenHungry = true;
 
         [GameParameters.CustomParameterUI("Rep loss per kerbal per meal", toolTip = "How mad your kerbals will be", autoPersistance = true, gameMode = GameParameters.GameMode.CAREER)]
+
         public RepLoss repLostWhenHungry = RepLoss.Low;
 
         [GameParameters.CustomParameterUI("Hungry kerbals hurt your bottom line.", toolTip = "When kerbals go hungry, you lose Funds", autoPersistance = true, gameMode = GameParameters.GameMode.CAREER)]
+
         public bool loseFundsWhenHuntry = true;
 
         [GameParameters.CustomIntParameterUI("Fine per kerbal", maxValue = 50000, minValue = 1000, stepSize = 1000, toolTip = "How much is it gonna cost", autoPersistance = true, gameMode = GameParameters.GameMode.CAREER)]
+
         public int finePerKerbal = 10000;
 
         [GameParameters.CustomParameterUI("Hungry kerbals ruin science.", toolTip = "When kerbals go hungry, they ruin stored experiment results and data", autoPersistance = true, gameMode = GameParameters.GameMode.CAREER | GameParameters.GameMode.SCIENCE)]
+
         public bool loseScienceWhenHungry = true;
 
         [GameParameters.CustomParameterUI("Data lost", toolTip = "What percentage of lab data is lost", autoPersistance = true, gameMode = GameParameters.GameMode.CAREER | GameParameters.GameMode.SCIENCE)]
+
         public RepLoss dataLostWhenHungry = RepLoss.Low;
 
         [GameParameters.CustomParameterUI("Hungry kerbals can faint.", toolTip = "When kerbals go hungry, they might pass out and can't be controlled.", autoPersistance = true)]
+
         public bool faintWhenHungry = true;
 
         [GameParameters.CustomIntParameterUI("Meals before fainting", maxValue = 24, minValue = 1, stepSize = 1, toolTip = "How many meals can a kerbal miss before fainting", autoPersistance = true)]
+
         public int mealsBeforeFainting = 3;
 
         [GameParameters.CustomParameterUI("Nap time when fainted", toolTip = "How long will a kerbal nap for when they faint", autoPersistance = true)]
+
         public FaintTime napTime = FaintTime.OneMinute;
 
         [GameParameters.CustomParameterUI("Kerbals can starve to death.", toolTip = "If they skip too many meals, kerbals can starve to death.", autoPersistance = true)]
+
         public bool canStarveToDeath = false;
 
         [GameParameters.CustomIntParameterUI("Skipped meals before death", maxValue = 42, minValue = 1, stepSize = 1, toolTip = "How many meals can a kerbal miss before dying", autoPersistance = true)]

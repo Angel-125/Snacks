@@ -29,6 +29,7 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 using KSP.UI;
+using KSP.Localization;
 
 namespace Snacks
 {
@@ -38,7 +39,7 @@ namespace Snacks
         public string description = string.Empty;
 
         public SnacksIntroScreen(string description) :
-        base("New resource added!", 300, 500)
+        base(Localizer.Format("#LOC_GUI_NEW"), 300, 500)//#LOC_GUI_NEW=New resource added!
         {
             Resizable = false;
             this.description = description;

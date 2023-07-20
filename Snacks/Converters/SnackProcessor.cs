@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP.IO;
+using KSP.Localization;
 
 /**
 The MIT License (MIT)
@@ -118,7 +119,7 @@ namespace Snacks
         {
             updateProductionEfficiency();
 
-            dailyOutput = string.Format("{0:f2} Snacks/day", GetDailySnacksOutput());
+            dailyOutput = Localizer.Format("#LOC_GUI_SNACKPERDAY", GetDailySnacksOutput().ToString("f2"));
         }
 
         protected override void PreProcessing()
@@ -148,7 +149,7 @@ namespace Snacks
             int resourceCount = inputList.Count;
             if (resourceCount > 0)
             {
-                infoBuilder.AppendLine("<color=#7FFF00><b>Inputs</b></color>");
+                infoBuilder.AppendLine(Localizer.Format("#LOC_INFO_INPUTS"));//#LOC_INFO_INPUTS="<color=#7FFF00><b>Inputs</b></color>"
                 for (int index = 0; index < resourceCount; index++)
                 {
                     if (!definitions.Contains(inputList[index].ResourceName))
@@ -161,7 +162,7 @@ namespace Snacks
             resourceCount = outputList.Count;
             if (resourceCount > 0)
             {
-                infoBuilder.AppendLine("<color=#7FFF00><b>Outputs</b></color>");
+                infoBuilder.AppendLine(Localizer.Format("#LOC_INFO_OUTPUTS"));//#LOC_INFO_OUTPUTS="<color=#7FFF00><b>Outputs</b></color>"
                 for (int index = 0; index < resourceCount; index++)
                 {
                     if (!definitions.Contains(outputList[index].ResourceName))
@@ -171,7 +172,8 @@ namespace Snacks
                 }
             }
             infoBuilder.AppendLine(" ");
-            infoBuilder.AppendLine("<b>Note: </b> Production rates vary depending upon game settings. Consult the Part Action Window for details.");
+            infoBuilder.AppendLine(Localizer.Format("#LOC_INFO_NOTEPRODUCTIONRATES"));
+            //#LOC_INFO_NOTEPRODUCTIONRATES="<b>Note: </b> Production rates vary depending upon game settings. Consult the Part Action Window for details."
 
             if (!string.IsNullOrEmpty(ExperienceEffect))
             {
@@ -189,7 +191,7 @@ namespace Snacks
                     string traitList = traitBuilder.ToString().TrimEnd(charsToTrim);
 
                     infoBuilder.AppendLine(" ");
-                    infoBuilder.AppendLine("<b>Kerbal(s) that improve production: </b>");
+                    infoBuilder.AppendLine(Localizer.Format("#LOC_INFO_NOTEIMPROVE"));//#LOC_INFO_NOTEIMPROVE="<b>Kerbal(s) that improve production: </b>"
                     infoBuilder.AppendLine(traitList);
                 }
             }
