@@ -496,6 +496,7 @@ namespace Snacks
             List<Vessel> keys = snapshotMap.Keys.ToList();
             int count = keys.Count;
             List<CelestialBody> bodies = FlightGlobals.Bodies;
+            bool isExempt = false;
 
             //Draw stresstimator?
             if (showStresstimator && HighLogic.LoadedSceneIsFlight)
@@ -541,6 +542,18 @@ namespace Snacks
                     statusDisplay = vesselSnackshot.GetStatusDisplay(showCrewView);
                     if (vesselSnackshot.convertersAssumedActive && !showCrewView)
                         statusDisplay = statusDisplay + "<color=orange>Assumes converters are active; be sure to turn them on.</color>";
+
+                    // Exempt
+                    isExempt = SnacksScenario.Instance.isExemptFromProcessors(vesselSnackshot.vessel.id);
+                    // Flip so that !isExempt will ENABLE the toggle if !isExempt = false.
+                    isExempt = !isExempt;
+                    isExempt = GUILayout.Toggle(isExempt, "Snacks enabled");
+                    // Now flip it back
+                    isExempt = !isExempt;
+                    if (isExempt != SnacksScenario.Instance.isExemptFromProcessors(vesselSnackshot.vessel.id))
+                    {
+                        SnacksScenario.Instance.SetExemptVessel(vesselSnackshot.vessel, isExempt);
+                    }
 
                     //Print status
                     GUILayout.Label(statusDisplay);

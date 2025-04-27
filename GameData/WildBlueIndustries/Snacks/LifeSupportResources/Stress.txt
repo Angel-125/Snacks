@@ -9,7 +9,7 @@ SNACKS_RESOURCE_INTRO
 	description = This addon introduces roster resources in the form of Stress. Unlike resources tied to a vessel, roster resources are characteristics of the kerbals. The SnacksConverter can convert roster resources- the Entertainment Center can reduce Stress, for instance, and SNACKS_RESOURCE_PROCESSOR config can work with roster resources as well. <br>The addon also introduces the Snacks event system. Events let you apply different outcomes based on one or more preconditions. They let you spice up your game and give it more personality.<br>As for Stress, kerbals don't like being confined to tiny capsules for long journeys, and they accumulate Stress daily. Additional events, like getting Sick, running out of Snacks, and gasping for Fresh Air cause additional Stress. <br>The vessel's crew capacity and a kerbal's experience level affect how much Stress they can take. Once they hit their max, they are Stressed Out and will no longer work. They are <b><i>NOT</i></b> Tourists! Engineers, Pilots, Scientists, and the like simply lose their skills. They can recover in the various stock crew cabins with a working Entertainment Center, but while recovering they don't use their skills either. Once a kerbal's Stress is below their max and you either turn off the Entertainment Center or they leave the cabin, they'll return to work.
 }
 
-//This resource is added to a kerbal’s crew roster entry. These aren’t resources in the traditional sense; they are characteristics of the kerbal itself.
+//This resource is added to a kerbal s crew roster entry. These aren't resources in the traditional sense; they are characteristics of the kerbal itself.
 SNACKS_ROSTER_RESOURCE
 {
 	resourceName = Stress
@@ -302,7 +302,7 @@ SNACKS_EVENT
 		randomMin = 1
 		RandomMax = 12
 
-		//Nested outcomes are allowed and are applied to the parent outcome’s vessel or kerbal.
+		//Nested outcomes are allowed and are applied to the parent outcome s vessel or kerbal.
 		OUTCOME 
 		{
 			name = SetCondition

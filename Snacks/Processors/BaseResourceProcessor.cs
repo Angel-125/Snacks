@@ -121,6 +121,11 @@ namespace Snacks
         /// Number of seconds that must pass before running the consumer.
         /// </summary>
         public double secondsPerCycle = 3600.0f;
+
+        /// <summary>
+        /// Flag indicating whether or not the processor is enabled.
+        /// </summary>
+        public bool isActivated = true;
         #endregion
 
         #region Housekeeping
@@ -215,6 +220,9 @@ namespace Snacks
                         preconditions.Add(precondition);
                 }
             }
+
+            if (node.HasValue("isActivated"))
+                bool.TryParse(node.GetValue("isActivated"), out isActivated);
         }
         #endregion
 
@@ -400,6 +408,9 @@ namespace Snacks
         {
             if (node.HasValue(ProcessorNodeRemainingTime))
                 double.TryParse(node.GetValue(ProcessorNodeRemainingTime), out remainingTime);
+
+            if (node.HasValue("isActivated"))
+                bool.TryParse(node.GetValue("isActivated"), out isActivated);
         }
 
         /// <summary>
@@ -412,6 +423,7 @@ namespace Snacks
 
             node.AddValue(ProcessorNodeName, name);
             node.AddValue(ProcessorNodeRemainingTime, remainingTime);
+            node.AddValue("isActivated", isActivated);
 
             return node;
         }

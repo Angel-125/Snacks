@@ -916,6 +916,11 @@
             Number of seconds that must pass before running the consumer.
             </summary>
         </member>
+        <member name="F:Snacks.BaseResourceProcessor.isActivated">
+            <summary>
+            Flag indicating whether or not the processor is enabled.
+            </summary>
+        </member>
         <member name="M:Snacks.BaseResourceProcessor.onKerbalEVA(ProtoCrewMember,Part)">
             <summary>
             Handles the situation where the kerbal went on EVA.

@@ -105,8 +105,8 @@ C:\Projects\KSP\WildBlueIndustries\Snacks\Snacks\bin\Debug\UnityEngine.WindModul
 C:\Projects\KSP\WildBlueIndustries\Snacks\Snacks\bin\Debug\UnityEngine.ARModule.dll
 C:\Projects\KSP\WildBlueIndustries\Snacks\Snacks\bin\Debug\UnityEngine.InputModule.dll
 C:\Projects\KSP\WildBlueIndustries\Snacks\Snacks\bin\Debug\KSPAssets.XmlSerializers.dll
+C:\Projects\KSP\WildBlueIndustries\Snacks\Snacks\obj\Debug\Snacks.csproj.AssemblyReference.cache
 C:\Projects\KSP\WildBlueIndustries\Snacks\Snacks\obj\Debug\Snacks.csproj.CoreCompileInputs.cache
 C:\Projects\KSP\WildBlueIndustries\Snacks\Snacks\obj\Debug\Snacks.csproj.CopyComplete
 C:\Projects\KSP\WildBlueIndustries\Snacks\Snacks\obj\Debug\SnacksUtils.dll
 C:\Projects\KSP\WildBlueIndustries\Snacks\Snacks\obj\Debug\SnacksUtils.pdb
-C:\Projects\KSP\WildBlueIndustries\Snacks\Snacks\obj\Debug\Snacks.csproj.AssemblyReference.cache

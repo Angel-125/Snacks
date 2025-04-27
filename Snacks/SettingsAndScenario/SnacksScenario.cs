@@ -214,6 +214,7 @@ namespace Snacks
         private Dictionary<string, SnacksEvent> eventCards;
         private int vesselsBeingProcessed;
         private bool snackCycleStarted;
+        private List<string> exemptedVesselsList;
         #endregion
 
         #region Snapshots
@@ -432,6 +433,9 @@ namespace Snacks
                 return;
             cycleStartTime = Planetarium.GetUniversalTime();
 
+            // Clean exempted vessels list
+            cleanExemptedVesselsList();
+
             //Run the snacks cycle
             RunSnackCyleImmediately(elapsedTime);
 
@@ -467,6 +471,13 @@ namespace Snacks
                     vessel.vesselType == VesselType.SpaceObject ||
                     vessel.vesselType == VesselType.Unknown)
                     continue;
+
+                // Skip vessel if it is exempt from processors. This is mainly for story purposes.
+                if (isExemptFromProcessors(vessel.id))
+                {
+                    Debug.Log("[SnacksScenario] - Skipping " + vessel.name + ", it is exempt.");
+                    continue;
+                }
 
                 //Start snack cycle
                 vesselsBeingProcessed += 1;
@@ -997,8 +1008,8 @@ namespace Snacks
             GameEvents.onCrewBoardVessel.Remove(onCrewBoardVessel);
             GameEvents.OnGameSettingsApplied.Remove(onGameSettingsApplied);
             GameEvents.onVesselWasModified.Remove(onVesselWasModified);
-            GameEvents.onDockingComplete.Add(onDockingComplete);
-            GameEvents.onVesselsUndocking.Add(onVesselsUndocking);
+            GameEvents.onDockingComplete.Remove(onDockingComplete);
+            GameEvents.onVesselsUndocking.Remove(onVesselsUndocking);
             GameEvents.onVesselWillDestroy.Remove(onVesselWillDestroy);
             GameEvents.OnVesselRecoveryRequested.Remove(onVesselRecoveryRequested);
             GameEvents.OnVesselRollout.Remove(onVesselRollout);
@@ -1008,9 +1019,9 @@ namespace Snacks
             GameEvents.onKerbalAdded.Remove(onKerbalAdded);
             GameEvents.onKerbalNameChanged.Remove(onKerbalNameChanged);
             GameEvents.onKerbalRemoved.Remove(onKerbalRemoved);
-            GameEvents.OnCrewmemberHired.Add(OnCrewmemberHired);
-            GameEvents.OnCrewmemberSacked.Add(OnCrewmemberSacked);
-            GameEvents.OnCrewmemberLeftForDead.Add(OnCrewmemberLeftForDead);
+            GameEvents.OnCrewmemberHired.Remove(OnCrewmemberHired);
+            GameEvents.OnCrewmemberSacked.Remove(OnCrewmemberSacked);
+            GameEvents.OnCrewmemberLeftForDead.Remove(OnCrewmemberLeftForDead);
             GameEvents.onKerbalLevelUp.Remove(onKerbalLevelUp);
             GameEvents.onKerbalStatusChanged.Remove(onKerbalStatusChanged);
             GameEvents.onCrewTransferred.Remove(onCrewTransferred);
@@ -1081,6 +1092,11 @@ namespace Snacks
             //Load astronaut data
             crewData = AstronautData.Load(node);
 
+            // Exempted vessels
+            exemptedVesselsList = new List<string>();
+            if (node.HasNode("ExemptedVessels"))
+                loadExemptedVesselsList(node.GetNode("ExemptedVessels"));
+
             //Events
             loadPersistentEventData(node);
         }
@@ -1117,6 +1133,11 @@ namespace Snacks
                 if (configNode != null)
                     node.AddNode(configNode);
             }
+
+            // Exempted vessels
+            configNode = saveExemptedVesselsList();
+            if (configNode != null)
+                node.AddNode(configNode);
 
             //Events
             savePersistentEventData(node);
@@ -1850,6 +1871,29 @@ namespace Snacks
         #endregion
 
         #region Processors API
+        public bool isExemptFromProcessors(Guid vesselId)
+        {
+            if (exemptedVesselsList.Count == 0)
+                return false;
+
+            return exemptedVesselsList.Contains(vesselId.ToString());
+        }
+
+        public void SetExemptVessel(Vessel vessel, bool isExempted)
+        {
+            string id = vessel.id.ToString();
+            if (!exemptedVesselsList.Contains(id) && isExempted)
+            {
+                exemptedVesselsList.Add(id);
+                Debug.Log("[SnacksScenario] - Added " + vessel.name + " to the exemptions list.");
+            }
+            else if (exemptedVesselsList.Contains(id) && !isExempted)
+            {
+                exemptedVesselsList.Remove(id);
+                Debug.Log("[SnacksScenario] - Removed " + vessel.name + " from the exemptions list.");
+            }
+        }
+
         /// <summary>
         /// Creates a new precondition based on the config node data passed in.
         /// </summary>
@@ -1977,6 +2021,32 @@ namespace Snacks
         #endregion
 
         #region Helpers
+
+        private ConfigNode saveExemptedVesselsList()
+        {
+            if (exemptedVesselsList.Count == 0)
+                return null;
+
+            ConfigNode nodeExemptedVessels = new ConfigNode("ExemptedVessels");
+            int count = exemptedVesselsList.Count;
+            for (int index = 0; index < count; index++)
+            {
+                nodeExemptedVessels.AddValue("vesselID", exemptedVesselsList[index]);
+            }
+
+            return nodeExemptedVessels;
+        }
+
+        private void loadExemptedVesselsList(ConfigNode exemptedVesselsNode)
+        {
+            exemptedVesselsList = new List<string>();
+            string[] vesselIds = exemptedVesselsNode.GetValues("vesselID");
+            for (int index = 0; index < vesselIds.Length; index++)
+            {
+                exemptedVesselsList.Add(vesselIds[index]);
+            }
+        }
+
         private IEnumerator<YieldInstruction> runSnackCycle(Vessel vessel, double elapsedTime)
         {
             yield return new WaitForFixedUpdate();
@@ -2135,6 +2205,41 @@ namespace Snacks
             keys = eventCards.Keys.ToArray();
             for (int index = 0; index < keys.Length; index++)
                 node.AddNode(eventCards[keys[index]].Save());
+        }
+
+        private void cleanExemptedVesselsList()
+        {
+            // Compile the list of vessel IDs.
+            Vessel vessel;
+            int count = FlightGlobals.Vessels.Count;
+            string vesselIds = string.Empty;
+            string id = string.Empty;
+            for (int vesselIndex = 0; vesselIndex < count; vesselIndex++)
+            {
+                vessel = FlightGlobals.Vessels[vesselIndex];
+
+                //Skip vessel types that we're not interested in.
+                if (vessel.vesselType == VesselType.Debris ||
+                    vessel.vesselType == VesselType.Flag ||
+                    vessel.vesselType == VesselType.SpaceObject ||
+                    vessel.vesselType == VesselType.Unknown)
+                    continue;
+
+                id = vessel.id.ToString();
+                vesselIds += id;
+            }
+
+            // go through all the exempted vessels and make sure that they still exist.
+            count = exemptedVesselsList.Count;
+            string[] exempted = exemptedVesselsList.ToArray();
+            for (int vesselIndex = 0; vesselIndex < count; vesselIndex++)
+            {
+                id = exempted[vesselIndex];
+                if (!vesselIds.Contains(id))
+                {
+                    exemptedVesselsList.Remove(id);
+                }
+            }
         }
 
         protected void loadPersistentEventData(ConfigNode node)

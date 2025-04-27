@@ -48,6 +48,7 @@ namespace Snacks
         public void OnDestroy()
         {
             snackView.SetVisible(false);
+            GameEvents.onGUIApplicationLauncherReady.Remove(SetupGUI);
         }
 
         public void OnGUI()
