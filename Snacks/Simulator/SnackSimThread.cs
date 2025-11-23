@@ -128,6 +128,7 @@ namespace Snacks
                 if (!canRun)
                 {
                     mutex.ReleaseMutex();
+                    Thread.Sleep(100);
                     return;
                 }
 
@@ -176,6 +177,10 @@ namespace Snacks
                         }
                         mutex.ReleaseMutex();
                     }
+                }
+                else
+                {
+                    Thread.Sleep(100);
                 }
 
             }
