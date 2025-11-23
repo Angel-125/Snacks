@@ -184,6 +184,8 @@ namespace Snacks
             for (int index = 0; index < unloadedCount; index++)
             {
                 vessel = FlightGlobals.VesselsUnloaded[index];
+                if (vessel == null)
+                    continue;
                 //Skip vessel types that we're not interested in.
                 if (vessel.vesselType == VesselType.Debris ||
                     vessel.vesselType == VesselType.Flag ||
