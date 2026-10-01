@@ -140,11 +140,11 @@ namespace Snacks
             {
                 astronautData = SnacksScenario.Instance.GetAstronautData(astronauts[index]);
 
+                astronautData.ClearCondition(conditionName);
+
                 //If the vessel is loaded then restore skills
                 if (vessel.loaded)
                     SnacksScenario.Instance.RestoreSkillsIfNeeded(astronauts[index]);
-
-                astronautData.ClearCondition(conditionName);
             }
 
             //Call base class

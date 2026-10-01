@@ -162,6 +162,7 @@ namespace Snacks
                 resource = new SnacksRosterResource();
 
                 resourceName = resourceNodes[index].GetValue(RosterResourceName);
+                resource.resourceName = resourceName;
 
                 if (SnacksScenario.Instance.rosterResources.ContainsKey(resourceName))
                 {

@@ -120,6 +120,7 @@ namespace Snacks
             }
 
             //Failsafe: make sure we have a Snacks part resource. If not, add it.
+            /*
             if (!addedSnacksResource)
             {
                 partResource = new SnacksPartResource();
@@ -130,7 +131,7 @@ namespace Snacks
                 partResource.capacityMultiplier = 0.25f;
                 partResourceList.Add(partResource);
             }
-
+            */
             //Return the resources
             return partResourceList;
         }

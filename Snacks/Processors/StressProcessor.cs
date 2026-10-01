@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -72,6 +73,8 @@ namespace Snacks
         /// number of seats is less than or equal to MaxSeatsForMultiplier.
         /// </summary>
         const float SpacePerSeatMultiplier = 16.0f;
+        const string VesselTimerNode = "STRESS_VESSEL_TIMER";
+        readonly Dictionary<Guid, double> vesselRemainingTimes = new Dictionary<Guid, double>();
         #endregion
 
         #region Constructors
@@ -82,6 +85,34 @@ namespace Snacks
         #endregion
 
         #region Overrides
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+            vesselRemainingTimes.Clear();
+            foreach (ConfigNode timerNode in node.GetNodes(VesselTimerNode))
+            {
+                Guid vesselId;
+                double time;
+                if (Guid.TryParse(timerNode.GetValue("vesselID"), out vesselId) &&
+                    double.TryParse(timerNode.GetValue(ProcessorNodeRemainingTime), NumberStyles.Float,
+                        CultureInfo.InvariantCulture, out time) && time >= 0 && !double.IsInfinity(time))
+                    vesselRemainingTimes[vesselId] = time;
+            }
+        }
+
+        public override ConfigNode OnSave()
+        {
+            ConfigNode node = base.OnSave();
+            foreach (KeyValuePair<Guid, double> timer in vesselRemainingTimes)
+            {
+                ConfigNode timerNode = new ConfigNode(VesselTimerNode);
+                timerNode.AddValue("vesselID", timer.Key.ToString());
+                timerNode.AddValue(ProcessorNodeRemainingTime, timer.Value.ToString("R", CultureInfo.InvariantCulture));
+                node.AddNode(timerNode);
+            }
+            return node;
+        }
+
         public override void Initialize()
         {
             base.Initialize();
@@ -131,7 +162,6 @@ namespace Snacks
             Vessel vessel = part.vessel;
             SnacksProcessorResult result = new SnacksProcessorResult();
             SnacksRosterResource resource;
-            bool completedSuccessfully = true;
 
             //Get vessel crew
             astronauts = SnacksScenario.Instance.GetNonExemptCrew(vessel);
@@ -149,9 +179,6 @@ namespace Snacks
             //Now make sure kerbals aren't stressed out, or apply outcomes if they are.
             for (int index = 0; index < astronauts.Length; index++)
             {
-                //Reset flag
-                completedSuccessfully = true;
-
                 //Get astronaut data
                 astronautData = SnacksScenario.Instance.GetAstronautData(astronauts[index]);
                 if (astronautData == null)
@@ -166,7 +193,6 @@ namespace Snacks
                 if (resource.amount >= resource.maxAmount)
                 {
                     //Set the flags
-                    completedSuccessfully = false;
                     result.completedSuccessfully = false;
 
                     //Incease affected kerbal count
@@ -180,10 +206,9 @@ namespace Snacks
             }
 
             //Process results
-            if (!completedSuccessfully)
+            removeFailureOutcomes(vessel, false);
+            if (!result.completedSuccessfully)
                 applyFailureOutcomes(vessel, result);
-            else
-                removeFailureOutcomes(vessel);
         }
 
         public override void ProcessResources(Vessel vessel, double elapsedTime, int crewCount, int crewCapacity)
@@ -193,11 +218,17 @@ namespace Snacks
             SnacksProcessorResult result = new SnacksProcessorResult();
             float stress = 0;
 
-            remainingTime += elapsedTime;
-            while (remainingTime >= secondsPerCycle)
+            double vesselRemainingTime;
+            //Old saves have only the shared remainder. Use it as the initial phase for each vessel.
+            if (!vesselRemainingTimes.TryGetValue(vessel.id, out vesselRemainingTime))
+                vesselRemainingTime = remainingTime;
+            vesselRemainingTime += elapsedTime;
+            vesselRemainingTimes[vessel.id] = vesselRemainingTime;
+            while (vesselRemainingTime >= secondsPerCycle)
             {
                 //Update remaining time
-                remainingTime -= secondsPerCycle;
+                vesselRemainingTime -= secondsPerCycle;
+                vesselRemainingTimes[vessel.id] = vesselRemainingTime;
 
                 //Get the crew manifest
                 astronauts = SnacksScenario.Instance.GetNonExemptCrew(vessel);
@@ -207,6 +238,7 @@ namespace Snacks
                     return;
 
                 //Setup result
+                result = new SnacksProcessorResult();
                 productionResults.Clear();
                 result.crewCount = crewCount;
                 result.crewCapacity = crewCapacity;
@@ -348,7 +380,7 @@ namespace Snacks
         protected void onRosterResourceUpdated(Vessel vessel, SnacksRosterResource rosterResource, AstronautData astronautData, ProtoCrewMember astronaut)
         {
             //Make sure it's a resource we're interested in.
-            if (!rosterResource.resourceName.Contains(StressConditionName))
+            if (rosterResource.resourceName != StressResourceName)
                 return;
 
             //If the resource has gone down below max, then remove the stress condition.
@@ -364,7 +396,8 @@ namespace Snacks
             {
                 astronautData.SetCondition(StressConditionName);
                 SnacksScenario.Instance.RemoveSkillsIfNeeded(astronaut);
-                ScreenMessages.PostScreenMessage(vessel.vesselName + ": " + astronaut.name + " " + StressPlayerMessage, 5.0f, ScreenMessageStyle.UPPER_LEFT);
+                string vesselPrefix = vessel != null ? vessel.vesselName + ": " : string.Empty;
+                ScreenMessages.PostScreenMessage(vesselPrefix + astronaut.name + " " + StressPlayerMessage, 5.0f, ScreenMessageStyle.UPPER_LEFT);
             }
         }
 
