@@ -18,8 +18,8 @@ Snack Tin artwork by SQUAD/Porkjet: CC-BY-NC 3.0
 Portions of this codebase are CC-BY-NC 3.0 and derived from Taranis Elsu's Window class.
 
 INSTALLATION
-Delete any previous instances in GameData/Snacks
-Copy the files in the zip folder over to GameData/Snacks
+Delete any previous instance in GameData/WildBlueIndustries/Snacks.
+Copy the GameData folder from the ZIP into your KSP installation folder.
 
 ---CHANGES---
 

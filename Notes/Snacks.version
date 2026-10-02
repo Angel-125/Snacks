@@ -1,6 +1,6 @@
 {
     "NAME":"Snacks",
-    "URL":"https://raw.githubusercontent.com/Angel-125/Snacks/master/GameData/Snacks/Snacks.version",
+    "URL":"https://raw.githubusercontent.com/Angel-125/Snacks/master/ReleaseFolder/GameData/WildBlueIndustries/Snacks/Snacks.version",
     "DOWNLOAD":"https://github.com/Angel-125/Snacks/releases",
     "GITHUB":
     {
@@ -11,8 +11,8 @@
     "VERSION":
     {
 	"MAJOR":1,
-	"MINOR":28,
-	"PATCH":2
+	"MINOR":29,
+	"PATCH":0
     },
     "KSP_VERSION_MIN":
     {

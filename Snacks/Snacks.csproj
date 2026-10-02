@@ -179,7 +179,7 @@ xcopy /Y "$(TargetDir)$(TargetName).dll" "C:\KSPDev\GameData\WildBlueIndustries\
 
 xcopy /Y  "C:\KSPDev\GameData\WildBlueIndustries\Snacks\Snacks.version" "C:\Projects\KSP\WildBlueIndustries\Snacks\Notes\"
 
-del "C:\Projects\KSP\WildBlueIndustries\Snacks\GameData\WildBlueIndustries\Snacks\MiniAVC.xml"</PostBuildEvent>
+del "C:\Projects\KSP\WildBlueIndustries\Snacks\ReleaseFolder\GameData\WildBlueIndustries\Snacks\MiniAVC.xml"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
