@@ -78,7 +78,7 @@ namespace Snacks
         [GameParameters.CustomIntParameterUI("Meals before fainting", maxValue = 24, minValue = 1, stepSize = 1, toolTip = "How many meals can a kerbal miss before fainting", autoPersistance = true)]
         public int mealsBeforeFainting = 3;
 
-        [GameParameters.CustomParameterUI("Nap time when fainted", toolTip = "How long will a kerbal nap for when they faint", autoPersistance = true)]
+        [GameParameters.CustomParameterUI("Nap time when fainted", toolTip = "How long a kerbal naps when fainted. OneDay means one homeworld solar day.", autoPersistance = true)]
         public FaintTime napTime = FaintTime.OneMinute;
 
         [GameParameters.CustomParameterUI("Kerbals can starve to death.", toolTip = "If they skip too many meals, kerbals can starve to death.", autoPersistance = true)]
@@ -179,7 +179,7 @@ namespace Snacks
         [GameParameters.CustomIntParameterUI("Snacks per meal", minValue = 1, maxValue = 12, stepSize = 1, toolTip = "How much do kerbals snack on?", autoPersistance = true)]
         public int snacksPerMeal = 1;
 
-        [GameParameters.CustomIntParameterUI("Meals per day", minValue = 1, maxValue = 12, stepSize = 1, toolTip = "How often do kerbals eat?", autoPersistance = true)]
+        [GameParameters.CustomIntParameterUI("Meals per homeworld day", minValue = 1, maxValue = 12, stepSize = 1, toolTip = "Meals per homeworld solar day (sunrise to the next sunrise), regardless of the displayed calendar.", autoPersistance = true)]
         public int mealsPerDay = 3;
 
         [GameParameters.CustomParameterUI("Some kerbals eat more, some eat less", toolTip = "At snack time, kerbals eat random amounts of Snacks, and the time between snacking is also random.", autoPersistance = true)]
@@ -284,35 +284,30 @@ namespace Snacks
         {
             get
             {
-                SnackPenalties penalties = HighLogic.CurrentGame.Parameters.CustomParams<SnackPenalties>();
-                
-                switch (penalties.napTime)
-                {
-                    case FaintTime.OneMinute:
-                    default:
-                        return 1;
+                // Preserve the existing API's physical-minute units.
+                return (int)Math.Ceiling(NapDurationSeconds / 60.0);
+            }
+        }
 
-                    case FaintTime.FiveMinutes:
-                        return 5;
+        public static float NapDurationSeconds
+        {
+            get
+            {
+                return GetNapDurationSeconds(HighLogic.CurrentGame.Parameters.CustomParams<SnackPenalties>().napTime);
+            }
+        }
 
-                    case FaintTime.TenMinutes:
-                        return 10;
-
-                    case FaintTime.ThirtyMinutes:
-                        return 30;
-
-                    case FaintTime.OneHour:
-                        return 60;
-
-                    case FaintTime.TwoHours:
-                        return 120;
-
-                    case FaintTime.OneDay:
-                        if (GameSettings.KERBIN_TIME)
-                            return 360;
-                        else
-                            return 1440;
-                }
+        internal static float GetNapDurationSeconds(FaintTime napTime)
+        {
+            switch (napTime)
+            {
+                case FaintTime.FiveMinutes: return 300;
+                case FaintTime.TenMinutes: return 600;
+                case FaintTime.ThirtyMinutes: return 1800;
+                case FaintTime.OneHour: return 3600;
+                case FaintTime.TwoHours: return 7200;
+                case FaintTime.OneDay: return (float)SnacksScenario.GetSecondsPerDay();
+                default: return 60;
             }
         }
 

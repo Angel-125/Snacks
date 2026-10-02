@@ -1,7 +1,7 @@
-﻿/**
+/**
 The MIT License (MIT)
 Copyright (c) 2014-2019 by Michael Billard
- 
+
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -82,6 +82,7 @@ namespace Snacks
     public class SnacksBackgroundConverter
     {
         public static string NodeName = "SnacksBackgroundConverter";
+        public const string BackgroundUpdateTime = "snacksBackgroundUpdateTime";
         public static string skipReources = ";";
         private const double kHighTimewarpDelta = 360.0;
 
@@ -143,7 +144,15 @@ namespace Snacks
         float SpecialistEfficiencyFactor = 0.1f;
         string ExperienceEffect = string.Empty;
         double cycleStartTime = 0;
+        double lastUpdateTime;
+        bool hasLastUpdateTime;
+        bool yieldClockInitialized;
         bool isGenerator = false;
+        int minimumCrew;
+        bool requiresHomeConnection;
+        bool requiresOxygen;
+        bool requiresSplashed;
+        double minimumVesselPercentEC;
 
         List<ResourceRatio> inputList = new List<ResourceRatio>();
         List<ResourceRatio> outputList = new List<ResourceRatio>();
@@ -242,6 +251,7 @@ namespace Snacks
                                     //Create a background converter
                                     converter = new SnacksBackgroundConverter(protoPart, protoModule, moduleIndex);
                                     converter.isGenerator = true;
+                                    converter.IsActivated = true;
                                     converters.Insert(0, converter);
                                     backgroundConverters[vessel] = converters;
                                 }
@@ -267,7 +277,7 @@ namespace Snacks
                             if (!panelNode.HasValue("name"))
                                 continue;
                             panelModuleName = panelNode.GetValue("name");
-                            if (panelModuleName != "ModuleDeployableSolarPanel")
+                            if (panelModuleName != protoModule.moduleName)
                                 continue;
 
                             //Make sure the array is extended (non-deployable arrays are always extended)
@@ -285,9 +295,11 @@ namespace Snacks
                             converter = new SnacksBackgroundConverter();
                             converter.protoPart = protoPart;
                             converter.moduleSnapshot = protoModule;
+                            converter.ReadUpdateTime(protoModule);
                             converter.isGenerator = true;
+                            converter.IsActivated = true;
 
-                            //Calculate solarFlux                            
+                            //Calculate solarFlux
                             if (protoVessel.vesselModules.HasNode("SnacksVesselModule"))
                             {
                                 ConfigNode vesselNode = protoVessel.vesselModules.GetNode("SnacksVesselModule");
@@ -303,6 +315,7 @@ namespace Snacks
                             resourceRatio.Ratio = chargeRate / 2;
                             resourceRatio.Ratio *= solarFlux / PhysicsGlobals.SolarLuminosityAtHome;
                             converter.outputList.Add(resourceRatio);
+                            converter.outputResourceNames = resourceRatio.ResourceName;
 
                             converters.Insert(0, converter);
                             backgroundConverters[vessel] = converters;
@@ -311,6 +324,7 @@ namespace Snacks
                 }
 
                 //Give mods a chance to add custom converters that aren't covered by Snacks.
+                SnacksScenario.Instance.backgroundConverters = backgroundConverters;
                 SnacksScenario.onBackgroundConvertersCreated.Fire(vessel);
             }
 
@@ -337,15 +351,22 @@ namespace Snacks
                 return;
 
             //We've got a config node, but is it a converter? if so, get its resource lists.
-            if (node.HasValue("ConverterName"))
+            if (node.HasValue("ConverterName") || protoModule.moduleName == "ModuleGenerator")
             {
                 this.moduleSnapshot = protoModule;
                 this.protoPart = protoPart;
                 this.ConverterName = node.GetValue("ConverterName");
+                this.moduleName = protoModule.moduleName;
 
                 bool.TryParse(protoModule.moduleValues.GetValue("IsActivated"), out IsActivated);
-                if (node.HasValue("playerEmailed"))
+                if (protoModule.moduleValues.HasValue("playerEmailed"))
                     bool.TryParse(moduleSnapshot.moduleValues.GetValue("playerEmailed"), out playerEmailed);
+
+                int.TryParse(node.GetValue("minimumCrew"), out minimumCrew);
+                bool.TryParse(node.GetValue("requiresHomeConnection"), out requiresHomeConnection);
+                bool.TryParse(node.GetValue("requiresOxygen"), out requiresOxygen);
+                bool.TryParse(node.GetValue("requiresSplashed"), out requiresSplashed);
+                double.TryParse(node.GetValue("minimumVesselPercentEC"), out minimumVesselPercentEC);
 
                 //Get input resources
                 if (node.HasNode("INPUT_RESOURCE"))
@@ -363,7 +384,7 @@ namespace Snacks
 
                 //Get required resources
                 if (node.HasNode("REQUIRED_RESOURCE"))
-                    getConverterResources("YIELD_RESOURCE", requiredList, node);
+                    getConverterResources("REQUIRED_RESOURCE", requiredList, node);
                 count = requiredList.Count;
                 for (int index = 0; index < count; index++)
                     requiredResourceNames += requiredList[index].ResourceName;
@@ -412,7 +433,11 @@ namespace Snacks
                     ExperienceEffect = node.GetValue("ExperienceEffect");
 
                 if (protoModule.moduleValues.HasValue("cycleStartTime"))
+                {
                     double.TryParse(protoModule.moduleValues.GetValue("cycleStartTime"), out cycleStartTime);
+                    yieldClockInitialized = true;
+                }
+                ReadUpdateTime(protoModule);
 
                 if (protoModule.moduleValues.HasValue("inputEfficiency"))
                     double.TryParse(protoModule.moduleValues.GetValue("inputEfficiency"), out inputEfficiency);
@@ -439,6 +464,30 @@ namespace Snacks
         /// <param name="elapsedTime">The seconds that have elapsed.</param>
         public void CheckRequiredResources(ProtoVessel vessel, double elapsedTime)
         {
+            Vessel vesselRef = vessel.vesselRef;
+            if (protoPart.protoModuleCrew.Count < minimumCrew ||
+                (requiresSplashed && !vesselRef.Splashed) ||
+                (requiresOxygen && !vesselRef.mainBody.atmosphereContainsOxygen) ||
+                (requiresHomeConnection && CommNet.CommNetScenario.CommNetEnabled &&
+                    (vesselRef.connection == null || !vesselRef.connection.IsConnectedHome)))
+            {
+                isMissingResources = true;
+                return;
+            }
+
+            //Check storage before consuming inputs, so blocked outputs do not waste resources.
+            foreach (ResourceRatio output in outputList)
+            {
+                if (output.DumpExcess)
+                    continue;
+                double room = getAvailableSpace(output.ResourceName, output.FlowMode);
+                if (room <= 0 && output.Ratio > 0)
+                {
+                    isContainerFull = true;
+                    emailPlayer(output.ResourceName, SnacksBackroundEmailTypes.containerFull);
+                    return;
+                }
+            }
             int count = requiredList.Count;
             if (count == 0)
                 return;
@@ -468,7 +517,7 @@ namespace Snacks
         public void ConsumeInputResources(ProtoVessel vessel, double elapsedTime)
         {
             int count = inputList.Count;
-            if (count == 0)
+            if (count == 0 && rosterInputList.Count == 0)
                 return;
             if (isMissingResources)
                 return;
@@ -477,7 +526,7 @@ namespace Snacks
 
             //Get cheat states
             bool infinitePropellantsEnabled = CheatOptions.InfinitePropellant;
-            bool infiniteElectricity = CheatOptions.InfiniteElectricity || !SnacksProperties.ConsumeECInBackground;
+            bool infiniteElectricity = HasUnlimitedElectricity();
 
             //Check to make sure we have enough resources
             ResourceRatio resourceRatio;
@@ -487,12 +536,14 @@ namespace Snacks
             {
                 resourceRatio = inputList[index];
                 //Skip resource if the appropriate cheat is on
-                if ((resourceRatio.ResourceName == "ElectricCharge") || (infinitePropellantsEnabled))
+                if ((resourceRatio.ResourceName == "ElectricCharge" && infiniteElectricity) || infinitePropellantsEnabled)
                     continue;
 
                     demand = resourceRatio.Ratio * inputEfficiency * elapsedTime;
                 amount = getAmount(resourceRatio.ResourceName, resourceRatio.FlowMode);
-                if (amount < demand)
+                double capacity = amount + getAvailableSpace(resourceRatio.ResourceName, resourceRatio.FlowMode);
+                if (amount < demand || (resourceRatio.ResourceName == "ElectricCharge" &&
+                    minimumVesselPercentEC > 0 && (capacity <= 0 || amount / capacity <= minimumVesselPercentEC / 100.0)))
                 {
                     //Set the missing resources flag
                     isMissingResources = true;
@@ -508,7 +559,7 @@ namespace Snacks
             {
                 resourceRatio = inputList[index];
                 //Skip resource if the appropriate cheat is on
-                if ((resourceRatio.ResourceName == "ElectricCharge") || (infinitePropellantsEnabled))
+                if ((resourceRatio.ResourceName == "ElectricCharge" && infiniteElectricity) || infinitePropellantsEnabled)
                     continue;
 
                 //Request resource
@@ -566,7 +617,7 @@ namespace Snacks
         public void ProduceOutputResources(ProtoVessel vessel, double elapsedTime)
         {
             int count = outputList.Count;
-            if (count == 0)
+            if (count == 0 && rosterOutputList.Count == 0)
                 return;
             if (isMissingResources)
                 return;
@@ -623,6 +674,11 @@ namespace Snacks
         /// <param name="vessel">The Vessel to add resources to.</param>
         public void ProduceyieldsList(ProtoVessel vessel)
         {
+            ProduceyieldsList(vessel, Planetarium.GetUniversalTime());
+        }
+
+        public void ProduceyieldsList(ProtoVessel vessel, double processingTime)
+        {
             int count = yieldsList.Count;
             if (count == 0)
                 return;
@@ -632,24 +688,25 @@ namespace Snacks
                 return;
 
             //Check cycle start time
-            if (cycleStartTime == 0f)
+            if (!yieldClockInitialized)
             {
-                cycleStartTime = Planetarium.GetUniversalTime();
+                cycleStartTime = processingTime;
+                yieldClockInitialized = true;
                 return;
             }
 
             //Calculate elapsed time
-            double elapsedTime = Planetarium.GetUniversalTime() - cycleStartTime;
+            double elapsedTime = processingTime - cycleStartTime;
             double secondsPerCycle = hoursPerCycle * 3600;
+            if (secondsPerCycle <= 0 || double.IsNaN(secondsPerCycle) || double.IsInfinity(secondsPerCycle))
+                return;
 
             //If we've elapsed time cycle then perform the analyis.
-            float completionRatio = (float)(elapsedTime / secondsPerCycle);
-            if (completionRatio > 1.0f)
+            double completionRatio = elapsedTime / secondsPerCycle;
+            if (completionRatio >= 1.0)
             {
-                //Reset start time
-                cycleStartTime = Planetarium.GetUniversalTime();
-
-                int cyclesSinceLastUpdate = Mathf.RoundToInt(completionRatio);
+                int cyclesSinceLastUpdate = (int)Math.Min(int.MaxValue, Math.Floor(completionRatio));
+                cycleStartTime += cyclesSinceLastUpdate * secondsPerCycle;
                 int currentCycle;
                 for (currentCycle = 0; currentCycle < cyclesSinceLastUpdate; currentCycle++)
                 {
@@ -701,127 +758,91 @@ namespace Snacks
         /// <param name="vessel">The Vessel to check for preparations.</param>
         public void PrepareToProcess(ProtoVessel vessel)
         {
-            //Find out proto part and module and resources
-            int count = vessel.protoPartSnapshots.Count;
-            int resourceCount;
-            ProtoPartSnapshot pps;
-            ProtoPartResourceSnapshot protoPartResource;
-            List<ProtoPartResourceSnapshot> resourceList;
-
-            //Clear our resource map.
+            //Retry transient failures using fresh resource snapshots on every cycle.
+            isMissingResources = false;
+            isContainerFull = false;
             protoResources.Clear();
-
-            for (int index = 0; index < count; index++)
+            foreach (ProtoPartSnapshot part in vessel.protoPartSnapshots)
             {
-                //Get the proto part snapshot
-                pps = vessel.protoPartSnapshots[index];
-
-                //Sort through all the resources and add them to our buckets.
-                resourceCount = pps.resources.Count;
-                for (int resourceIndex = 0; resourceIndex < resourceCount; resourceIndex++)
+                foreach (ProtoPartResourceSnapshot resource in part.resources)
                 {
-                    protoPartResource = pps.resources[resourceIndex];
-
-                    //Inputs
-                    if (!string.IsNullOrEmpty(inputResourceNames) && !skipReources.Contains(protoPartResource.resourceName))
+                    if (skipReources.Contains(resource.resourceName))
+                        continue;
+                    List<ProtoPartResourceSnapshot> resources;
+                    if (!protoResources.TryGetValue(resource.resourceName, out resources))
                     {
-                        if (inputResourceNames.Contains(protoPartResource.resourceName))
-                        {
-                            if (protoResources.ContainsKey(protoPartResource.resourceName))
-                            {
-                                resourceList = protoResources[protoPartResource.resourceName];
-                            }
-                            else
-                            {
-                                protoResources.Add(protoPartResource.resourceName, new List<ProtoPartResourceSnapshot>());
-                                resourceList = protoResources[protoPartResource.resourceName];
-                            }
-
-                            resourceList.Add(protoPartResource);
-                            protoResources[protoPartResource.resourceName] = resourceList;
-                        }
+                        resources = new List<ProtoPartResourceSnapshot>();
+                        protoResources.Add(resource.resourceName, resources);
                     }
-
-                    //Outputs
-                    if (!string.IsNullOrEmpty(outputResourceNames) && !skipReources.Contains(protoPartResource.resourceName))
-                    {
-                        if (outputResourceNames.Contains(protoPartResource.resourceName))
-                        {
-                            if (protoResources.ContainsKey(protoPartResource.resourceName))
-                            {
-                                resourceList = protoResources[protoPartResource.resourceName];
-                            }
-                            else
-                            {
-                                protoResources.Add(protoPartResource.resourceName, new List<ProtoPartResourceSnapshot>());
-                                resourceList = protoResources[protoPartResource.resourceName];
-                            }
-
-                            resourceList.Add(protoPartResource);
-                            protoResources[protoPartResource.resourceName] = resourceList;
-                        }
-                    }
-
-                    //Required
-                    if (!string.IsNullOrEmpty(requiredResourceNames) && !skipReources.Contains(protoPartResource.resourceName))
-                    {
-                        if (requiredResourceNames.Contains(protoPartResource.resourceName))
-                        {
-                            if (protoResources.ContainsKey(protoPartResource.resourceName))
-                            {
-                                resourceList = protoResources[protoPartResource.resourceName];
-                            }
-                            else
-                            {
-                                protoResources.Add(protoPartResource.resourceName, new List<ProtoPartResourceSnapshot>());
-                                resourceList = protoResources[protoPartResource.resourceName];
-                            }
-
-                            resourceList.Add(protoPartResource);
-                            protoResources[protoPartResource.resourceName] = resourceList;
-                        }
-                    }
-
-                    //Yield
-                    if (!string.IsNullOrEmpty(yieldResourceNames) && !skipReources.Contains(protoPartResource.resourceName))
-                    {
-                        if (yieldResourceNames.Contains(protoPartResource.resourceName))
-                        {
-                            if (protoResources.ContainsKey(protoPartResource.resourceName))
-                            {
-                                resourceList = protoResources[protoPartResource.resourceName];
-                            }
-                            else
-                            {
-                                protoResources.Add(protoPartResource.resourceName, new List<ProtoPartResourceSnapshot>());
-                                resourceList = protoResources[protoPartResource.resourceName];
-                            }
-
-                            resourceList.Add(protoPartResource);
-                            protoResources[protoPartResource.resourceName] = resourceList;
-                        }
-                    }
+                    resources.Add(resource);
                 }
             }
         }
-
         /// <summary>
         /// Handles post process tasks for the converter.
         /// </summary>
         /// <param name="vessel">The Vessel to update.</param>
         public void PostProcess(ProtoVessel vessel)
         {
+            PostProcess(vessel, Planetarium.GetUniversalTime());
+        }
+
+        public void PostProcess(ProtoVessel vessel, double processingTime)
+        {
+            lastUpdateTime = processingTime;
+            hasLastUpdateTime = true;
+            if (moduleSnapshot != null)
+                moduleSnapshot.moduleValues.SetValue(BackgroundUpdateTime, processingTime, true);
             if (isGenerator)
                 return;
 
             //Update lastUpdateTime
-            moduleSnapshot.moduleValues.SetValue("lastUpdateTime", Planetarium.GetUniversalTime());
+            moduleSnapshot.moduleValues.SetValue("lastUpdateTime", processingTime);
             moduleSnapshot.moduleValues.SetValue("cycleStartTime", cycleStartTime);
             moduleSnapshot.moduleValues.SetValue("IsActivated", IsActivated);
         }
         #endregion
 
         #region Helpers
+        private void ReadUpdateTime(ProtoPartModuleSnapshot module)
+        {
+            double backgroundTime;
+            hasLastUpdateTime = double.TryParse(module.moduleValues.GetValue("lastUpdateTime"), out lastUpdateTime);
+            if (double.TryParse(module.moduleValues.GetValue(BackgroundUpdateTime), out backgroundTime))
+            {
+                lastUpdateTime = hasLastUpdateTime ? Math.Max(lastUpdateTime, backgroundTime) : backgroundTime;
+                hasLastUpdateTime = true;
+            }
+        }
+
+        public void PauseYieldClock(double duration)
+        {
+            if (yieldClockInitialized) cycleStartTime += duration;
+        }
+
+        public double GetElectricChargeRate()
+        {
+            double rate = inputList.Where(input => input.ResourceName == "ElectricCharge").Sum(input => input.Ratio * inputEfficiency);
+            return rate > 0 && !HasUnlimitedElectricity() && !CheatOptions.InfinitePropellant ? rate : 0;
+        }
+
+        public double GetElapsedTime(double duration, double processingTime)
+        {
+            double startTime = processingTime - duration;
+            if (hasLastUpdateTime) startTime = Math.Max(startTime, lastUpdateTime);
+            if (!yieldClockInitialized)
+            {
+                cycleStartTime = startTime;
+                yieldClockInitialized = true;
+            }
+            return Math.Max(0, processingTime - startTime);
+        }
+
+        protected virtual bool HasUnlimitedElectricity()
+        {
+            return CheatOptions.InfiniteElectricity || !SnacksProperties.ConsumeECInBackground;
+        }
+
         protected static void getRosterResources(string nodeName, List<SnacksRosterRatio> rosterResourceList, ConfigNode node)
         {
             ConfigNode rosterNode;
@@ -840,8 +861,8 @@ namespace Snacks
             for (int index = 0; index < nodes.Length; index++)
             {
                 rosterNode = nodes[index];
-                if (rosterNode.HasValue(SnacksConverter.ROSTER_RESOURCE_NAME) && 
-                    (rosterNode.HasValue(SnacksConverter.ROSTER_RESOURCE_AMOUNT_PER_DAY) || 
+                if (rosterNode.HasValue(SnacksConverter.ROSTER_RESOURCE_NAME) &&
+                    (rosterNode.HasValue(SnacksConverter.ROSTER_RESOURCE_AMOUNT_PER_DAY) ||
                     rosterNode.HasValue(SnacksConverter.ROSTER_RESOURCE_AMOUNT_PER_SECOND)))
                 {
                     rosterRatio = new SnacksRosterRatio();
@@ -907,12 +928,16 @@ namespace Snacks
                 }
 
                 //Add to the list
+                if (resourceNode.HasValue("DumpExcess"))
+                    bool.TryParse(resourceNode.GetValue("DumpExcess"), out ratio.DumpExcess);
                 resourceList.Add(ratio);
             }
         }
 
         protected void emailPlayer(string resourceName, SnacksBackroundEmailTypes emailType)
         {
+            if (playerEmailed || !SnacksProperties.EmailConverterResults)
+                return;
             StringBuilder resultsMessage = new StringBuilder();
             MessageSystem.Message msg;
             PartResourceDefinition resourceDef = null;
@@ -937,28 +962,28 @@ namespace Snacks
             {
                 case SnacksBackroundEmailTypes.missingResources:
                     resourceDef = definitions[resourceName];
-                    titleMessage = " needs more resources";
-                    resultsMessage.AppendLine("Subject: Missing Resources");
-                    resultsMessage.AppendLine("There is no more " + resourceDef.displayName + " available to continue production. Operations cannot continue with the " + ConverterName + " until more resource becomes available.");
+                    titleMessage = SnacksText.Get("#LOC_Snacks_INFO_TITLE1", " needs more resources");
+                    resultsMessage.AppendLine(SnacksText.Get("#LOC_Snacks_INFO_MISSINGRESOURCE", "Subject: Missing Resources"));
+                    resultsMessage.AppendLine(SnacksText.Format("#LOC_Snacks_INFO_PRDUCFAILD1", "There is no more {0} available to continue production. Operations cannot continue with the {1} until more resource becomes available.", resourceDef.displayName, ConverterName));
                     break;
 
                 case SnacksBackroundEmailTypes.missingRequiredResource:
                     resourceDef = definitions[resourceName];
-                    titleMessage = " needs a resource";
-                    resultsMessage.AppendLine("Subject: Missing Required Resource");
-                    resultsMessage.AppendLine(ConverterName + " needs " + resourceDef.displayName + " in order to function. Operations halted until the resource becomes available.");
+                    titleMessage = SnacksText.Get("#LOC_Snacks_INFO_TITLE2", " needs a resource");
+                    resultsMessage.AppendLine(SnacksText.Get("#LOC_Snacks_INFO_MISSINGREQRESOURCE", "Subject: Missing Required Resource"));
+                    resultsMessage.AppendLine(SnacksText.Format("#LOC_Snacks_INFO_PRDUCFAILD2", "{0} needs {1} in order to function. Operations halted until the resource becomes available.", ConverterName, resourceDef.displayName));
                     break;
 
                 case SnacksBackroundEmailTypes.containerFull:
                     resourceDef = definitions[resourceName];
-                    titleMessage = " is out of storage space";
-                    resultsMessage.AppendLine("Subject: Containers Are Full");
-                    resultsMessage.AppendLine("There is no more storage space available for " + resourceDef.displayName + ". Operations cannot continue with the " + ConverterName + " until more space becomes available.");
+                    titleMessage = SnacksText.Get("#LOC_Snacks_INFO_TITLE3", " is out of storage space");
+                    resultsMessage.AppendLine(SnacksText.Get("#LOC_Snacks_INFO_CONTAINERFULL", "Subject: Containers Are Full"));
+                    resultsMessage.AppendLine(SnacksText.Format("#LOC_Snacks_INFO_PRDUCFAILD3", "There is no more storage space available for {0}. Operations cannot continue with the {1} until more space becomes available.", resourceDef.displayName, ConverterName));
                     break;
 
                 case SnacksBackroundEmailTypes.yieldCriticalFail:
-                    titleMessage = " has suffered a critical failure in one of its converters";
-                    resultsMessage.AppendLine("A " + ConverterName + " has failed! The production yield has been lost. It must be repaired and/or restarted before it can begin production again.");
+                    titleMessage = SnacksText.Get("#LOC_Snacks_INFO_TITLE4", " has suffered a critical failure in one of its converters");
+                    resultsMessage.AppendLine(SnacksText.Format("#LOC_Snacks_INFO_PRDUCFAILD4", "A {0} has failed! The production yield has been lost. It must be repaired and/or restarted before it can begin production again.", ConverterName));
                     break;
 
                 default:
@@ -999,6 +1024,8 @@ namespace Snacks
                 //TODO: find a way to evenly distribute the resource.
                 for (int index = 0; index < count; index++)
                 {
+                    if (!resourceShapshots[index].flowState)
+                        continue;
                     //If the current part resource snapshot has enough room, then we can store all of the currentSupply and be done.
                     if (resourceShapshots[index].amount + currentSupply < resourceShapshots[index].maxAmount)
                     {
@@ -1027,6 +1054,32 @@ namespace Snacks
                     return;
                 }
             }
+            else
+            {
+                foreach (ProtoPartResourceSnapshot resource in protoPart.resources)
+                {
+                    if (resource.resourceName != resourceName || !resource.flowState)
+                        continue;
+                    double stored = Math.Min(currentSupply, resource.maxAmount - resource.amount);
+                    resource.amount += stored;
+                    currentSupply -= stored;
+                }
+                if (currentSupply > 0.0001 && !dumpExcess)
+                    isContainerFull = true;
+            }
+        }
+
+        private double getAvailableSpace(string resourceName, ResourceFlowMode flowMode)
+        {
+            IEnumerable<ProtoPartResourceSnapshot> resources;
+            List<ProtoPartResourceSnapshot> vesselResources;
+            if (flowMode == ResourceFlowMode.NO_FLOW)
+                resources = protoPart.resources.Where(resource => resource.resourceName == resourceName);
+            else if (protoResources.TryGetValue(resourceName, out vesselResources))
+                resources = vesselResources;
+            else
+                return 0;
+            return resources.Where(resource => resource.flowState).Sum(resource => resource.maxAmount - resource.amount);
         }
 
         protected double requestAmount(string resourceName, double demand, ResourceFlowMode flowMode)

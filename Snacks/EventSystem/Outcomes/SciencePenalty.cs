@@ -113,7 +113,7 @@ namespace Snacks
                         }
                         else
                         {
-                            sciencePenalties = result.crewCount - result.affectedKerbalCount;
+                            sciencePenalties = result.affectedKerbalCount;
                             node.AddValue(SnacksVesselModule.ValueSciencePenalties, sciencePenalties);
                         }
                     }

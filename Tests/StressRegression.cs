@@ -84,6 +84,13 @@ class StressRegression
         Resource(a).amount = Resource(a).maxAmount;
         SnacksScenario.onRosterResourceUpdated.Fire(null, Resource(a), data, a);
         Check(data.conditionSummary.Contains("Stressed Out"), "Threshold notifications must support a Kerbal without a vessel.");
+        data.ClearCondition("Stressed Out"); a.skills = true; data.isExempt = true;
+        SnacksScenario.onRosterResourceUpdated.Fire(null, Resource(a), data, a);
+        Check(a.skills && !data.conditionSummary.Contains("Stressed Out"), "Exempt Kerbals do not receive Stress threshold penalties.");
+        new OnStrikePenalty("Stressed Out", false, "").ApplyOutcome(first, new SnacksProcessorResult());
+        Check(a.skills && !data.conditionSummary.Contains("Stressed Out"), "Strike penalties skip an all-exempt crew.");
+        processor.onVesselLoaded(first);
+        Check(!data.conditionSummary.Contains("Stressed Out"), "Loading a vessel does not penalize exempt stressed crew.");
         Console.WriteLine("PASS: independent vessel timers, loaded/unloaded processing, save/reload, legacy saves, immediate thresholds, recovery conditions, boarding, catch-up, roster identity, and KSC recovery.");
     }
 }
@@ -119,6 +126,7 @@ namespace Snacks
 {
     public class AstronautData
     {
+        public bool isExempt;
         public string name, conditionSummary = ""; public Dictionary<string, SnacksRosterResource> rosterResources = new Dictionary<string, SnacksRosterResource>();
         public void SetCondition(string value) { if (!conditionSummary.Contains(value)) conditionSummary += value + ";"; }
         public void ClearCondition(string value) { conditionSummary = conditionSummary.Replace(value + ";", ""); }
@@ -139,7 +147,7 @@ namespace Snacks
         public static double GetSecondsPerDay() { return 100; }
         public AstronautData GetAstronautData(ProtoCrewMember crew) { if (!astronauts.ContainsKey(crew)) astronauts[crew] = new AstronautData { name = crew.name }; return astronauts[crew]; }
         public void SetAstronautData(AstronautData data) { }
-        public ProtoCrewMember[] GetNonExemptCrew(Vessel vessel) { return vessel.crew.ToArray(); }
+        public ProtoCrewMember[] GetNonExemptCrew(Vessel vessel) { var crew = vessel.crew.Where(member => !GetAstronautData(member).isExempt).ToArray(); return crew.Length == 0 ? null : crew; }
         public int GetCrewCapacity(Vessel vessel) { return vessel.capacity; }
         bool HasSkillLoss(ProtoCrewMember crew) { string conditions = GetAstronautData(crew).conditionSummary; return conditions.Contains("Stressed Out") || conditions.Contains("Relaxing"); }
         public void RemoveSkillsIfNeeded(ProtoCrewMember crew) { if (HasSkillLoss(crew)) crew.skills = false; }
@@ -155,10 +163,30 @@ namespace Snacks
     public class BaseResourceProcessor
     {
         public const string ProcessorNodeRemainingTime = "remainingTime"; public string name; public double secondsPerCycle = 100; protected double remainingTime;
+        protected readonly Dictionary<Guid, double> vesselRemainingTimes = new Dictionary<Guid, double>();
+        protected double AddVesselElapsedTime(Vessel vessel, double elapsed)
+        {
+            double time;
+            if (!vesselRemainingTimes.TryGetValue(vessel.id, out time)) time = remainingTime;
+            time += elapsed; vesselRemainingTimes[vessel.id] = time; return time;
+        }
         public List<BaseOutcome> outcomes = new List<BaseOutcome>(); public Dictionary<string, SnacksProcessorResult> productionResults = new Dictionary<string, SnacksProcessorResult>();
         public virtual void Initialize() { } public virtual void Destroy() { }
-        public virtual void OnLoad(ConfigNode node) { remainingTime = 0; if (node.HasValue(ProcessorNodeRemainingTime)) double.TryParse(node.GetValue(ProcessorNodeRemainingTime), out remainingTime); }
-        public virtual ConfigNode OnSave() { ConfigNode node = new ConfigNode("SNACKS_RESOURCE_PROCESSOR"); node.AddValue(ProcessorNodeRemainingTime, remainingTime); return node; }
+        public virtual void OnLoad(ConfigNode node)
+        {
+            remainingTime = 0; if (node.HasValue(ProcessorNodeRemainingTime)) double.TryParse(node.GetValue(ProcessorNodeRemainingTime), out remainingTime);
+            vesselRemainingTimes.Clear();
+            foreach (ConfigNode timer in node.GetNodes("VESSEL_TIMER")) vesselRemainingTimes[Guid.Parse(timer.GetValue("vesselID"))] = double.Parse(timer.GetValue(ProcessorNodeRemainingTime));
+        }
+        public virtual ConfigNode OnSave()
+        {
+            ConfigNode node = new ConfigNode("SNACKS_RESOURCE_PROCESSOR"); node.AddValue(ProcessorNodeRemainingTime, remainingTime);
+            foreach (KeyValuePair<Guid, double> timer in vesselRemainingTimes)
+            {
+                ConfigNode saved = new ConfigNode("VESSEL_TIMER"); saved.AddValue("vesselID", timer.Key); saved.AddValue(ProcessorNodeRemainingTime, timer.Value); node.AddNode(saved);
+            }
+            return node;
+        }
         public virtual void GetRosterResourceEstimatesForEditor(int count, int capacity, StringBuilder results, ShipConstruct ship) { }
         public virtual void onKerbalBoardedVessel(ProtoCrewMember crew, Part part) { } public virtual void ProcessResources(Vessel vessel, double elapsed, int count, int capacity) { }
         public virtual void onVesselLoaded(Vessel vessel) { } public virtual void onVesselGoOffRails(Vessel vessel) { }

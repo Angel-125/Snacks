@@ -118,7 +118,7 @@ namespace Snacks
         {
             updateProductionEfficiency();
 
-            dailyOutput = string.Format("{0:f2} Snacks/day", GetDailySnacksOutput());
+            dailyOutput = string.Format(SnacksText.Get("#LOC_Snacks_GUI_SNACKPERDAY", "{0:f2} Snacks/homeworld day"), GetDailySnacksOutput());
         }
 
         protected override void PreProcessing()
@@ -148,7 +148,7 @@ namespace Snacks
             int resourceCount = inputList.Count;
             if (resourceCount > 0)
             {
-                infoBuilder.AppendLine("<color=#7FFF00><b>Inputs</b></color>");
+                infoBuilder.AppendLine(SnacksText.Get("#LOC_Snacks_INFO_INPUTS", "<color=#7FFF00><b>Inputs</b></color>"));
                 for (int index = 0; index < resourceCount; index++)
                 {
                     if (!definitions.Contains(inputList[index].ResourceName))
@@ -161,7 +161,7 @@ namespace Snacks
             resourceCount = outputList.Count;
             if (resourceCount > 0)
             {
-                infoBuilder.AppendLine("<color=#7FFF00><b>Outputs</b></color>");
+                infoBuilder.AppendLine(SnacksText.Get("#LOC_Snacks_INFO_OUTPUTS", "<color=#7FFF00><b>Outputs</b></color>"));
                 for (int index = 0; index < resourceCount; index++)
                 {
                     if (!definitions.Contains(outputList[index].ResourceName))
@@ -171,7 +171,7 @@ namespace Snacks
                 }
             }
             infoBuilder.AppendLine(" ");
-            infoBuilder.AppendLine("<b>Note: </b> Production rates vary depending upon game settings. Consult the Part Action Window for details.");
+            infoBuilder.AppendLine(SnacksText.Get("#LOC_Snacks_INFO_NOTEPRODUCTIONRATES", "<b>Note: </b> Production rates vary depending upon game settings. Consult the Part Action Window for details."));
 
             if (!string.IsNullOrEmpty(ExperienceEffect))
             {
@@ -189,7 +189,7 @@ namespace Snacks
                     string traitList = traitBuilder.ToString().TrimEnd(charsToTrim);
 
                     infoBuilder.AppendLine(" ");
-                    infoBuilder.AppendLine("<b>Kerbal(s) that improve production: </b>");
+                    infoBuilder.AppendLine(SnacksText.Get("#LOC_Snacks_INFO_NOTEIMPROVE", "<b>Kerbal(s) that improve production: </b>"));
                     infoBuilder.AppendLine(traitList);
                 }
             }

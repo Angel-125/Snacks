@@ -49,7 +49,7 @@ namespace Snacks
         {
             base.OnStart(state);
 
-            Fields["dailyOutput"].guiName = "Max Recycling";
+            Fields["dailyOutput"].guiName = SnacksText.Get("#LOC_Snacks_GUI_MAXRECY", "Max Recycling");
         }
 
         public override string GetInfo()
@@ -58,7 +58,7 @@ namespace Snacks
 
             infoBuilder.AppendLine(base.GetInfo());
             infoBuilder.AppendLine(" ");
-            infoBuilder.AppendLine("<b>Recycler Capacity: </b>" + RecyclerCapacity + " kerbals");
+            infoBuilder.AppendLine(SnacksText.Format("#LOC_Snacks_INFO_SOILRECYCAPA", "<b>Recycler Capacity: </b>{0} kerbals", RecyclerCapacity));
 
             return infoBuilder.ToString();
         }
@@ -70,7 +70,7 @@ namespace Snacks
             //We want the total recycler output, which is based on snacks per meal, meals per day, and recycler capacity.
             updateProductionEfficiency();
 
-            dailyOutput = string.Format("{0:f2} Soil/day", GetDailySnacksOutput());
+            dailyOutput = string.Format(SnacksText.Get("#LOC_Snacks_INFO_SOILPERDAY", "{0:f2} Soil/homeworld day"), GetDailySnacksOutput());
         }
 
         protected override void updateProductionEfficiency()

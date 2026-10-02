@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
 using System.Text;
 using System.Threading;
 using UnityEngine;
@@ -34,7 +35,7 @@ namespace Snacks
 {
     public class SnackAppView : Window<SnackAppView>
     {
-        public string exemptKerbals = "Ted";
+        public string exemptKerbals = string.Empty;
 
         private Vector2 scrollPos = new Vector2();
         private Vector2 scrollPosButtons = new Vector2();
@@ -58,9 +59,13 @@ namespace Snacks
         private List<Part> habitableParts = new List<Part>();
         private List<Part> selectedParts = new List<Part>();
         private StressProcessor stressProcessor = null;
+        private bool showSnackMultipliers;
+        private Vector2 multiplierScroll;
+        private readonly Dictionary<string, string> multiplierEntries = new Dictionary<string, string>();
+        private string previousCrewSelection = string.Empty;
 
         public SnackAppView() :
-        base("Vessel Status", 500, 500)
+        base(SnacksText.Get("#LOC_Snacks_GUI_VESSELSTATUS", "Vessel Status"), 500, 500)
         {
             Resizable = false;
         }
@@ -71,6 +76,7 @@ namespace Snacks
 
             if (newValue)
             {
+                multiplierEntries.Clear();
                 partCount = 0;
                 crewCapacity = 0;
                 previousCrewCount = 0;
@@ -106,7 +112,7 @@ namespace Snacks
 
                 if (SnacksScenario.Instance == null)
                     return;
-                SnacksScenario.Instance.exemptKerbals = exemptKerbals;
+                SnacksScenario.Instance.SetExemptCrew(exemptKerbals);
                 if (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedScene == GameScenes.SPACECENTER)
                 {
                     SnacksScenario.onSnackTime.Remove(onSnackTime);
@@ -156,7 +162,7 @@ namespace Snacks
         public void drawEditorWindow()
         {
             //Rerun sim button
-            if (GUILayout.Button("Rerun Simulator"))
+            if (GUILayout.Button(SnacksText.Get("#LOC_Snacks_GUI_RERUNSIMULATOR", "Rerun Simulator")))
             {
                 //Reset crew count so that we'll trigger a rebuild of the simulator.
                 currentCrewCount = -1;
@@ -205,8 +211,13 @@ namespace Snacks
                 }
             }
 
-            if (ship.parts.Count != partCount || currentCrewCount != previousCrewCount)
+            List<ProtoCrewMember> assignedCrew = manifest != null ? manifest.GetAllCrew(false) : new List<ProtoCrewMember>();
+            string crewSelection = string.Join(";", assignedCrew.Select(crew => crew.name + ":" +
+                SnacksScenario.Instance.GetAstronautData(crew).SnacksMultiplier.ToString("R", CultureInfo.InvariantCulture) + ":" +
+                SnacksScenario.Instance.IsCrewExempt(crew.name)).ToArray());
+            if (ship.parts.Count != partCount || currentCrewCount != previousCrewCount || crewSelection != previousCrewSelection)
             {
+                previousCrewSelection = crewSelection;
                 previousCrewCount = currentCrewCount;
                 partCount = ship.parts.Count;
 
@@ -214,13 +225,13 @@ namespace Snacks
                 if (partCount == 0)
                 {
                     snackshots.Clear();
-                    simulationResults = "<color=yellow><b>Vessel has no crewed parts to simulate.</b></color>";
+                    simulationResults = SnacksText.Get("#LOC_Snacks_GUI_SIMU1", "<color=yellow><b>Vessel has no crewed parts to simulate.</b></color>");
                     simulationComplete = false;
                 }
                 else if (currentCrewCount == 0)
                 {
                     snackshots.Clear();
-                    simulationResults = "<color=yellow><b>Vessel needs crew to run simulation.</b></color>";
+                    simulationResults = SnacksText.Get("#LOC_Snacks_GUI_SIMU2", "<color=yellow><b>Vessel needs crew to run simulation.</b></color>");
                     simulationComplete = false;
                 }
 
@@ -231,13 +242,17 @@ namespace Snacks
                 if (simSnacks != null)
                 {
                     simulationComplete = false;
-                    simulationResults = "<color=white><b>Simulation in progress, please wait...</b></color>";
+                    simulationResults = SnacksText.Get("#LOC_Snacks_GUI_SIMU3", "<color=white><b>Simulation in progress, please wait...</b></color>");
                     snackshots.Clear();
 
                     //Get consumer resource lists
                     for (int consumerIndex = 0; consumerIndex < consumerCount; consumerIndex++)
                     {
-                        resourceProcessors[consumerIndex].AddConsumedAndProducedResources(currentCrewCount, simSnacks.secondsPerCycle, simSnacks.consumedResources, simSnacks.producedResources);
+                        SnacksResourceProcessor snacksProcessor = resourceProcessors[consumerIndex] as SnacksResourceProcessor;
+                        if (snacksProcessor != null)
+                            snacksProcessor.AddConsumedAndProducedResources(assignedCrew, simSnacks.secondsPerCycle, simSnacks.consumedResources, simSnacks.producedResources);
+                        else
+                            resourceProcessors[consumerIndex].AddConsumedAndProducedResources(currentCrewCount, simSnacks.secondsPerCycle, simSnacks.consumedResources, simSnacks.producedResources);
 
                         //First check input list for resources to add to the snapshots window
                         consumerResources = resourceProcessors[consumerIndex].inputList;
@@ -291,7 +306,7 @@ namespace Snacks
                 }
                 else
                 {
-                    simulationResults = "<color=yellow><b>Vessel has no crewed parts to simulate.</b></color>";
+                    simulationResults = SnacksText.Get("#LOC_Snacks_GUI_SIMU1", "<color=yellow><b>Vessel has no crewed parts to simulate.</b></color>");
                 }
             }
         }
@@ -303,7 +318,7 @@ namespace Snacks
             Snackshot snackshot;
 
             //current/max crew
-            simResults.AppendLine("<color=white>Crew: " + currentCrewCount + "/" + crewCapacity + "</color>");
+            simResults.AppendLine("<color=white>" + SnacksText.Get("#LOC_Snacks_GUI_CREW", "Crew: ") + currentCrewCount + "/" + crewCapacity + "</color>");
 
             //Snackshot list
             for (int index = 0; index < count; index++)
@@ -321,7 +336,7 @@ namespace Snacks
 
             //Converter assumption
             if (convertersAssumedActive)
-                simResults.AppendLine("<color=orange>Assumes converters are active; be sure to turn them on.</color>");
+                simResults.AppendLine(SnacksText.Get("#LOC_Snacks_GUI_ASSUMEACTIVE", "<color=orange>Assumes converters are active; be sure to turn them on.</color>"));
 
             simulationResults = simResults.ToString();
         }
@@ -349,21 +364,71 @@ namespace Snacks
 
         public void drawSpaceCenterWindow()
         {
-            GUILayout.Label("<color=white><b>Exempt Kerbals:</b> separate names by semicolon, first name only</color>");
-            GUILayout.Label("<color=yellow>These kerbals won't consume Snacks and won't suffer penalties from a lack of Snacks.</color>");
+            GUILayout.Label(SnacksText.Get("#LOC_Snacks_GUI_EXEMPTKERB", "<color=white><b>Exempt Kerbals:</b> separate first or full names by semicolon</color>"));
+            GUILayout.Label(SnacksText.Get("#LOC_Snacks_GUI_EXEMPTKERB_INTRO", "<color=yellow>These kerbals won't consume Snacks and won't suffer penalties from a lack of Snacks.</color>"));
             if (string.IsNullOrEmpty(exemptKerbals))
                 exemptKerbals = string.Empty;
-            exemptKerbals = GUILayout.TextField(exemptKerbals);
+            string updatedExemptKerbals = GUILayout.TextField(exemptKerbals);
+            if (updatedExemptKerbals != exemptKerbals)
+            {
+                exemptKerbals = updatedExemptKerbals;
+                SnacksScenario.Instance.SetExemptCrew(exemptKerbals);
+            }
+
+            drawSnackMultipliers();
 
             if (SnacksProperties.DebugLoggingEnabled)
             {
-                if (GUILayout.Button("Snack Time!"))
+                if (GUILayout.Button(SnacksText.Get("#LOC_Snacks_GUI_SNACKTIME", "Snack Time!")))
                 {
                     SnacksScenario.Instance.RunSnackCyleImmediately(SnacksScenario.GetSecondsPerDay() / SnacksProperties.MealsPerDay);
                 }
             }
 
             drawFlightWindow();
+        }
+
+        private void drawSnackMultipliers()
+        {
+            showSnackMultipliers = GUILayout.Toggle(showSnackMultipliers, SnacksText.Get("#LOC_Snacks_GUI_PORTIONS", "Kerbal Snacks portions"));
+            if (!showSnackMultipliers)
+                return;
+            GUILayout.Label(SnacksText.Get("#LOC_Snacks_GUI_PORTIONS_HELP", "1 = normal portion, 2 = double. Values of 1 or higher are saved per Kerbal. Exemptions take precedence."));
+            multiplierScroll = GUILayout.BeginScrollView(multiplierScroll, GUILayout.Height(160));
+            KerbalRoster roster = HighLogic.CurrentGame.CrewRoster;
+            for (int index = 0; index < roster.Count; index++)
+            {
+                ProtoCrewMember crew = roster[index];
+                if (crew.type == ProtoCrewMember.KerbalType.Unowned || crew.rosterStatus == ProtoCrewMember.RosterStatus.Dead ||
+                    crew.rosterStatus == ProtoCrewMember.RosterStatus.Missing)
+                    continue;
+                AstronautData data = SnacksScenario.Instance.GetAstronautData(crew);
+                string entry;
+                if (!multiplierEntries.TryGetValue(crew.name, out entry))
+                    entry = data.SnacksMultiplier.ToString("0.###", CultureInfo.CurrentCulture);
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(crew.name, GUILayout.Width(145));
+                entry = GUILayout.TextField(entry, GUILayout.Width(65));
+                multiplierEntries[crew.name] = entry;
+                double multiplier;
+                bool valid = (double.TryParse(entry, NumberStyles.Float, CultureInfo.CurrentCulture, out multiplier) ||
+                    double.TryParse(entry, NumberStyles.Float, CultureInfo.InvariantCulture, out multiplier)) &&
+                    !double.IsNaN(multiplier) && !double.IsInfinity(multiplier) && multiplier >= 1;
+                if (GUILayout.Button(SnacksText.Get("#LOC_Snacks_GUI_SET", "Set"), GUILayout.Width(40)) && valid)
+                {
+                    data.SnacksMultiplier = multiplier;
+                    SnacksScenario.Instance.UpdateSnapshots();
+                }
+                if (!valid)
+                    GUILayout.Label("Enter a number >= 1");
+                else if (data.isExempt)
+                    GUILayout.Label(SnacksText.Get("#LOC_Snacks_GUI_PORTIONS_EXEMPT", "Exempt: 0 Snacks/homeworld day"));
+                else
+                    GUILayout.Label(string.Format(SnacksText.Get("#LOC_Snacks_GUI_PORTIONS_RATE", "{0:0.###}x: {1:0.###} Snacks/homeworld day"), data.SnacksMultiplier,
+                        data.SnacksMultiplier * SnacksProperties.SnacksPerMeal * SnacksProperties.MealsPerDay));
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndScrollView();
         }
 
         public void drawFlightWindow()
@@ -389,7 +454,7 @@ namespace Snacks
             GUILayout.EndHorizontal();
 
             //Draw stop simulators button
-            if (GUILayout.Button("Stop simulators (Estimates will be unavailable)"))
+            if (GUILayout.Button(SnacksText.Get("#LOC_Snacks_GUI_STOPSIM", "Stop simulators (Estimates will be unavailable)")))
             {
                 SnacksScenario.Instance.threadPool.StopAllJobs();
                 for (int index = 0; index < keys.Count; index++)
@@ -411,7 +476,7 @@ namespace Snacks
 
             if (SnacksProperties.DebugLoggingEnabled && HighLogic.LoadedSceneIsFlight)
             {
-                if (GUILayout.Button("Snack Time!"))
+                if (GUILayout.Button(SnacksText.Get("#LOC_Snacks_GUI_SNACKTIME", "Snack Time!")))
                 {
                     SnacksScenario.Instance.RunSnackCyleImmediately(SnacksScenario.GetSecondsPerDay() / SnacksProperties.MealsPerDay);
                 }
@@ -482,7 +547,7 @@ namespace Snacks
             }
             else
             {
-                GUILayout.Label("<color=white>No crewed vessels found on or around any world or in solar orbit.</color>");
+                GUILayout.Label(SnacksText.Get("#LOC_Snacks_GUI_SIMU4", "<color=white>No crewed vessels found on or around any world or in solar orbit.</color>"));
             }
 
             GUILayout.EndScrollView();
@@ -508,14 +573,14 @@ namespace Snacks
             GUILayout.BeginVertical();
             if (SnacksScenario.Instance.rosterResources.Count > 0)
             {
-                showCrewView = GUILayout.Toggle(showCrewView, "Show Crew View");
+                showCrewView = GUILayout.Toggle(showCrewView, SnacksText.Get("#LOC_Snacks_GUI_CREWVIEW", "Show Crew View"));
                 if (showCrewView)
-                    showAvailableCrew = GUILayout.Toggle(showAvailableCrew, "Show Available Crew");
+                    showAvailableCrew = GUILayout.Toggle(showAvailableCrew, SnacksText.Get("#LOC_Snacks_GUI_CREWVIEWA", "Show Available Crew"));
 
                 //Stresstimator button
                 if (SnacksScenario.Instance.rosterResources.ContainsKey(StressProcessor.StressResourceName) && HighLogic.LoadedSceneIsFlight)
                 {
-                    if (GUILayout.Button("Open Stresstimator"))
+                    if (GUILayout.Button(SnacksText.Get("#LOC_Snacks_GUI_STRESSSIM", "Open Stresstimator")))
                     {
                         showStresstimator = true;
                         return;
@@ -541,7 +606,7 @@ namespace Snacks
                     //Get status
                     statusDisplay = vesselSnackshot.GetStatusDisplay(showCrewView);
                     if (vesselSnackshot.convertersAssumedActive && !showCrewView)
-                        statusDisplay = statusDisplay + "<color=orange>Assumes converters are active; be sure to turn them on.</color>";
+                        statusDisplay = statusDisplay + SnacksText.Get("#LOC_Snacks_GUI_ASSUMEACTIVE", "<color=orange>Assumes converters are active; be sure to turn them on.</color>");
 
                     // Exempt
                     isExempt = SnacksScenario.Instance.isExemptFromProcessors(vesselSnackshot.vessel.id);
@@ -584,10 +649,10 @@ namespace Snacks
 
                         status.AppendLine("<color=orange><i>" + astronaut.name + "</i></color>");
                         if (!string.IsNullOrEmpty(astronautData.conditionSummary))
-                            conditionSummary = astronautData.conditionSummary;
+                            conditionSummary = SnacksText.DisplayConditions(astronautData.conditionSummary);
                         else
-                            conditionSummary = "Cleared for flight";
-                        status.AppendLine("<color=white> - Status: " + conditionSummary + "</color>");
+                            conditionSummary = SnacksText.Get("#LOC_Snacks_GUI_COF", "Cleared for flight");
+                        status.AppendLine("<color=white> " + SnacksText.Get("#LOC_Snacks_GUI_STATUS", "- Status: ") + conditionSummary + "</color>");
 
                         string[] rosterResourceKeys = astronautData.rosterResources.Keys.ToArray();
                         for (int rosterIndex = 0; rosterIndex < rosterResourceKeys.Length; rosterIndex++)
@@ -599,8 +664,8 @@ namespace Snacks
                     else
                     {
                         status.AppendLine("<color=orange><i>" + astronaut.name + "</i></color>");
-                        conditionSummary = "Cleared for flight";
-                        status.AppendLine("<color=white> - Status: " + conditionSummary + "</color>");
+                        conditionSummary = SnacksText.Get("#LOC_Snacks_GUI_COF", "Cleared for flight");
+                        status.AppendLine("<color=white> " + SnacksText.Get("#LOC_Snacks_GUI_STATUS", "- Status: ") + conditionSummary + "</color>");
                     }
                 }
                 GUILayout.Label(status.ToString());
@@ -634,7 +699,7 @@ namespace Snacks
             GUILayout.BeginVertical();
             scrollPos = GUILayout.BeginScrollView(scrollPos, flightWindowRightPaneOptions);
 
-            GUILayout.Label("<color=white>Your kerbals might get Stressed Out if you transfer them to a docked vessel and then undock. Will that happen? Click on the habitable parts of the docked vessel to find out. Parts highlighted in blue will count towards the estimate.</color>");
+            GUILayout.Label(SnacksText.Get("#LOC_Snacks_GUI_STRESSNOTE", "<color=white>Your kerbals might get Stressed Out if you transfer them to a docked vessel and then undock. Will that happen? Click on the habitable parts of the docked vessel to find out. Parts highlighted in blue will count towards the estimate.</color>"));
 
             //Highlight all habitable parts
             highlightHabitableParts();
@@ -644,7 +709,7 @@ namespace Snacks
 
             GUILayout.EndScrollView();
 
-            if (GUILayout.Button("Close Stresstimator"))
+            if (GUILayout.Button(SnacksText.Get("#LOC_Snacks_GUI_STRESSCLOSE", "Close Stresstimator")))
             {
                 unhighlightHabitableParts();
                 showStresstimator = false;
@@ -661,7 +726,7 @@ namespace Snacks
             AstronautData astronautData = null;
 
             //Show crew capacity
-            GUILayout.Label(string.Format("<color=white>Estimated Crew Capacity: {0:n0}</color>", crewCapacity));
+            GUILayout.Label(string.Format(SnacksText.Get("#LOC_Snacks_GUI_CREWCAPA", "<color=white>Estimated Crew Capacity: {0:n0}</color>"), crewCapacity));
 
             //Calculate the total space.
             float space = stressProcessor.CalculateSpace(activeVesselCrewCount, crewCapacity);
@@ -688,9 +753,9 @@ namespace Snacks
                 amount = resource.amount;
 
                 if (amount > maxAmount)
-                    GUILayout.Label("<color=white>" + astronautData.name + string.Format("\n Estimated Stress: {0:n2}/{1:n2}", amount, maxAmount) + "</color>\n<color=orange> Will likely get Stressed Out</color>");
+                    GUILayout.Label("<color=white>" + astronautData.name + string.Format(SnacksText.Get("#LOC_Snacks_GUI_STRESSES", "\n Estimated Stress: {0:n2}/{1:n2}"), amount, maxAmount) + "</color>" + SnacksText.Get("#LOC_Snacks_GUI_STRESSOUT", "\n<color=orange> Will likely get Stressed Out</color>"));
                 else
-                    GUILayout.Label("<color=white>" + astronautData.name + string.Format("\n Estimated Stress: {0:n2}/{1:n2}", amount, maxAmount) + "</color>");
+                    GUILayout.Label("<color=white>" + astronautData.name + string.Format(SnacksText.Get("#LOC_Snacks_GUI_STRESSES", "\n Estimated Stress: {0:n2}/{1:n2}"), amount, maxAmount) + "</color>");
             }
         }
 

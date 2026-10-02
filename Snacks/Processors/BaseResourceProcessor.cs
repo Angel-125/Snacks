@@ -24,6 +24,7 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -91,6 +92,10 @@ namespace Snacks
         /// List of individual astronauts affected by the result.
         /// </summary>
         public List<ProtoCrewMember> afftectedAstronauts;
+
+        /// <summary>Actual resource consumed and individual meal results, when supplied by the Snacks processor.</summary>
+        public double consumedAmount;
+        public Dictionary<string, bool> mealResults;
     }
 
     /// <summary>
@@ -137,6 +142,25 @@ namespace Snacks
         public List<BaseOutcome> outcomes;
 
         protected double remainingTime = 0;
+        protected readonly Dictionary<Guid, double> vesselRemainingTimes = new Dictionary<Guid, double>();
+
+        public double GetTimeUntilNextCycle(Vessel vessel)
+        {
+            double time;
+            if (!vesselRemainingTimes.TryGetValue(vessel.id, out time))
+                time = remainingTime;
+            return Math.Max(0, secondsPerCycle - time);
+        }
+
+        protected double AddVesselElapsedTime(Vessel vessel, double elapsedTime)
+        {
+            double time;
+            if (!vesselRemainingTimes.TryGetValue(vessel.id, out time))
+                time = remainingTime; //Legacy saves supplied a single shared phase.
+            time += elapsedTime;
+            vesselRemainingTimes[vessel.id] = time;
+            return time;
+        }
 
         public BaseResourceProcessor()
         {
@@ -406,8 +430,21 @@ namespace Snacks
         /// <param name="node">The ConfigNode with the persistence data</param>
         public virtual void OnLoad(ConfigNode node)
         {
+            remainingTime = 0;
             if (node.HasValue(ProcessorNodeRemainingTime))
                 double.TryParse(node.GetValue(ProcessorNodeRemainingTime), out remainingTime);
+
+            vesselRemainingTimes.Clear();
+            //Accept the Stress timer nodes written before timing moved into the base class.
+            foreach (ConfigNode timer in node.GetNodes("VESSEL_TIMER").Concat(node.GetNodes("STRESS_VESSEL_TIMER")))
+            {
+                Guid id;
+                double time;
+                if (Guid.TryParse(timer.GetValue("vesselID"), out id) &&
+                    double.TryParse(timer.GetValue(ProcessorNodeRemainingTime), NumberStyles.Float,
+                        CultureInfo.InvariantCulture, out time) && time >= 0 && !double.IsInfinity(time))
+                    vesselRemainingTimes[id] = time;
+            }
 
             if (node.HasValue("isActivated"))
                 bool.TryParse(node.GetValue("isActivated"), out isActivated);
@@ -424,6 +461,14 @@ namespace Snacks
             node.AddValue(ProcessorNodeName, name);
             node.AddValue(ProcessorNodeRemainingTime, remainingTime);
             node.AddValue("isActivated", isActivated);
+
+            foreach (KeyValuePair<Guid, double> timer in vesselRemainingTimes)
+            {
+                ConfigNode timerNode = new ConfigNode("VESSEL_TIMER");
+                timerNode.AddValue("vesselID", timer.Key.ToString());
+                timerNode.AddValue(ProcessorNodeRemainingTime, timer.Value.ToString("R", CultureInfo.InvariantCulture));
+                node.AddNode(timerNode);
+            }
 
             return node;
         }
@@ -534,26 +579,37 @@ namespace Snacks
             ProtoCrewMember[] astronauts;
             int adjustedCrewCount = crewCount;
 
-            remainingTime += elapsedTime;
-            while (remainingTime >= secondsPerCycle)
+            double vesselRemainingTime = AddVesselElapsedTime(vessel, elapsedTime);
+            while (vesselRemainingTime >= secondsPerCycle)
             {
-                remainingTime -= secondsPerCycle;
+                vesselRemainingTime -= secondsPerCycle;
+                vesselRemainingTimes[vessel.id] = vesselRemainingTime;
+                adjustedCrewCount = crewCount;
 
                 //Get vessel crew
                 astronauts = SnacksScenario.Instance.GetNonExemptCrew(vessel);
                 if (astronauts == null)
                     return;
 
+                List<ProtoCrewMember> eligibleCrew = new List<ProtoCrewMember>();
                 //Validate preconditions. Adjust crew count if the preconditions aren't valid for that crew member.
                 count = preconditions.Count;
-                for (int index = 0; index < count; index++)
+                for (int astronautIndex = 0; astronautIndex < astronauts.Length; astronautIndex++)
                 {
-                    for (int astronautIndex = 0; astronautIndex < astronauts.Length; astronautIndex++)
+                    bool eligible = true;
+                    for (int index = 0; index < count; index++)
                     {
                         if (!preconditions[index].IsValid(astronauts[astronautIndex], vessel))
-                            adjustedCrewCount -= 1;
+                        {
+                            eligible = false;
+                            break;
+                        }
                     }
+                    if (eligible)
+                        eligibleCrew.Add(astronauts[astronautIndex]);
                 }
+                astronauts = eligibleCrew.ToArray();
+                adjustedCrewCount = astronauts.Length;
 
                 //If no crew member meets the preconditions then we're done.
                 if (adjustedCrewCount <= 0)
@@ -565,7 +621,7 @@ namespace Snacks
                 for (int index = 0; index < count; index++)
                 {
                     resource = inputList[index];
-                    result = resource.ConsumeResource(vessel, elapsedTime, adjustedCrewCount, crewCapacity);
+                    result = consumeInputResource(resource, vessel, secondsPerCycle, astronauts, crewCapacity);
                     if (result.resultType == SnacksResultType.notApplicable)
                         continue;
                     consumptionResults.Add(result.resourceName, result);
@@ -584,7 +640,7 @@ namespace Snacks
                 for (int index = 0; index < count; index++)
                 {
                     resource = outputList[index];
-                    result = resource.ProduceResource(vessel, elapsedTime, adjustedCrewCount, crewCapacity, consumptionResults);
+                    result = produceOutputResource(resource, vessel, secondsPerCycle, adjustedCrewCount, crewCapacity);
                     if (result.resultType == SnacksResultType.notApplicable)
                         continue;
                     productionResults.Add(result.resourceName, result);
@@ -601,6 +657,18 @@ namespace Snacks
         #endregion
 
         #region Helpers
+        protected virtual SnacksProcessorResult consumeInputResource(ProcessedResource resource, Vessel vessel,
+            double elapsedTime, ProtoCrewMember[] astronauts, int crewCapacity)
+        {
+            return resource.ConsumeResource(vessel, elapsedTime, astronauts.Length, crewCapacity);
+        }
+
+        protected virtual SnacksProcessorResult produceOutputResource(ProcessedResource resource, Vessel vessel,
+            double elapsedTime, int crewCount, int crewCapacity)
+        {
+            return resource.ProduceResource(vessel, elapsedTime, crewCount, crewCapacity, consumptionResults);
+        }
+
         protected void clearProcessResults(ProtoCrewMember[] astronauts)
         {
             AstronautData astronautData;
@@ -657,11 +725,15 @@ namespace Snacks
             {
                 //Get astronaut data
                 astronautData = SnacksScenario.Instance.GetAstronautData(astronauts[index]);
-                if (astronautData == null)
+                if (astronautData == null || astronautData.isExempt)
+                    continue;
+
+                bool successful = result.completedSuccessfully;
+                if (result.mealResults != null && !result.mealResults.TryGetValue(astronauts[index].name, out successful))
                     continue;
 
                 //If the result was successful then remove failed count and increment success count.
-                if (result.completedSuccessfully)
+                if (successful)
                 {
                     //Increment success count
                     if (!astronautData.processedResourceSuccesses.ContainsKey(resource.resourceName))

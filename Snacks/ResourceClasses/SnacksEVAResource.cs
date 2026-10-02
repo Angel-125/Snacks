@@ -140,8 +140,6 @@ namespace Snacks
             // Get the resource definition
             PartResourceDefinitionList definitions = PartResourceLibrary.Instance.resourceDefinitions;
             PartResourceDefinition def;
-            double partCurrentAmount = 0;
-            double partMaxAmount = 0;
 
             if (string.IsNullOrEmpty(resourceName))
                 return;
@@ -152,40 +150,33 @@ namespace Snacks
             // See if we have the resource
             bool hasResource = astronautData.HasResource(resourceName);
 
+            double packAmount = GetPackAmount(astronautData);
+            if (packAmount <= 0)
+                return;
+
             // Edge case: boardedPart is null, which indicates that the kerbal is already outside.
             // If we don't have the resource then we need to add it; kerbal gets a freebie here...
-            if (!hasResource && partExited == null)
+            if (partExited == null)
             {
-                astronautData.SetResourceAmounts(resourceName, amount, amount);
+                if (!hasResource)
+                    astronautData.SetResourceAmounts(resourceName, packAmount, packAmount);
                 return;
             }
 
-            //Make sure that we have enough resources.
-            partExited.vessel.rootPart.GetConnectedResourceTotals(def.id, out partCurrentAmount, out partMaxAmount, true);
-            if (partCurrentAmount <= amount)
-                return;
-
-            // Add resource to astronaut if we don't have it already.
-            if (!hasResource)
-            {
-                //Remove resource from the vessel
-                partExited.vessel.rootPart.RequestResource(def.id, amount);
-
-                astronautData.SetResourceAmounts(resourceName, amount, amount);
-            }
-            else
-            {
-                // Refill the astronaut resource
-                double astronautAmount = 0;
-                double astronautMaxAmount = 0;
+            double astronautAmount = 0;
+            double astronautMaxAmount = 0;
+            if (hasResource)
                 astronautData.GetResourceAmounts(resourceName, out astronautAmount, out astronautMaxAmount);
-                if (astronautAmount < amount)
-                {
-                    //Remove resource from the vessel
-                    partExited.vessel.rootPart.RequestResource(def.id, amount - astronautAmount);
-                    astronautData.SetResourceAmounts(resourceName, amount, amount);
-                }
-            }
+            double needed = Math.Max(0, packAmount - astronautAmount);
+            double supplied = needed > 0 ? partExited.vessel.rootPart.RequestResource(def.id, needed) : 0;
+            astronautData.SetResourceAmounts(resourceName, astronautAmount + supplied, Math.Max(packAmount, astronautAmount));
+        }
+
+        public double GetPackAmount(AstronautData astronautData)
+        {
+            if (resourceName != SnacksProperties.SnacksResourceName)
+                return amount;
+            return astronautData.isExempt ? 0 : amount * astronautData.SnacksMultiplier;
         }
         #endregion
     }

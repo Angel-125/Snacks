@@ -1,4 +1,4 @@
-﻿/**
+/**
 The MIT License (MIT)
 Copyright (c) 2014-2019 by Michael Billard
  
@@ -212,17 +212,23 @@ namespace Snacks
         private Dictionary<string, SnacksEvent> postProcessEvents;
         private Dictionary<string, SnacksEvent> levelUpEvents;
         private Dictionary<string, SnacksEvent> eventCards;
-        private int vesselsBeingProcessed;
+
         private bool snackCycleStarted;
+
+
+        private double queuedCycleElapsedTime;
         private List<string> exemptedVesselsList;
         #endregion
 
         #region Snapshots
+        private Coroutine snapshotUpdateCoroutine;
         /// <summary>
         /// Updates the resource snapshots for each vessel in the game that isn't Debris, a Flag, a SpaceObject, or Unknown.
         /// </summary>
         public void UpdateSnapshots()
         {
+            if (snapshotUpdateCoroutine != null)
+                StopCoroutine(snapshotUpdateCoroutine);
             if (threadPool == null)
                 threadPool = new SnackSimThreadPool();
 
@@ -230,7 +236,7 @@ namespace Snacks
             snapshotMap.Clear();
             bodyVesselCountMap.Clear();
 
-            StartCoroutine(updateSnapshots());
+            snapshotUpdateCoroutine = StartCoroutine(updateSnapshots());
         }
 
         protected IEnumerator<YieldInstruction> updateSnapshots()
@@ -416,16 +422,15 @@ namespace Snacks
                 return;
             }
 
-            //Check to see if we've finished processing all the vessels.
-            //If so, then process events.
-            if (vesselsBeingProcessed == 0 && snackCycleStarted)
+            if (snackCycleStarted)
+                return;
+            if (queuedCycleElapsedTime > 0)
             {
-                snackCycleStarted = false;
-                StartCoroutine(processEvents(postProcessEvents));
-                //Fire snack time event
-                onSnackTime.Fire();
+                double queuedTime = queuedCycleElapsedTime;
+                queuedCycleElapsedTime = 0;
+                RunSnackCyleImmediately(queuedTime);
+                return;
             }
-
             //To avoid hammering the game with updates, we only run background converters, processors, and events once per game hour.
             elapsedTime = Planetarium.GetUniversalTime() - cycleStartTime;
 
@@ -453,35 +458,96 @@ namespace Snacks
         /// <param name="secondsElapsed">Seconds elapsed.</param>
         public void RunSnackCyleImmediately(double secondsElapsed)
         {
-            //Reset our process monitors
-            vesselsBeingProcessed = 0;
-            snackCycleStarted = true;
-
-            //Go through all the vessels. For loaded vessels, run the processors and events.
-            //For unloaded vessels, run the background converters, processors, and events.
-            Vessel vessel;
-            int count = FlightGlobals.Vessels.Count;
-            for (int vesselIndex = 0; vesselIndex < count; vesselIndex++)
+            if (secondsElapsed <= 0 || double.IsNaN(secondsElapsed) || double.IsInfinity(secondsElapsed))
+                return;
+            if (snackCycleStarted)
             {
-                vessel = FlightGlobals.Vessels[vesselIndex];
+                queuedCycleElapsedTime += secondsElapsed;
+                return;
+            }
+            snackCycleStarted = true;
+            StartCoroutine(executeSafely(runProcessingBatch(secondsElapsed, Planetarium.GetUniversalTime())));
+        }
 
-                //Skip vessel types that we're not interested in.
-                if (vessel.vesselType == VesselType.Debris ||
-                    vessel.vesselType == VesselType.Flag ||
-                    vessel.vesselType == VesselType.SpaceObject ||
-                    vessel.vesselType == VesselType.Unknown)
-                    continue;
-
-                // Skip vessel if it is exempt from processors. This is mainly for story purposes.
-                if (isExemptFromProcessors(vessel.id))
+        private IEnumerator<YieldInstruction> runProcessingBatch(double duration, double endTime)
+        {
+            try
+            {
+                double time = endTime - duration;
+                double eventElapsed = 0;
+                while (time < endTime)
                 {
-                    Debug.Log("[SnacksScenario] - Skipping " + vessel.name + ", it is exempt.");
-                    continue;
+                    //Stop at processor/event boundaries to preserve ordering during catch-up.
+                    Vessel[] vessels = GetProcessingVessels();
+                    double step = Math.Min(secondsPerCycle, endTime - time);
+                    foreach (Vessel vessel in vessels)
+                        foreach (BaseResourceProcessor processor in resourceProcessors)
+                        {
+                            double untilCycle = processor.GetTimeUntilNextCycle(vessel);
+                            if (untilCycle > 0) step = Math.Min(step, untilCycle);
+                        }
+                    foreach (SnacksEvent snacksEvent in postProcessEvents.Values)
+                    {
+                        double untilCheck = snacksEvent.GetTimeUntilNextCheck();
+                        if (untilCheck > 0) step = Math.Min(step, untilCheck);
+                    }
+                    if (step <= 0) throw new InvalidOperationException("Invalid Snacks processing interval.");
+                    RefreshBackgroundConverters();
+                    double stepEnd = time + step;
+                    foreach (Vessel vessel in vessels)
+                    {
+                        using (IEnumerator<YieldInstruction> work = executeSafely(runSnackCycle(vessel, step, stepEnd)))
+                            while (work.MoveNext()) yield return work.Current;
+                    }
+                    time = stepEnd;
+                    eventElapsed += step;
+                    bool checkUnscheduled = eventElapsed >= secondsPerCycle || time >= endTime;
+                    using (IEnumerator<YieldInstruction> work = executeSafely(processEvents(postProcessEvents, step, checkUnscheduled)))
+                        while (work.MoveNext()) yield return work.Current;
+                    if (checkUnscheduled) eventElapsed = 0;
                 }
+                onSnackTime.Fire();
+            }
+            finally
+            {
+                //Disposal and failures must never leave future batches locked out.
+                snackCycleStarted = false;
+            }
+        }
 
-                //Start snack cycle
-                vesselsBeingProcessed += 1;
-                StartCoroutine(runSnackCycle(vessel, secondsElapsed));
+        protected virtual Vessel[] GetProcessingVessels()
+        {
+            return FlightGlobals.Vessels.Where(IsProcessableVessel).ToArray();
+        }
+
+        protected virtual void RefreshBackgroundConverters()
+        {
+            backgroundConverters = SnacksBackgroundConverter.GetBackgroundConverters();
+        }
+        private bool IsProcessableVessel(Vessel vessel)
+        {
+            return vessel != null && vessel.vesselType != VesselType.Debris &&
+                vessel.vesselType != VesselType.Flag && vessel.vesselType != VesselType.SpaceObject &&
+                vessel.vesselType != VesselType.Unknown && !isExemptFromProcessors(vessel.id);
+        }
+
+        protected virtual void LogProcessingException(Exception exception)
+        {
+            Debug.LogError("[Snacks] Background processing failed: " + exception);
+        }
+
+        private IEnumerator<YieldInstruction> executeSafely(IEnumerator<YieldInstruction> work)
+        {
+            using (work)
+            {
+                while (true)
+                {
+                    bool next;
+                    try { next = work.MoveNext(); }
+                    catch (Exception exception) { LogProcessingException(exception); break; }
+                    if (!next) break;
+                    yield return work.Current;
+                }
             }
         }
         #endregion
@@ -501,30 +567,46 @@ namespace Snacks
             {
                 converter = converters[index];
 
-                if (converter.IsActivated && !converter.isMissingResources && !converter.isContainerFull)
+                if (converter.IsActivated)
                     runConverter(converter, elapsedTime, vessel.protoVessel);
             }
         }
 
         protected void runConverter(SnacksBackgroundConverter converter, double elapsedTime, ProtoVessel protoVessel)
         {
-            //Get ready to process
-            converter.PrepareToProcess(protoVessel);
+            runConverter(converter, elapsedTime, protoVessel, Planetarium.GetUniversalTime());
+        }
 
-            //Check required
-            converter.CheckRequiredResources(protoVessel, elapsedTime);
+        private void runConverter(SnacksBackgroundConverter converter, double elapsedTime, ProtoVessel protoVessel, double processingTime)
+        {
+            elapsedTime = converter.GetElapsedTime(elapsedTime, processingTime);
+            if (elapsedTime <= 0) return;
+            try
+            {
+                //Get ready to process
+                converter.PrepareToProcess(protoVessel);
 
-            //Consume inputs
-            converter.ConsumeInputResources(protoVessel, elapsedTime);
+                //Check required
+                converter.CheckRequiredResources(protoVessel, elapsedTime);
 
-            //Produce outputs
-            converter.ProduceOutputResources(protoVessel, elapsedTime);
+                //Consume inputs
+                converter.ConsumeInputResources(protoVessel, elapsedTime);
 
-            //Produce yields
-            converter.ProduceyieldsList(protoVessel);
+                //Produce outputs
+                converter.ProduceOutputResources(protoVessel, elapsedTime);
 
-            //Post process
-            converter.PostProcess(protoVessel);
+                //Produce yields
+                if (converter.isMissingResources || converter.isContainerFull)
+                    converter.PauseYieldClock(elapsedTime);
+                else
+                    converter.ProduceyieldsList(protoVessel, processingTime);
+
+
+            }
+            finally
+            {
+                converter.PostProcess(protoVessel, processingTime);
+            }
         }
         #endregion
 
@@ -658,25 +740,38 @@ namespace Snacks
         }
 
         /// <summary>
-        /// Adds the name of the kerbal to the exemptions list.
+        /// Replaces the exemptions list and refreshes tracked crew flags.
         /// </summary>
-        /// <param name="exemptedCrew">The name of the kerbal to add to the list.</param>
+        /// <param name="exemptedCrew">Semicolon-separated first or full names. Empty clears exemptions.</param>
         public void SetExemptCrew(string exemptedCrew)
         {
-            if (string.IsNullOrEmpty(exemptedCrew))
-                return;
-            string[] exemptedKerbals = exemptKerbals.Split(new char[] { ';' });
+            exemptKerbals = exemptedCrew ?? string.Empty;
             AstronautData[] astronautData = crewData.Values.ToArray();
             AstronautData data;
 
             for (int index = 0; index < astronautData.Length; index++)
             {
                 data = astronautData[index];
-                if (exemptedCrew.Contains(data.name))
-                    data.isExempt = true;
-                else
-                    data.isExempt = false;
+                data.isExempt = IsCrewExempt(data.name);
             }
+        }
+
+        /// <summary>Matches whole first or full names, never substrings.</summary>
+        public bool IsCrewExempt(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(exemptKerbals))
+                return false;
+            name = name.Trim();
+            int separator = name.IndexOf(' ');
+            string firstName = separator < 0 ? name : name.Substring(0, separator);
+            foreach (string entry in exemptKerbals.Split(';'))
+            {
+                string candidate = entry.Trim();
+                if (string.Equals(candidate, name, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(candidate, firstName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -817,7 +912,7 @@ namespace Snacks
                 astronauts = vessel.protoVessel.GetVesselCrew().ToArray();
             for (int index = 0; index < astronauts.Length; index++)
             {
-                if (!SnacksScenario.Instance.exemptKerbals.Contains(astronauts[index].name))
+                if (!GetAstronautData(astronauts[index]).isExempt)
                     nonExemptCrew.Add(astronauts[index]);
             }
 
@@ -842,11 +937,11 @@ namespace Snacks
                 data.lastUpdated = Planetarium.GetUniversalTime();
                 data.keyValuePairs = new DictionaryValueList<string, string>();
 
-                //Don't forget about exemptions
-
                 crewData.Add(data.name, data);
             }
 
+            // Keep flags in sync even for callers that directly edit the public list.
+            crewData[astronaut.name].isExempt = IsCrewExempt(astronaut.name);
             return crewData[astronaut.name];
         }
 
@@ -890,6 +985,7 @@ namespace Snacks
 
             //Game events
             GameEvents.onVesselLoaded.Add(onVesselLoaded);
+            GameEvents.onVesselUnloaded.Add(onVesselUnloaded);
             GameEvents.onCrewOnEva.Add(onCrewOnEva);
             GameEvents.onCrewBoardVessel.Add(onCrewBoardVessel);
             GameEvents.OnGameSettingsApplied.Add(onGameSettingsApplied);
@@ -999,11 +1095,15 @@ namespace Snacks
 
         public void OnDestroy()
         {
+            if (threadPool != null)
+                threadPool.Stop();
+
             int count = resourceProcessors.Count;
             for (int index = 0; index < count; index++)
                 resourceProcessors[index].Destroy();
 
             GameEvents.onVesselLoaded.Remove(onVesselLoaded);
+            GameEvents.onVesselUnloaded.Remove(onVesselUnloaded);
             GameEvents.onCrewOnEva.Remove(onCrewOnEva);
             GameEvents.onCrewBoardVessel.Remove(onCrewBoardVessel);
             GameEvents.OnGameSettingsApplied.Remove(onGameSettingsApplied);
@@ -1042,8 +1142,10 @@ namespace Snacks
         {
             base.OnLoad(node);
 
-            if (node.HasValue("exemptkerbals"))
+            if (node.HasValue("exemptKerbals"))
                 exemptKerbals = node.GetValue("exemptKerbals");
+            else
+                exemptKerbals = node.GetValue("exemptkerbals") ?? string.Empty;
 
             if (node.HasValue("introStreensDisplayed"))
                 introStreensDisplayed = node.GetValue("introStreensDisplayed");
@@ -1091,6 +1193,7 @@ namespace Snacks
 
             //Load astronaut data
             crewData = AstronautData.Load(node);
+            SetExemptCrew(exemptKerbals);
 
             // Exempted vessels
             exemptedVesselsList = new List<string>();
@@ -1104,6 +1207,7 @@ namespace Snacks
         public override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
+            node.AddValue("cycleStartTime", cycleStartTime);
             ConfigNode configNode;
 
             //Exempt kerbals
@@ -1512,6 +1616,14 @@ namespace Snacks
             // Unfortunately we don't know what seat or what vessel we have boarded or left.
         }
 
+        private void onVesselUnloaded(Vessel vessel)
+        {
+            if (vessel == null || vessel.protoVessel == null) return;
+            double time = Planetarium.GetUniversalTime();
+            foreach (ProtoPartSnapshot part in vessel.protoVessel.protoPartSnapshots)
+                foreach (ProtoPartModuleSnapshot module in part.modules)
+                    module.moduleValues.SetValue(SnacksBackgroundConverter.BackgroundUpdateTime, time, true);
+        }
         private void onVesselLoaded(Vessel vessel)
         {
             if (!HighLogic.LoadedSceneIsFlight)
@@ -1662,14 +1774,15 @@ namespace Snacks
             double hours = 0;
             double minutes = 0;
 
-            //Make sure we have calculated our seconds per day
-            GetSecondsPerDay();
+            // Displays follow the active calendar; processing uses the homeworld solar day.
+            double calendarDay = SnacksTime.Day;
+            double calendarYear = SnacksTime.Year;
 
             //Years
-            years = Math.Floor(seconds / secondsPerYear);
+            years = Math.Floor(seconds / calendarYear);
             if (years >= 1.0)
             {
-                seconds -= years * secondsPerYear;
+                seconds -= years * calendarYear;
             }
             else
             {
@@ -1677,10 +1790,10 @@ namespace Snacks
             }
 
             //Days
-            days = Math.Floor(seconds / secondsPerDay);
+            days = Math.Floor(seconds / calendarDay);
             if (days >= 1.0)
             {
-                seconds -= days * secondsPerDay;
+                seconds -= days * calendarDay;
             }
             else
             {
@@ -1688,21 +1801,21 @@ namespace Snacks
             }
 
             //Hours
-            hours = Math.Floor(seconds / 3600);
+            hours = Math.Floor(seconds / SnacksTime.Hour);
             if (hours >= 1.0)
             {
-                seconds -= hours * 3600;
+                seconds -= hours * SnacksTime.Hour;
             }
             else
             {
-                seconds = 0;
+                hours = 0;
             }
 
             //Minutes
-            minutes = Math.Floor(seconds / 60);
+            minutes = Math.Floor(seconds / SnacksTime.Minute);
             if (minutes >= 1.0)
             {
-                seconds -= minutes * 60;
+                seconds -= minutes * SnacksTime.Minute;
             }
             else
             {
@@ -1725,15 +1838,15 @@ namespace Snacks
             else
             {
                 if (years > 0)
-                    timeBuilder.Append(string.Format(" {0:n2} Years,", years));
+                    timeBuilder.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME1", " {0:n2} Years,"), years));
                 if (days > 0)
-                    timeBuilder.Append(string.Format(" {0:n2} Days,", days));
+                    timeBuilder.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME2", " {0:n2} Days,"), days));
                 if (hours > 0)
-                    timeBuilder.Append(string.Format(" {0:n2} Hours,", hours));
+                    timeBuilder.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME3", " {0:n2} Hours,"), hours));
                 if (minutes > 0)
-                    timeBuilder.Append(string.Format(" {0:n2} Minutes,", minutes));
+                    timeBuilder.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME4", " {0:n2} Minutes,"), minutes));
                 if (seconds > 0.0001)
-                    timeBuilder.Append(string.Format(" {0:n2} Seconds", seconds));
+                    timeBuilder.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME5", " {0:n2} Seconds"), seconds));
             }
 
             string timeDisplay = timeBuilder.ToString();
@@ -1745,13 +1858,12 @@ namespace Snacks
         /// <summary>
         /// Gets the number of seconds per day on the homeworld.
         /// </summary>
-        /// <returns>The lenght of the solar day in seconds of the homeworld.</returns>
+        /// <returns>The length of the solar day in seconds of the homeworld.</returns>
         public static double GetSecondsPerDay()
         {
             if (secondsPerDay > 0)
                 return secondsPerDay;
 
-            //Find homeworld
             int count = FlightGlobals.Bodies.Count;
             CelestialBody body = null;
             for (int index = 0; index < count; index++)
@@ -1768,11 +1880,7 @@ namespace Snacks
                 secondsPerDay = 21600;
                 return secondsPerDay;
             }
-
-            //Also get seconds per year
             secondsPerYear = body.orbit.period;
-
-            //Return solar day length
             secondsPerDay = body.solarDayLength;
             return secondsPerDay;
         }
@@ -2047,7 +2155,37 @@ namespace Snacks
             }
         }
 
-        private IEnumerator<YieldInstruction> runSnackCycle(Vessel vessel, double elapsedTime)
+        private void runBackgroundConverterSteps(Vessel vessel, List<SnacksBackgroundConverter> converters, double elapsedTime, double stepEndTime)
+        {
+            double time = stepEndTime - elapsedTime;
+            while (time < stepEndTime && !vessel.loaded)
+            {
+                double step = Math.Min(60, stepEndTime - time);
+                double electricRate = 0;
+                double electricCapacity = 0;
+                foreach (SnacksBackgroundConverter backgroundConverter in converters)
+                    if (backgroundConverter.IsActivated)
+                        electricRate += backgroundConverter.GetElectricChargeRate();
+                foreach (ProtoPartSnapshot savedPart in vessel.protoVessel.protoPartSnapshots)
+                    foreach (ProtoPartResourceSnapshot resource in savedPart.resources)
+                        if (resource.resourceName == "ElectricCharge" && resource.flowState)
+                            electricCapacity += resource.maxAmount;
+                //A half-battery step leaves room for continuous generation between withdrawals.
+                if (electricRate > 0 && electricCapacity > 0)
+                    step = Math.Min(step, electricCapacity / electricRate / 2);
+                double nextTime = time + step;
+                if (nextTime <= time) throw new InvalidOperationException("Background step cannot advance time.");
+                foreach (SnacksBackgroundConverter backgroundConverter in converters)
+                {
+                    if (!backgroundConverter.IsActivated) continue;
+                    try { runConverter(backgroundConverter, step, vessel.protoVessel, nextTime); }
+                    catch (Exception exception) { LogProcessingException(exception); }
+                }
+                time = nextTime;
+            }
+        }
+
+        protected virtual IEnumerator<YieldInstruction> runSnackCycle(Vessel vessel, double elapsedTime, double stepEndTime)
         {
             yield return new WaitForFixedUpdate();
 
@@ -2055,7 +2193,6 @@ namespace Snacks
             int crewCapacity = 0;
             int count;
             List<SnacksBackgroundConverter> converters;
-            SnacksBackgroundConverter converter;
             ProtoCrewMember[] astronauts;
 
             //Get crew count and crew capacity
@@ -2106,25 +2243,12 @@ namespace Snacks
             //Continue processing if we have crew
             if (crewCount > 0)
             {
-                //Run background converers
-                if (backgroundConverters.ContainsKey(vessel) && !vessel.loaded)
+                if (!vessel.loaded && backgroundConverters.ContainsKey(vessel))
                 {
                     converters = backgroundConverters[vessel];
-                    count = converters.Count;
-
-                    for (int index = 0; index < count; index++)
-                    {
-                        converter = converters[index];
-
-                        if (converter.IsActivated && !converter.isMissingResources && !converter.isContainerFull)
-                        {
-                            runConverter(converter, elapsedTime, vessel.protoVessel);
-                            yield return new WaitForFixedUpdate();
-                        }
-                    }
+                    runBackgroundConverterSteps(vessel, converters, elapsedTime, stepEndTime);
                 }
                 yield return new WaitForFixedUpdate();
-
                 //Run processors
                 count = resourceProcessors.Count;
                 for (int index = 0; index < count; index++)
@@ -2134,11 +2258,10 @@ namespace Snacks
                 }
             }
 
-            vesselsBeingProcessed -= 1;
             yield return new WaitForFixedUpdate();
         }
 
-        protected IEnumerator<YieldInstruction> processEvents(Dictionary<string, SnacksEvent> eventList)
+        protected virtual IEnumerator<YieldInstruction> processEvents(Dictionary<string, SnacksEvent> eventList, double elapsedSeconds = -1, bool checkUnscheduled = true)
         {
             string[] keys = eventList.Keys.ToArray();
             SnacksEvent snacksEvent;
@@ -2146,7 +2269,11 @@ namespace Snacks
             for (int index = 0; index < keys.Length; index++)
             {
                 snacksEvent = eventList[keys[index]];
-                snacksEvent.ProcessEvent(secondsPerCycle);
+                if (checkUnscheduled || snacksEvent.secondsBetweenChecks > 0)
+                {
+                    try { snacksEvent.ProcessEvent(elapsedSeconds < 0 ? secondsPerCycle : elapsedSeconds); }
+                    catch (Exception exception) { LogProcessingException(exception); }
+                }
                 yield return new WaitForFixedUpdate();
             }
             yield return new WaitForFixedUpdate();

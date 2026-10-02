@@ -21,6 +21,60 @@ INSTALLATION
 Delete any previous instances in GameData/Snacks
 Copy the files in the zip folder over to GameData/Snacks
 
+---CHANGES---
+
+- Fixed Stress updates so kerbals become Stressed Out at their limit and recover when Stress drops below it.
+- Fixed skill restoration after stress recovery while preserving skill loss from other conditions, such as Relaxing or Stargazing.
+- Fixed boarding checks to evaluate the entire crew and clear outdated stress penalties.
+- Fixed daily Stress accumulation across multiple vessels by giving each vessel its own timer, preserved across save/load with support for existing saves.
+- Fixed affected crew counts accumulating across multiple daily Stress cycles during catch-up processing.
+- Fixed roster resources losing their names after loading a save, allowing Stress recovery updates to work correctly.
+- Added regression checks for Stress timing, save/load, boarding, and recovery.
+
+- Fixed background converter discovery so newly unloaded vessels and restarted converters are included, and converters retry after missing resources or full storage.
+- Fixed background converters to respect electricity settings, crew requirements, home connections, oxygen, and splashed requirements.
+- Improved background electricity processing with smaller steps so continuous generation can power converters even when batteries cannot store an entire processing interval's demand.
+- Fixed loaded-to-unloaded handoffs to track processing timestamps and avoid counting the same elapsed time twice.
+- Fixed catch-up processing to interleave converters, life support processors, and events in chronological steps.
+- Extended independent, saved vessel timers to all life support processors, with compatibility for existing saves.
+- Fixed event timing to use actual elapsed time, process missed scheduled checks, and preserve partial intervals across save/load.
+- Fixed background resource accounting to respect locked resources and local storage, conserve production across multiple tanks, and calculate overflow from available capacity.
+- Fixed yield timing at exact cycle boundaries, retained partial progress, and prevented paused time from generating additional yields.
+- Fixed production-result checks to use production results and honor the configured processor name.
+- Added exception handling and cleanup so processing failures do not block later batches.
+- Expanded regression checks for continuous power, resource accounting, handoff timestamps, chronological catch-up, yield timing, and exception recovery.
+
+- Fixed Kerbal exemptions: semicolon-separated entries now match exact first or full names, ignoring case and surrounding whitespace, without accidental substring matches.
+- Exemption edits apply immediately; clearing the list clears crew flags, newly tracked crew inherit the list, and save loading restores current or legacy exemption keys and refreshes flags.
+- Mixed loaded/unloaded crews consume resources only for non-exempt Kerbals. All-exempt crews skip processing, and catch-up cycles reset eligible crew counts and count each failed precondition only once per Kerbal.
+- Exempt Kerbals no longer accumulate meal success/failure records or receive Stress threshold/strike penalties. Roster-resource processing also respects exemptions, and the Space Center field now explains first/full-name entry.
+- Added regression checks for exemption matching, clearing, save loading, mixed/all-exempt crews, loaded/unloaded consumption, failure accounting, and Stress/strike penalties.
+
+- Added saved per-Kerbal Snacks portion multipliers. Existing saves default to 1x; fractional multipliers such as 1.5x are supported. Values must be finite and at least 1, and exemptions take precedence.
+- At the Space Center, open Snacks, expand Kerbal Snacks portions, enter the desired multiplier beside a Kerbal, and click Set. The window shows their Snacks/day. Meal frequency is unchanged; 2x means twice the Snacks at each meal.
+- Applied portion sizes to loaded vessels, unloaded catch-up, and EVA. EVA Snacks pack amounts and warning thresholds scale with the multiplier; other life-support resources retain their normal amounts.
+- Track meal successes and failures individually. Shortages allocate full portions in crew manifest order, and each hungry Kerbal counts once for penalties regardless of portion size. Corrected initial unloaded science-penalty counting.
+- Soil production now follows Snacks actually consumed, including partially supplied native withdrawals, rather than using an aggregate affected-crew count. Resource withdrawal totals are conserved across multiple tanks.
+- Vessel and editor estimates include the actual crew's multipliers and exemptions. Crew changes with the same headcount refresh editor estimates. Loaded and unloaded EVA estimates use roster pack resources.
+- Estimate refreshes cancel earlier snapshot rebuilds, replace queued estimates for the same vessel, and reject obsolete results so earlier demand cannot overwrite a newer multiplier's estimate.
+- Added and passed Release-build regression checks for multiplier persistence, legacy defaults, invalid/fractional values, individual shortages, Soil, exemptions, loaded/unloaded processing, EVA, supply estimates, multi-tank withdrawal, and obsolete estimate results.
+
+Open Pull Requests
+- Reviewed the seven open Snacks PRs against the current code. The tank model path fix (#1) is already present.
+- Corrected the version-check URL (#7) to the actual WildBlueIndustries/Snacks repository path.
+- Fixed simulator idle CPU usage (#8), tracked worker threads, kept workers reusable after estimate cancellation, and stopped them when the scenario is destroyed.
+- Fixed the malformed MK1 Air scrubber example and Scrubber label typo (#9). No recycler/storage/rate/part-coverage balance changes were applied; Air remains optional.
+- Added stock cargo support (#10): radial tin 50 L and S-500 920 L. Existing resource capacities, mass, and cost are preserved.
+- Adapted English/Chinese localization (#11), credited to akira17845, with namespaced tags, English fallbacks, correct numeric formatting, actual deferred penalty totals, and updated exemption/portion help. Condition, resource, and option identifiers remain unchanged. Build artifacts and optional-feature activation were excluded.
+- Resolved PR #5 using the homeworld solar day (sunrise to the next sunrise, including the night) for meals, daily Stress accumulation/recovery, and one-day naps. A different displayed calendar does not change meal or daily Stress processing rates.
+- Fixed one-day naps to pass the solar-day duration in seconds directly to the fainting penalty, avoiding seconds/minutes confusion and whole-minute rounding. The existing NapTime API still returns minutes; fixed minute/hour naps retain their physical-second durations.
+- Improved elapsed-duration displays to use the active calendar year/day/hour/minute lengths and refresh those units when the calendar changes. Fixed sub-hour estimates that previously discarded their minutes and seconds.
+- Added and passed simulator lifecycle, calendar/localization, and authoritative config validation checks. See Notes/PullRequestReview.md for decisions, held balance changes, and in-game verification limits.
+- Clarified meal settings, Snacks/Soil rates, Kerbal portions, and Stress estimates as per homeworld day, with matching English/Chinese display text. Converter daily tooltip values now use the same solar-day units as their labels.
+- Passed Release-build regression checks with different solar/calendar day lengths: solar-day processing and exact one-day naps, unchanged fixed-hour naps, calendar-based duration displays, and retained sub-hour minutes/seconds.
+
+---END CHANGES---
+
 REVISION HISTORY
 
 1.28.1

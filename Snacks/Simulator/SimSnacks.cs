@@ -349,6 +349,8 @@ namespace Snacks
         /// <returns>A SimSnacks simulator.</returns>
         public static SimSnacks CreateSimulator(Vessel vessel)
         {
+            if (vessel.isEVA)
+                return createEvaSimulator(vessel);
             if (!vessel.loaded)
             {
                 SimSnacks simulator = CreateSimulator(vessel.protoVessel);
@@ -374,32 +376,6 @@ namespace Snacks
             simSnacks.secondsPerCycle = SnacksScenario.Instance.simulatorSecondsPerCycle;
             simSnacks.maxSimulatorCycles = SnacksScenario.Instance.maxSimulatorCycles;
             simSnacks.vessel = vessel;
-
-            // If the vessel is actually a kerbal then we only need its resources.
-            if (vessel.isEVA)
-            {
-                ProtoCrewMember astronaut = vessel.GetVesselCrew()[0];
-                AstronautData astronautData = SnacksScenario.Instance.GetAstronautData(astronaut);
-
-                string[] resourceNames = astronautData.resources.Keys.ToArray();
-                string resourceName;
-                for (int index = 0; index < resourceNames.Length; index++)
-                {
-                    resourceName = resourceNames[index];
-                    if (!simSnacks.resources.ContainsKey(resourceName))
-                    {
-                        astronautData.GetResourceAmounts(resourceName, out amount, out maxAmount);
-                        simResource = new SimResource();
-                        simResource.resourceName = resourceName;
-                        simResource.amount = amount;
-                        simResource.maxAmount = maxAmount;
-                        simSnacks.resources.Add(simResource.resourceName, simResource);
-
-                    }
-                }
-
-                return simSnacks;
-            }
 
             //Get resources
             for (int partIndex = 0; partIndex < partCount; partIndex++)
@@ -529,6 +505,24 @@ namespace Snacks
             consumedResources = new List<ResourceRatio>();
             producedResources = new List<ResourceRatio>();
             consumedResourceDurations = new Dictionary<string, double>();
+        }
+
+        private static SimSnacks createEvaSimulator(Vessel vessel)
+        {
+            var simulator = new SimSnacks
+            {
+                vessel = vessel, secondsPerCycle = SnacksScenario.Instance.simulatorSecondsPerCycle,
+                maxSimulatorCycles = SnacksScenario.Instance.maxSimulatorCycles
+            };
+            ProtoCrewMember astronaut = vessel.loaded ? vessel.GetVesselCrew()[0] : vessel.protoVessel.GetVesselCrew()[0];
+            AstronautData data = SnacksScenario.Instance.GetAstronautData(astronaut);
+            foreach (string resourceName in data.resources.Keys)
+            {
+                double amount, maximum;
+                data.GetResourceAmounts(resourceName, out amount, out maximum);
+                simulator.resources.Add(resourceName, new SimResource { resourceName = resourceName, amount = amount, maxAmount = maximum });
+            }
+            return simulator;
         }
         #endregion
 

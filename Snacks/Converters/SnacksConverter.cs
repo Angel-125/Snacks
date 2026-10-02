@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -401,19 +401,19 @@ namespace Snacks
 
             // Splashed
             if (requiresSplashed)
-                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + "\n - Requires vessel to be in water");
+                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + SnacksText.Get("#LOC_Snacks_INFO_REQSPLASH", "\n - Requires vessel to be in water"));
 
             // Splashed
             if (requiresOxygen)
-                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + "\n - Requires vessel to be on a planet with an oxygenated atmosphere");
+                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + SnacksText.Get("#LOC_Snacks_INFO_REQOXY", "\n - Requires vessel to be on a planet with an oxygenated atmosphere"));
 
             //Home connection
             if (requiresHomeConnection)
-                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + "\n - Requires connection to homeworld");
+                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + SnacksText.Get("#LOC_Snacks_INFO_REQCOMMU", "\n - Requires connection to homeworld"));
 
             //Minimum crew
             if (minimumCrew > 0)
-                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + "\n - Minimum Crew: " + minimumCrew);
+                moduleInfo = moduleInfo.Replace(ConverterName, ConverterName + SnacksText.Get("#LOC_Snacks_INFO_REQCREW", "\n - Minimum Crew: ") + minimumCrew);
 
             //Roster resources
             if (rosterInputList.Count == 0 && rosterOutputList.Count == 0)
@@ -430,16 +430,16 @@ namespace Snacks
                     info.Append(": ");
                     if (ratio.AmountPerDay > 0)
                     {
-                        info.Append(string.Format("{0:f2}/day", ratio.AmountPerDay));
+                        info.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME_DAY", "{0:f2}/homeworld day"), ratio.AmountPerDay));
                     }
                     else
                     {
                         if (ratio.AmountPerSecond < 0.0001)
-                            info.Append(string.Format(": {0:f2}/day", ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Day));
+                            info.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME_DAY_Prefixed", ": {0:f2}/homeworld day"), ratio.AmountPerSecond * SnacksScenario.GetSecondsPerDay()));
                         else if (ratio.AmountPerSecond < 0.01)
-                            info.Append(string.Format(": {0:f2}/hr", ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Hour));
+                            info.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME_HR_Prefixed", ": {0:f2}/hr"), ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Hour));
                         else
-                            info.Append(string.Format(": {0:f2}/sec", ratio.AmountPerSecond));
+                            info.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME_SEC_Prefixed", ": {0:f2}/sec"), ratio.AmountPerSecond));
                     }
                 }
 
@@ -473,16 +473,16 @@ namespace Snacks
                     info.Append(": ");
                     if (ratio.AmountPerDay > 0)
                     {
-                        info.Append(string.Format("{0:f2}/day", ratio.AmountPerDay));
+                        info.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME_DAY", "{0:f2}/homeworld day"), ratio.AmountPerDay));
                     }
                     else
                     {
                         if (ratio.AmountPerSecond < 0.0001)
-                            info.Append(string.Format(": {0:f2}/day", ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Day));
+                            info.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME_DAY_Prefixed", ": {0:f2}/homeworld day"), ratio.AmountPerSecond * SnacksScenario.GetSecondsPerDay()));
                         else if (ratio.AmountPerSecond < 0.01)
-                            info.Append(string.Format(": {0:f2}/hr", ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Hour));
+                            info.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME_HR_Prefixed", ": {0:f2}/hr"), ratio.AmountPerSecond * (double)KSPUtil.dateTimeFormatter.Hour));
                         else
-                            info.Append(string.Format(": {0:f2}/sec", ratio.AmountPerSecond));
+                            info.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME_SEC_Prefixed", ": {0:f2}/sec"), ratio.AmountPerSecond));
                     }
                 }
 
@@ -535,13 +535,13 @@ namespace Snacks
                 if (node.HasValue("hoursPerCycle"))
                     double.TryParse(node.GetValue("hoursPerCycle"), out processTimeHours);
 
-                info.Append(" - Skill Needed: " + ExperienceEffect + "\r\n");
+                info.Append(SnacksText.Get("#LOC_Snacks_INFO_NEEDSKILL", " - Skill Needed: ") + ExperienceEffect + "\r\n");
                 if (processTimeHours > 0)
                 {
-                    info.Append(" - Process Time: ");
-                    info.Append(string.Format("{0:f1} hours\r\n", processTimeHours));
+                    info.Append(SnacksText.Get("#LOC_Snacks_INFO_PROCESSTIME", " - Process Time: "));
+                    info.Append(string.Format(SnacksText.Get("#LOC_Snacks_TIME_PROCESSHOURS", "{0:f1} hours\r\n"), processTimeHours));
                 }
-                info.Append(" - Yield Resources\r\n");
+                info.Append(SnacksText.Get("#LOC_Snacks_INFO_YELDRES", " - Yield Resources\r\n"));
                 for (int yieldIndex = 0; yieldIndex < yieldNodes.Length; yieldIndex++)
                 {
                     yieldNode = yieldNodes[yieldIndex];
@@ -744,7 +744,7 @@ namespace Snacks
                 bool infiniteElectricity = CheatOptions.InfiniteElectricity;
 
                 //Do the pre-processing
-                status = "A-OK";
+                status = SnacksText.Get("#LOC_Snacks_AOK", "A-OK");
                 PreProcessing();
                 recipe = PrepareRecipe(deltaTime);
                 count = recipe.Inputs.Count;
@@ -752,20 +752,20 @@ namespace Snacks
                 // Requires spashed
                 if (requiresSplashed && !part.vessel.Splashed)
                 {
-                    status = "Vessel must be in water";
+                    status = SnacksText.Get("#LOC_Snacks_STATUS_NOSPLASH", "Vessel must be in water");
                     return;
                 }
 
                 if (requiresOxygen && !part.vessel.mainBody.atmosphereContainsOxygen)
                 {
-                    status = "Requires oxygenated atmosphere";
+                    status = SnacksText.Get("#LOC_Snacks_STATUS_NOOXY", "Requires oxygenated atmosphere");
                     return;
                 }
 
                 //Handle required resources
                 if (requiresHomeConnection && CommNet.CommNetScenario.CommNetEnabled && !this.part.vessel.connection.IsConnectedHome)
                 {
-                    status = "Requires home connection";
+                    status = SnacksText.Get("#LOC_Snacks_STATUS_NOCOMMU", "Requires home connection");
                     return;
                 }
 
@@ -785,7 +785,7 @@ namespace Snacks
                     this.part.GetConnectedResourceTotals(resourceDef.id, out amount, out maxAmount, true);
                     if (amount >= maxAmount)
                     {
-                        status = resourceDef.displayName + " is full";
+                        status = resourceDef.displayName + SnacksText.Get("#LOC_Snacks_STATUS_FULL", " is full");
                         if (AutoShutdown)
                             StopResourceConverter();
                         return;
@@ -807,7 +807,7 @@ namespace Snacks
                     this.part.GetConnectedResourceTotals(resourceDef.id, out amount, out maxAmount, true);
                     if (amount < resourceRatio.Ratio)
                     {
-                        status = "Missing " + resourceDef.displayName;
+                        status = SnacksText.Get("#LOC_Snacks_GUI_MISSING", "Missing ") + resourceDef.displayName;
                         if (AutoShutdown)
                             StopResourceConverter();
                         return;
@@ -816,7 +816,7 @@ namespace Snacks
                     //Check for mininum EC
                     else if (resourceRatio.ResourceName == "ElectricCharge" && (amount / maxAmount) <= (minimumVesselPercentEC / 100.0f))
                     {
-                        status = "Needs more " + resourceDef.displayName;
+                        status = SnacksText.Get("#LOC_Snacks_GUI_NEEDSMORE", "Needs more ") + resourceDef.displayName;
                         return;
                     }
                 }
@@ -844,7 +844,7 @@ namespace Snacks
                     amountObtained = this.part.RequestResource(resourceDef.id, -resourceRatio.Ratio, resourceRatio.FlowMode);
                     if (amountObtained >= maxAmount)
                     {
-                        status = resourceDef.displayName + " is full";
+                        status = resourceDef.displayName + SnacksText.Get("#LOC_Snacks_STATUS_FULL", " is full");
                     }
                 }
 
@@ -1031,9 +1031,9 @@ namespace Snacks
 
             //Update status
             if (yieldsList.Count > 0)
-                status = "Progress: " + progress;
+                status = SnacksText.Get("#LOC_Snacks_STATUS_PROGRESS", "Progress: ") + progress;
             else if (string.IsNullOrEmpty(status))
-                status = "Running";
+                status = SnacksText.Get("#LOC_Snacks_STATUS_RUNNING", "Running");
         }
         #endregion
 

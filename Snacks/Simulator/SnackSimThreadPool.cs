@@ -51,6 +51,7 @@ namespace Snacks
         private List<SnackSimThread> snackThreads;
         private Dictionary<Vessel, Dictionary<string, double>> vesselResourceDurations;
         private Dictionary<Vessel, bool> convertersAssumedActive;
+        private Dictionary<Vessel, SimSnacks> latestSimulators;
         #endregion
 
         #region SnackSimThread Delegate
@@ -62,12 +63,18 @@ namespace Snacks
         {
             //Record the vessel and its consumed resource durations.
             mutex.WaitOne();
+            SimSnacks latest;
+            if (!latestSimulators.TryGetValue(simulator.vessel, out latest) || !ReferenceEquals(latest, simulator))
+            {
+                mutex.ReleaseMutex();
+                return;
+            }
+            latestSimulators.Remove(simulator.vessel);
             if (vesselResourceDurations.ContainsKey(simulator.vessel))
                 vesselResourceDurations.Remove(simulator.vessel);
             vesselResourceDurations.Add(simulator.vessel, simulator.consumedResourceDurations);
 
-            if (simulator.convertersAssumedActive && !convertersAssumedActive.ContainsKey(simulator.vessel))
-                convertersAssumedActive.Add(simulator.vessel, true);
+            convertersAssumedActive[simulator.vessel] = simulator.convertersAssumedActive;
 
             mutex.ReleaseMutex();
         }
@@ -99,6 +106,7 @@ namespace Snacks
             snackThreads = new List<SnackSimThread>();
             vesselResourceDurations = new Dictionary<Vessel, Dictionary<string, double>>();
             convertersAssumedActive = new Dictionary<Vessel, bool>();
+            latestSimulators = new Dictionary<Vessel, SimSnacks>();
 
             maxThreads = SnacksScenario.Instance.maxThreads;
 
@@ -108,6 +116,7 @@ namespace Snacks
                 snackThread = new SnackSimThread(mutex, jobList);
                 snackThread.OnSimulationComplete = OnThreadSimulationComplete;
                 snackThread.OnSimulatorCycleComplete = OnThreadSimulatorCycleComplete;
+                snackThreads.Add(snackThread);
                 snackThread.Start();
             }
         }
@@ -181,6 +190,10 @@ namespace Snacks
         {
             mutex.WaitOne();
 
+            latestSimulators[simulator.vessel] = simulator;
+            jobList.RemoveAll(job => ReferenceEquals(job.vessel, simulator.vessel));
+            vesselResourceDurations.Remove(simulator.vessel);
+            convertersAssumedActive.Remove(simulator.vessel);
             jobList.Add(simulator);
 
             mutex.ReleaseMutex();
@@ -195,13 +208,24 @@ namespace Snacks
 
             //Clear existing job list
             jobList.Clear();
+            latestSimulators.Clear();
+            vesselResourceDurations.Clear();
+            convertersAssumedActive.Clear();
 
-            //Now stop all the threads
+            // Cancel current work while keeping workers available for the next refresh.
             int count = snackThreads.Count;
             for (int index = 0; index < count; index++)
-                snackThreads[index].canRun = false;
+                if (snackThreads[index].simulator != null)
+                    snackThreads[index].simulator.exitSimulation = true;
 
             mutex.ReleaseMutex();
+        }
+
+        public void Stop()
+        {
+            StopAllJobs();
+            foreach (SnackSimThread worker in snackThreads)
+                worker.Stop();
         }
         #endregion
     }

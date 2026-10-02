@@ -1,4 +1,4 @@
-﻿/**
+/**
 The MIT License (MIT)
 Copyright (c) 2014-2019 by Michael Billard
  
@@ -283,7 +283,7 @@ namespace Snacks
                 }
                 else
                 {
-                    int totalServed = (int)Math.Floor(vesselCurrentAmount / amount);
+                    int totalServed = Math.Min(adjustedCrewCount, (int)Math.Floor((vesselMaxAmount - vesselCurrentAmount) / amount));
                     supplyAmount = totalServed * amount;
 
                     //Add resource
@@ -293,7 +293,7 @@ namespace Snacks
                     result.completedSuccessfully = false;
                     result.currentAmount = vesselCurrentAmount + supplyAmount;
                     result.maxAmount = vesselMaxAmount;
-                    result.affectedKerbalCount = crewCount - totalServed;
+                    result.affectedKerbalCount = adjustedCrewCount - totalServed;
                 }
             }
             else
@@ -305,61 +305,128 @@ namespace Snacks
         }
 
         #region Helpers
-        public static double AddResource(Vessel vessel, string resourceName, double supply, List<ProtoPartResourceSnapshot> resourceList)
+        /// <summary>Consumes full, individually sized Snacks portions in crew manifest order.</summary>
+        public SnacksProcessorResult ConsumeMeals(Vessel vessel, ProtoCrewMember[] crew, int crewCapacity)
         {
-            double amountSupplied = 0;
-            PartResourceDefinitionList definitions = PartResourceLibrary.Instance.resourceDefinitions;
-            int resourceID = definitions[resourceName].id;
-            double supplyRemaining = supply;
-            int count = resourceList.Count;
-            ProtoPartResourceSnapshot resource;
-
-            if (vessel.loaded)
+            crew = crew.Where(astronaut => !SnacksScenario.Instance.GetAstronautData(astronaut).isExempt).ToArray();
+            SnacksProcessorResult result = new SnacksProcessorResult
             {
-                amountSupplied = vessel.rootPart.RequestResource(resourceID, -supply);
-            }
-            else
+                resourceName = resourceName, resultType = SnacksResultType.resultConsumption,
+                crewCount = crew.Length, crewCapacity = crewCapacity, appliedPerCrew = true,
+                completedSuccessfully = true, mealResults = new Dictionary<string, bool>(),
+                afftectedAstronauts = new List<ProtoCrewMember>()
+            };
+            if (crew.Length == 0)
+                return result;
+            if (vessel.isEVA)
+                return ConsumeEVAResource(vessel, result, amount * SnacksScenario.Instance.GetAstronautData(crew[0]).SnacksMultiplier);
+
+            var resources = new List<ProtoPartResourceSnapshot>();
+            double available, maximum;
+            getResourceTotals(vessel, out available, out maximum, resources);
+            result.currentAmount = available;
+            result.maxAmount = maximum;
+            if (maximum <= 0)
             {
-                for (int index = 0; index < count; index++)
-                {
-                    resource = resourceList[index];
-                    if (!resource.flowState)
-                        continue;
-
-                    if (amountSupplied >= supply)
-                    {
-                        amountSupplied = supply;
-                        return amountSupplied;
-                    }
-
-                    if (resource.amount + supplyRemaining <= resource.maxAmount)
-                    {
-                        resource.amount += supplyRemaining;
-                        amountSupplied = supply;
-                        break;
-                    }
-                    else
-                    {
-                        amountSupplied += resource.maxAmount - resource.amount;
-                        resource.amount = resource.maxAmount;
-                    }
-                }
+                result.resultType = SnacksResultType.notApplicable;
+                return result;
             }
-
-            return amountSupplied;
+            foreach (ProtoCrewMember astronaut in crew)
+            {
+                double demand = amount * SnacksScenario.Instance.GetAstronautData(astronaut).SnacksMultiplier;
+                double consumed = 0;
+                if (demand > 0 && !double.IsInfinity(demand) && !double.IsNaN(demand) && available >= demand * (1 - 1e-9))
+                    consumed = Math.Max(0, Math.Min(demand, requestResource(vessel, Math.Min(demand, available), resources)));
+                bool fed = demand == 0 || (demand > 0 && consumed >= demand * (1 - 1e-9));
+                available -= consumed;
+                result.consumedAmount += consumed;
+                result.mealResults[astronaut.name] = fed;
+                if (!fed)
+                    result.afftectedAstronauts.Add(astronaut);
+            }
+            result.currentAmount = Math.Max(0, available);
+            result.completedSuccessfully = result.afftectedAstronauts.Count == 0;
+            result.affectedKerbalCount = result.completedSuccessfully ? crew.Length : result.afftectedAstronauts.Count;
+            return result;
         }
 
+        /// <summary>Produces an explicit total, used to match Soil to Snacks actually eaten.</summary>
+        public SnacksProcessorResult ProduceAmount(Vessel vessel, double supply, int crewCount, int crewCapacity)
+        {
+            SnacksProcessorResult result = new SnacksProcessorResult
+            {
+                resourceName = resourceName, resultType = SnacksResultType.resultProduction,
+                crewCount = crewCount, crewCapacity = crewCapacity, completedSuccessfully = true
+            };
+            if (supply <= 0)
+                return result;
+            if (vessel.isEVA)
+            {
+                ProtoCrewMember astronaut = vessel.loaded ? vessel.GetVesselCrew()[0] : vessel.protoVessel.GetVesselCrew()[0];
+                AstronautData data = SnacksScenario.Instance.GetAstronautData(astronaut);
+                double current, maximum;
+                if (!data.GetResourceAmounts(resourceName, out current, out maximum))
+                {
+                    result.resultType = SnacksResultType.notApplicable;
+                    return result;
+                }
+                result.currentAmount = Math.Min(maximum, current + supply);
+                result.maxAmount = maximum;
+                data.SetResourceAmounts(resourceName, result.currentAmount, maximum);
+                return result;
+            }
+            var resources = new List<ProtoPartResourceSnapshot>();
+            double available, capacity;
+            getResourceTotals(vessel, out available, out capacity, resources);
+            if (capacity <= 0)
+            {
+                result.resultType = SnacksResultType.notApplicable;
+                return result;
+            }
+            double stored = addResource(vessel, Math.Min(supply, Math.Max(0, capacity - available)), resources);
+            // KSP RequestResource returns a negative amount for production; snapshots return positive.
+            stored = Math.Abs(stored);
+            result.currentAmount = available + stored;
+            result.maxAmount = capacity;
+            result.completedSuccessfully = stored >= supply * (1 - 1e-9);
+            return result;
+        }
+
+        public static double AddResource(Vessel vessel, string resourceName, double supply, List<ProtoPartResourceSnapshot> resourceList)
+        {
+            if (vessel.loaded)
+            {
+                int resourceID = PartResourceLibrary.Instance.resourceDefinitions[resourceName].id;
+                return vessel.rootPart.RequestResource(resourceID, -supply);
+            }
+            return AddToSnapshots(supply, resourceList);
+        }
+
+        private static double AddToSnapshots(double supply, IEnumerable<ProtoPartResourceSnapshot> resources)
+        {
+            double remaining = Math.Max(0, supply);
+            foreach (ProtoPartResourceSnapshot resource in resources)
+            {
+                if (!resource.flowState)
+                    continue;
+                double added = Math.Min(remaining, Math.Max(0, resource.maxAmount - resource.amount));
+                resource.amount += added;
+                remaining -= added;
+                if (remaining <= 0)
+                    break;
+            }
+            return Math.Max(0, supply) - remaining;
+        }
         public static double RequestResource(Vessel vessel, string resourceName, double demand, List<ProtoPartResourceSnapshot> resourceList)
         {
             double amountObtained = 0;
-            PartResourceDefinitionList definitions = PartResourceLibrary.Instance.resourceDefinitions;
-            int resourceID = definitions[resourceName].id;
             double demandRemaining = demand;
             int count = resourceList.Count;
             ProtoPartResourceSnapshot resource;
 
             if (vessel.loaded)
             {
+                int resourceID = PartResourceLibrary.Instance.resourceDefinitions[resourceName].id;
                 amountObtained = vessel.rootPart.RequestResource(resourceID, demand);
             }
             else
@@ -373,7 +440,7 @@ namespace Snacks
                     if (resource.amount >= demandRemaining)
                     {
                         resource.amount -= demandRemaining;
-                        amountObtained = demandRemaining;
+                        amountObtained += demandRemaining;
                         break;
                     }
                     else
@@ -392,11 +459,9 @@ namespace Snacks
         {
             amount = 0;
             maxAmount = 0;
-            PartResourceDefinitionList definitions = PartResourceLibrary.Instance.resourceDefinitions;
-            int resourceID = definitions[resourceName].id;
-
             if (vessel.loaded)
             {
+                int resourceID = PartResourceLibrary.Instance.resourceDefinitions[resourceName].id;
                 vessel.rootPart.GetConnectedResourceTotals(resourceID, out amount, out maxAmount);
             }
             else
@@ -444,7 +509,7 @@ namespace Snacks
             {
                 //Get astronaut data
                 astronautData = SnacksScenario.Instance.GetAstronautData(astronauts[astronautIndex]);
-                if (!astronautData.rosterResources.ContainsKey(resourceName))
+                if (astronautData.isExempt || !astronautData.rosterResources.ContainsKey(resourceName))
                     continue;
 
                 //Get roster resource
@@ -477,7 +542,7 @@ namespace Snacks
             {
                 //Get astronaut data
                 astronautData = SnacksScenario.Instance.GetAstronautData(astronauts[astronautIndex]);
-                if (!astronautData.rosterResources.ContainsKey(resourceName))
+                if (astronautData.isExempt || !astronautData.rosterResources.ContainsKey(resourceName))
                     continue;
 
                 //Get roster resource
@@ -496,59 +561,18 @@ namespace Snacks
 
         protected virtual double addResource(Vessel vessel, double supply, List<ProtoPartResourceSnapshot> resourceList)
         {
-            double amountSupplied = 0;
-            PartResourceDefinitionList definitions = PartResourceLibrary.Instance.resourceDefinitions;
-            int resourceID = definitions[resourceName].id;
-            double supplyRemaining = supply;
-            int count = resourceList.Count;
-            ProtoPartResourceSnapshot resource;
-
-            if (vessel.loaded)
-            {
-                amountSupplied = vessel.rootPart.RequestResource(resourceID, -supply);
-            }
-            else
-            {
-                for (int index = 0; index < count; index++)
-                {
-                    resource = resourceList[index];
-                    if (!resource.flowState)
-                        continue;
-
-                    if (amountSupplied >= supply)
-                    {
-                        amountSupplied = supply;
-                        return amountSupplied;
-                    }
-
-                    if (resource.amount + supplyRemaining <= resource.maxAmount)
-                    {
-                        resource.amount += supplyRemaining;
-                        amountSupplied = supply;
-                        break;
-                    }
-                    else
-                    {
-                        amountSupplied += resource.maxAmount - resource.amount;
-                        resource.amount = resource.maxAmount;
-                    }
-                }
-            }
-
-            return amountSupplied;
+            return AddResource(vessel, resourceName, supply, resourceList);
         }
-
         protected virtual double requestResource(Vessel vessel, double demand, List<ProtoPartResourceSnapshot> resourceList)
         {
             double amountObtained = 0;
-            PartResourceDefinitionList definitions = PartResourceLibrary.Instance.resourceDefinitions;
-            int resourceID = definitions[resourceName].id;
             double demandRemaining = demand;
             int count = resourceList.Count;
             ProtoPartResourceSnapshot resource;
 
             if (vessel.loaded)
             {
+                int resourceID = PartResourceLibrary.Instance.resourceDefinitions[resourceName].id;
                 amountObtained = vessel.rootPart.RequestResource(resourceID, demand);
             }
             else
@@ -562,7 +586,7 @@ namespace Snacks
                     if (resource.amount >= demandRemaining)
                     {
                         resource.amount -= demandRemaining;
-                        amountObtained = demandRemaining;
+                        amountObtained += demandRemaining;
                         break;
                     }
                     else
@@ -581,11 +605,9 @@ namespace Snacks
         {
             amount = 0;
             maxAmount = 0;
-            PartResourceDefinitionList definitions = PartResourceLibrary.Instance.resourceDefinitions;
-            int resourceID = definitions[resourceName].id;
-
             if (vessel.loaded)
             {
+                int resourceID = PartResourceLibrary.Instance.resourceDefinitions[resourceName].id;
                 vessel.rootPart.GetConnectedResourceTotals(resourceID, out amount, out maxAmount);
             }
             else
@@ -620,6 +642,11 @@ namespace Snacks
 
         protected virtual SnacksProcessorResult ConsumeEVAResource(Vessel vessel, SnacksProcessorResult result)
         {
+            return ConsumeEVAResource(vessel, result, amount);
+        }
+
+        protected virtual SnacksProcessorResult ConsumeEVAResource(Vessel vessel, SnacksProcessorResult result, double mealAmount)
+        {
             ProtoCrewMember astronaut = vessel.loaded ? vessel.GetVesselCrew()[0] : vessel.protoVessel.GetVesselCrew()[0];
             AstronautData astronautData = SnacksScenario.Instance.GetAstronautData(astronaut);
             double astronautAmount = 0;
@@ -632,16 +659,17 @@ namespace Snacks
                 return result;
             }
             astronautData.GetResourceAmounts(resourceName, out astronautAmount, out astronautMaxAmount);
-            if (astronautAmount == double.NaN)
+            if (double.IsNaN(astronautAmount) || double.IsInfinity(astronautAmount))
             {
                 result.resultType = SnacksResultType.notApplicable;
                 return result;
             }
 
             // Consume the resource and note the result.
-            if (astronautAmount >= amount)
+            if (mealAmount >= 0 && !double.IsNaN(mealAmount) && !double.IsInfinity(mealAmount) && astronautAmount >= mealAmount * (1 - 1e-9))
             {
-                astronautAmount -= amount;
+                result.consumedAmount = Math.Min(astronautAmount, mealAmount);
+                astronautAmount = Math.Max(0, astronautAmount - mealAmount);
                 result.completedSuccessfully = true;
             }
             else
@@ -653,6 +681,12 @@ namespace Snacks
             result.currentAmount = astronautAmount;
             result.maxAmount = astronautMaxAmount;
             result.affectedKerbalCount = 1;
+            if (result.mealResults != null)
+            {
+                result.mealResults[astronaut.name] = result.completedSuccessfully;
+                if (!result.completedSuccessfully)
+                    result.afftectedAstronauts.Add(astronaut);
+            }
 
             // Update the astronaut's resource amounts.
             astronautData.SetResourceAmounts(resourceName, astronautAmount, astronautMaxAmount);
@@ -671,7 +705,8 @@ namespace Snacks
             }
 
             // Display warning message if there is one and we've crossed the threshold.
-            if (evaResource != null && !string.IsNullOrEmpty(evaResource.warningMessage) && astronautAmount <= evaResource.warningAmount)
+            double warningScale = resourceName == SnacksProperties.SnacksResourceName ? astronautData.SnacksMultiplier : 1;
+            if (evaResource != null && !string.IsNullOrEmpty(evaResource.warningMessage) && astronautAmount <= evaResource.warningAmount * warningScale)
             {
                 ScreenMessages.PostScreenMessage(astronaut.name + " (On EVA )- " + evaResource.warningMessage, 5.0f, ScreenMessageStyle.UPPER_CENTER);
             }

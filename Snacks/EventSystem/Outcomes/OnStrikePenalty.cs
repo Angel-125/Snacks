@@ -94,10 +94,14 @@ namespace Snacks
             else
                 astronauts = vessel.protoVessel.GetVesselCrew().ToArray();
 
+            astronauts = astronauts.Where(crew => !SnacksScenario.Instance.GetAstronautData(crew).isExempt).ToArray();
+            if (astronauts.Length == 0)
+                return;
+
             //Select random crew if needed
             if (selectRandomCrew)
             {
-                int randomIndex = UnityEngine.Random.Range(0, astronauts.Length - 1);
+                int randomIndex = UnityEngine.Random.Range(0, astronauts.Length);
                 astronauts = new ProtoCrewMember[] { astronauts[randomIndex] };
             }
 

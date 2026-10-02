@@ -434,9 +434,9 @@ SNACKS_EVENT
 	MODULE
 	{
 		name = SnacksConverter
-		ConverterName = Entertainment Center
-		StartActionName = Start Entertainment
-		StopActionName = Stop Entertainment
+		ConverterName = #LOC_Snacks_ECCN
+		StartActionName = #LOC_Snacks_STARTEC
+		StopActionName = #LOC_Snacks_STOPEC
 		AutoShutdown = false
 		GeneratesHeat = false
 		UseSpecialistBonus = false
@@ -478,9 +478,9 @@ SNACKS_EVENT
 	MODULE
 	{
 		name = SnacksConverter
-		ConverterName = Entertainment Center
-		StartActionName = Start Entertainment
-		StopActionName = Stop Entertainment
+		ConverterName = #LOC_Snacks_ECCN
+		StartActionName = #LOC_Snacks_STARTEC
+		StopActionName = #LOC_Snacks_STOPEC
 		AutoShutdown = false
 		GeneratesHeat = false
 		UseSpecialistBonus = false
@@ -522,9 +522,9 @@ SNACKS_EVENT
 	MODULE
 	{
 		name = SnacksConverter
-		ConverterName = Entertainment Center
-		StartActionName = Start Entertainment
-		StopActionName = Stop Entertainment
+		ConverterName = #LOC_Snacks_ECCN
+		StartActionName = #LOC_Snacks_STARTEC
+		StopActionName = #LOC_Snacks_STOPEC
 		AutoShutdown = false
 		GeneratesHeat = false
 		UseSpecialistBonus = false
@@ -566,9 +566,9 @@ SNACKS_EVENT
 	MODULE
 	{
 		name = SnacksConverter
-		ConverterName = Stargazing
-		StartActionName = Start Stargazing
-		StopActionName = Stop Stargazing
+		ConverterName = #LOC_Snacks_SGCN
+		StartActionName = #LOC_Snacks_STARTSG
+		StopActionName = #LOC_Snacks_STOPSGCN
 		AutoShutdown = false
 		GeneratesHeat = false
 		UseSpecialistBonus = false

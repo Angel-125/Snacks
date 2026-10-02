@@ -25,6 +25,7 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
 using UnityEngine;
 
 namespace Snacks
@@ -46,6 +47,7 @@ namespace Snacks
         const string AstronautNodeTrait = "experienceTrait";
         const string AstronautNodeUpdated = "lastUpdated";
         const string AstronautNodeExempt = "isExempt";
+        const string AstronautNodeSnacksMultiplier = "snacksMultiplier";
         const string AstronautNodeCondition = "conditionSummary";
         const string AstronautNodeDisqualifiers = "disqualifiedPreconditions";
 
@@ -85,6 +87,14 @@ namespace Snacks
         /// Flag to indicate that the kerbal is exempt from outcomes.
         /// </summary>
         public bool isExempt;
+
+        private double snacksMultiplier = 1;
+        /// <summary>Portion size relative to the game's Snacks per meal. Exemptions take precedence.</summary>
+        public double SnacksMultiplier
+        {
+            get { return snacksMultiplier; }
+            set { snacksMultiplier = !double.IsNaN(value) && !double.IsInfinity(value) && value >= 1 ? value : 1; }
+        }
 
         /// <summary>
         /// Summary of all the conditions that the kerbal currently has. If a
@@ -170,6 +180,10 @@ namespace Snacks
                     astronautData.experienceTrait = astronautNode.GetValue(AstronautNodeTrait);
                     astronautData.lastUpdated = double.Parse(astronautNode.GetValue(AstronautNodeUpdated));
                     astronautData.isExempt = bool.Parse(astronautNode.GetValue(AstronautNodeExempt));
+                    double multiplier;
+                    if (double.TryParse(astronautNode.GetValue(AstronautNodeSnacksMultiplier), NumberStyles.Float,
+                        CultureInfo.InvariantCulture, out multiplier))
+                        astronautData.SnacksMultiplier = multiplier;
 
                     if (astronautNode.HasValue(AstronautNodeCondition))
                         astronautData.conditionSummary = astronautNode.GetValue(AstronautNodeCondition);
@@ -254,6 +268,7 @@ namespace Snacks
                 astronautNode.AddValue(AstronautNodeTrait, astronautData.experienceTrait);
                 astronautNode.AddValue(AstronautNodeUpdated, astronautData.lastUpdated);
                 astronautNode.AddValue(AstronautNodeExempt, astronautData.isExempt);
+                astronautNode.AddValue(AstronautNodeSnacksMultiplier, astronautData.SnacksMultiplier.ToString("R", CultureInfo.InvariantCulture));
 
                 if (!string.IsNullOrEmpty(astronautData.conditionSummary))
                     astronautNode.AddValue(AstronautNodeCondition, astronautData.conditionSummary);

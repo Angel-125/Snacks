@@ -146,6 +146,8 @@
     <Compile Include="SettingsAndScenario\SnacksProperties.cs" />
     <Compile Include="Utilities\Window.cs" />
     <Compile Include="Utilities\WindowUtils.cs" />
+    <Compile Include="Utilities\SnacksTime.cs" />
+    <Compile Include="Utilities\SnacksText.cs" />
     <Compile Include="ResourceClasses\VesselSnackshot.cs" />
     <Compile Include="EventSystem\Outcomes\BaseOutcome.cs" />
   </ItemGroup>

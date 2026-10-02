@@ -48,6 +48,17 @@ namespace Snacks
             LoadOptionResources(true);
         }
 
+        private static string DisplayOptionName(string name)
+        {
+            switch (name)
+            {
+                case "Snacks": return SnacksText.Get("#LOC_Snacks_OP_SNACK", name);
+                case "Soil": return SnacksText.Get("#LOC_Snacks_OP_SOIL", name);
+                case "Snacks and Soil": return SnacksText.Get("#LOC_Snacks_OP_SNACKSOIL", name);
+                default: return name;
+            }
+        }
+
         public override string GetInfo()
         {
             if (resourceOptions == null)
@@ -60,7 +71,7 @@ namespace Snacks
 
             StringBuilder info = new StringBuilder();
 
-            info.AppendLine("<b>Resource Options</b>");
+            info.AppendLine(SnacksText.Get("#LOC_Snacks_GUI_RESOURCEOPTION", "<b>Resource Options</b>"));
             info.AppendLine(" ");
 
             ResourceOption option;
@@ -71,7 +82,7 @@ namespace Snacks
             {
                 option = resourceOptions[index];
 
-                info.AppendLine("<color=orange><b>" + option.name + "</b></color>");
+                info.AppendLine("<color=orange><b>" + DisplayOptionName(option.name) + "</b></color>");
 
                 for (int resourceIndex =  0; resourceIndex < option.resourceConfigs.Length; resourceIndex++)
                 {
@@ -145,7 +156,7 @@ namespace Snacks
             this.part.Resources.Clear();
 
             //Set the option name
-            Events["ToggleOption"].guiName = resourceOptions[currentOptionIndex].name;
+            Events["ToggleOption"].guiName = DisplayOptionName(resourceOptions[currentOptionIndex].name);
 
             //Get the resource configs
             resourceConfigs = resourceOptions[currentOptionIndex].resourceConfigs;

@@ -36,10 +36,10 @@ namespace Snacks
 {
     public static class WindowUtils
     {
-        const double SECONDS_PER_MINUTE = 60.0;
-        const double MINUTES_PER_HOUR = 60.0;
-        static double HOURS_PER_DAY = (GameSettings.KERBIN_TIME) ? 6.0 : 24.0;
-        public static double SECONDS_PER_DAY = SECONDS_PER_MINUTE*MINUTES_PER_HOUR*HOURS_PER_DAY;
+        static double SECONDS_PER_MINUTE { get { return SnacksTime.Minute; } }
+        static double MINUTES_PER_HOUR { get { return SnacksTime.Hour / SnacksTime.Minute; } }
+        static double HOURS_PER_DAY { get { return SnacksTime.Day / SnacksTime.Hour; } }
+        public static double SECONDS_PER_DAY { get { return SnacksTime.Day; } }
 
         public static double ToDegrees(double radians)
         {
@@ -384,14 +384,14 @@ namespace Snacks
                 time = currentTime - deliveryTime;
 
 
-            days = (int)Math.Floor(time / 21600);
-            time = time - (days * 21600);
+            days = (int)Math.Floor(time / SnacksTime.Day);
+            time = time - (days * SnacksTime.Day);
 
-            hours = (int)Math.Floor(time / 3600);
-            time = time - (hours * 3600);
+            hours = (int)Math.Floor(time / SnacksTime.Hour);
+            time = time - (hours * SnacksTime.Hour);
 
-            minutes = (int)Math.Floor(time / 60);
-            time = time - (minutes * 60);
+            minutes = (int)Math.Floor(time / SnacksTime.Minute);
+            time = time - (minutes * SnacksTime.Minute);
 
             seconds = (int)Math.Floor(time);
 

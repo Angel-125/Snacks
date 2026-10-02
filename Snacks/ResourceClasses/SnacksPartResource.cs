@@ -206,7 +206,7 @@ namespace Snacks
                 AvailablePart.ResourceInfo resourceInfo = new AvailablePart.ResourceInfo();
                 resourceInfo.resourceName = resourceName;
                 resourceInfo.displayName = def.displayName;
-                resourceInfo.info = string.Format("Amount: {0:n1}\nMass: {1:n3}\nCost: {2:n1}", unitsToAdd, def.density * unitsToAdd, def.unitCost * unitsToAdd);
+                resourceInfo.info = string.Format(SnacksText.Get("#LOC_Snacks_GUI_SNACKSTORAGE1", "Amount: {0:n1}\nMass: {1:n3}\nCost: {2:n1}"), unitsToAdd, def.density * unitsToAdd, def.unitCost * unitsToAdd);
                 availablePart.resourceInfos.Add(resourceInfo);
             }
             MonoUtilities.RefreshContextWindows(part);

@@ -1,4 +1,4 @@
-﻿/**
+/**
 The MIT License (MIT)
 Copyright (c) 2014-2019 by Michael Billard
  
@@ -139,6 +139,11 @@ namespace Snacks
             for (int index = 0; index < count; index++)
             {
                 processor = SnacksScenario.Instance.resourceProcessors[index];
+                if (!string.IsNullOrEmpty(processorName) && processor.name != processorName)
+                {
+                    processor = null;
+                    continue;
+                }
                 if (resultType == CheckResultTypes.resultConsumptionFailure || resultType == CheckResultTypes.resultConsumptionSuccess)
                 {
                     if (processor.consumptionResults.ContainsKey(resourceName))
@@ -178,7 +183,7 @@ namespace Snacks
 
                 case CheckResultTypes.resultProductionFailure:
                     //Processor needs at least one failure
-                    if (processor.consumptionResults[resourceName].completedSuccessfully)
+                    if (processor.productionResults[resourceName].completedSuccessfully)
                         return false;
 
                     if (astronautData.processedResourceFailures.ContainsKey(resourceName))
@@ -188,7 +193,7 @@ namespace Snacks
 
                 case CheckResultTypes.resultProductionSuccess:
                     //Processor needs at least one success
-                    if (!processor.consumptionResults[resourceName].completedSuccessfully)
+                    if (!processor.productionResults[resourceName].completedSuccessfully)
                         return false;
 
                     if (astronautData.processedResourceSuccesses.ContainsKey(resourceName))

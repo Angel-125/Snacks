@@ -37,7 +37,7 @@ namespace Snacks
     public class SnackSimThread
     {
         #region Housekeeping
-        public bool canRun = true;
+        public volatile bool canRun = true;
         public Mutex mutex;
         public List<SimSnacks> jobList;
         public SimSnacks simulator;
@@ -65,6 +65,7 @@ namespace Snacks
         public void Start()
         {
             jobThread = new Thread(new ThreadStart(ThreadRoutine));
+            jobThread.IsBackground = true;
             jobThread.Start();
         }
 
@@ -79,6 +80,8 @@ namespace Snacks
             if (simulator != null)
                 simulator.exitSimulation = true;
             mutex.ReleaseMutex();
+            if (jobThread != null && jobThread != Thread.CurrentThread)
+                jobThread.Join(1000);
         }
 
         /// <summary>
@@ -176,6 +179,11 @@ namespace Snacks
                         }
                         mutex.ReleaseMutex();
                     }
+                }
+                else
+                {
+                    // A mutex protects the queue; it does not wait for new jobs.
+                    Thread.Sleep(20);
                 }
 
             }

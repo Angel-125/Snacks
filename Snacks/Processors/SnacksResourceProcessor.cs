@@ -75,13 +75,13 @@ namespace Snacks
 
             //Outcomes
             outcomes.Clear();
-            outcomes.Add(new FundingPenalty(true, "Kerbals are hungry for snacks! You have been fined {0:N2} Funds", SnacksProperties.FinePerKerbal));
-            outcomes.Add(new RepPenalty(true, SnacksProperties.RepLostWhenHungry, "Kerbals are hungry for snacks! Your reputation has decreased by {0:N3}"));
+            outcomes.Add(new FundingPenalty(true, SnacksText.Get("#LOC_Snacks_INFO_FUND", "Kerbals are hungry for snacks! You have been fined {0:N2} Funds"), SnacksProperties.FinePerKerbal));
+            outcomes.Add(new RepPenalty(true, SnacksProperties.RepLostWhenHungry, SnacksText.Get("#LOC_Snacks_INFO_BADREP", "Kerbals are hungry for snacks! Your reputation has decreased by {0:N3}")));
             outcomes.Add(new SciencePenalty(true));
             if (SnacksProperties.CanStarveToDeath)
-                outcomes.Add(new DeathPenalty(SnacksProperties.SnacksResourceName, SnacksProperties.MealsSkippedBeforeDeath, "has died from a lack of Snacks!"));
+                outcomes.Add(new DeathPenalty(SnacksProperties.SnacksResourceName, SnacksProperties.MealsSkippedBeforeDeath, SnacksText.Get("#LOC_Snacks_INFO_DEATH", "has died from a lack of Snacks!")));
             if (SnacksProperties.FaintWhenHungry)
-                outcomes.Add(new FaintPenalty(SnacksProperties.SnacksResourceName, SnacksProperties.MealsBeforeFainting, SnacksProperties.NapTime * 60f, "has fainted from a lack of Snacks!"));
+                outcomes.Add(new FaintPenalty(SnacksProperties.SnacksResourceName, SnacksProperties.MealsBeforeFainting, SnacksProperties.NapDurationSeconds, SnacksText.Get("#LOC_Snacks_INFO_FAINTE", "has fainted from a lack of Snacks!")));
 
             if (SnacksScenario.Instance.rosterResources.ContainsKey(StressProcessor.StressResourceName))
                 outcomes.Add(new ProduceResource(StressProcessor.StressResourceName, 1.0, false, string.Empty));
@@ -97,36 +97,69 @@ namespace Snacks
             base.ProcessResources(vessel, elapsedTime, crewCount, crewCapacity);
         }
 
+        protected override SnacksProcessorResult consumeInputResource(ProcessedResource resource, Vessel vessel,
+            double elapsedTime, ProtoCrewMember[] astronauts, int crewCapacity)
+        {
+            if (resource.resourceName != SnacksProperties.SnacksResourceName)
+                return base.consumeInputResource(resource, vessel, elapsedTime, astronauts, crewCapacity);
+            return resource.ConsumeMeals(vessel, astronauts.Where(crew => crew.type != ProtoCrewMember.KerbalType.Unowned).ToArray(), crewCapacity);
+        }
+
+        protected override SnacksProcessorResult produceOutputResource(ProcessedResource resource, Vessel vessel,
+            double elapsedTime, int crewCount, int crewCapacity)
+        {
+            SnacksProcessorResult meals;
+            if (resource.resourceName == SnacksProperties.SoilResourceName)
+            {
+                double eaten = consumptionResults.TryGetValue(SnacksProperties.SnacksResourceName, out meals) ? meals.consumedAmount : 0;
+                return resource.ProduceAmount(vessel, eaten, crewCount, crewCapacity);
+            }
+            return base.produceOutputResource(resource, vessel, elapsedTime, crewCount, crewCapacity);
+        }
+
         public override void AddConsumedAndProducedResources(Vessel vessel, double secondsPerCycle, List<ResourceRatio> consumedResources, List<ResourceRatio> producedResources)
         {
-            //Make sure we have crew
-            int crewCount = 0;
-            if (vessel.loaded)
-                crewCount = vessel.GetCrewCount();
-            else
-                crewCount = vessel.protoVessel.GetVesselCrew().Count;
-            if (crewCount <= 0)
-                return;
+            IEnumerable<ProtoCrewMember> crew = vessel.loaded ? vessel.GetVesselCrew() : vessel.protoVessel.GetVesselCrew();
+            AddConsumedAndProducedResources(crew, secondsPerCycle, consumedResources, producedResources);
+        }
 
-            AddConsumedAndProducedResources(crewCount, secondsPerCycle, consumedResources, producedResources);
+        public void AddConsumedAndProducedResources(IEnumerable<ProtoCrewMember> crew, double secondsPerCycle,
+            List<ResourceRatio> consumedResources, List<ResourceRatio> producedResources)
+        {
+            double portions = GetMealPortions(crew);
+            addMealRates(portions, secondsPerCycle, consumedResources, producedResources);
+        }
+
+        public static double GetMealPortions(IEnumerable<ProtoCrewMember> crew)
+        {
+            double portions = 0;
+            foreach (ProtoCrewMember astronaut in crew)
+            {
+                if (astronaut.type == ProtoCrewMember.KerbalType.Unowned)
+                    continue;
+                AstronautData data = SnacksScenario.Instance.GetAstronautData(astronaut);
+                if (!data.isExempt)
+                    portions += data.SnacksMultiplier;
+            }
+            return portions;
         }
 
         public override void AddConsumedAndProducedResources(int crewCount, double secondsPerCycle, List<ResourceRatio> consumedResources, List<ResourceRatio> producedResources)
         {
-            if (crewCount <= 0)
+            // Callers supplying only a count have no individual crew identities.
+            addMealRates(crewCount, secondsPerCycle, consumedResources, producedResources);
+        }
+
+        private void addMealRates(double portions, double secondsPerCycle, List<ResourceRatio> consumedResources, List<ResourceRatio> producedResources)
+        {
+            if (portions <= 0)
                 return;
 
             ResourceRatio resourceRatio;
 
             //Calculate amount
             //Start with total snacks consumed per day, accounting for crew count.
-            double amount = SnacksProperties.SnacksPerMeal * SnacksProperties.MealsPerDay * crewCount;
-
-            //Now get snacks per second consumed.
-            amount /= SnacksScenario.GetSecondsPerDay();
-
-            //Finally, account for seconds per cycle
-            amount *= secondsPerCycle;
+            double amount = inputList[0].amount * portions * secondsPerCycle / this.secondsPerCycle;
 
             //Add snacks
             resourceRatio = new ResourceRatio();
@@ -135,7 +168,7 @@ namespace Snacks
             consumedResources.Add(resourceRatio);
 
             //Add soil
-            if (SnacksProperties.RecyclersEnabled)
+            if (outputList.Any(resource => resource.resourceName == SnacksProperties.SoilResourceName))
             {
                 resourceRatio = new ResourceRatio();
                 resourceRatio.ResourceName = SnacksProperties.SoilResourceName;

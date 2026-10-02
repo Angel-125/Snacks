@@ -80,7 +80,7 @@ namespace Snacks
 
             //Crew capacity
             if (!vessel.isEVA)
-                status.AppendLine("<color=white>Crew: " + crewCount + "/" + maxCrewCount + "</color>");
+                status.AppendLine("<color=white>" + SnacksText.Get("#LOC_Snacks_GUI_CREW", "Crew: ") + crewCount + "/" + maxCrewCount + "</color>");
 
             //Resource snapshots
             if (!showCrewView)
@@ -107,10 +107,10 @@ namespace Snacks
 
                     status.AppendLine("<color=orange><i>" + astronauts[index].name + "</i></color>");
                     if (!string.IsNullOrEmpty(astronautData.conditionSummary))
-                        conditionSummary = astronautData.conditionSummary;
+                        conditionSummary = SnacksText.DisplayConditions(astronautData.conditionSummary);
                     else
-                        conditionSummary = "A-OK";
-                    status.AppendLine("<color=white> - Status: " + conditionSummary + "</color>");
+                        conditionSummary = SnacksText.Get("#LOC_Snacks_AOK", "A-OK");
+                    status.AppendLine("<color=white> " + SnacksText.Get("#LOC_Snacks_GUI_STATUS", "- Status: ") + conditionSummary + "</color>");
 
                     string[] keys = astronautData.rosterResources.Keys.ToArray();
                     for (int rosterIndex = 0; rosterIndex < keys.Length; rosterIndex++)

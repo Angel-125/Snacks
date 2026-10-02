@@ -38,7 +38,7 @@ namespace Snacks
         public string description = string.Empty;
 
         public SnacksIntroScreen(string description) :
-        base("New resource added!", 300, 500)
+        base(SnacksText.Get("#LOC_Snacks_GUI_NEW", "New resource added!"), 300, 500)
         {
             Resizable = false;
             this.description = description;

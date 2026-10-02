@@ -291,7 +291,7 @@ SNACKS_RESOURCE_PROCESSOR
 		name = SnacksConverter
 		ConverterName = Air Scrubber
 		StartActionName = Start Air Scrubber
-		StopActionName = Stop Air Scribber
+		StopActionName = Stop Air Scrubber
 		AutoShutdown = false
 		GeneratesHeat = false
 		UseSpecialistBonus = false
@@ -334,7 +334,7 @@ SNACKS_RESOURCE_PROCESSOR
 		name = SnacksConverter
 		ConverterName = Air Scrubber
 		StartActionName = Start Air Scrubber
-		StopActionName = Stop Air Scribber
+		StopActionName = Stop Air Scrubber
 		AutoShutdown = false
 		GeneratesHeat = false
 		UseSpecialistBonus = false
@@ -358,8 +358,8 @@ SNACKS_RESOURCE_PROCESSOR
 			ResourceName = FreshAir
 			Ratio = 0.000148
 			FlowMode = ALL_VESSEL
-		}	
-}
+		}
+	}
 
 	RESOURCE
 	{
@@ -376,7 +376,7 @@ SNACKS_RESOURCE_PROCESSOR
 		name = SnacksConverter
 		ConverterName = Air Scrubber
 		StartActionName = Start Air Scrubber
-		StopActionName = Stop Air Scribber
+		StopActionName = Stop Air Scrubber
 		AutoShutdown = false
 		GeneratesHeat = false
 		UseSpecialistBonus = false

@@ -332,13 +332,21 @@ namespace Snacks
 
             if (this.elapsedTime >= secondsBetweenChecks)
             {
-                this.elapsedTime = 0;
+                if (secondsBetweenChecks > 0)
+                    this.elapsedTime -= secondsBetweenChecks;
+                else
+                    this.elapsedTime = 0;
                 return true;
             }
             else
             {
                 return false;
             }
+        }
+
+        public double GetTimeUntilNextCheck()
+        {
+            return secondsBetweenChecks > 0 ? Math.Max(0, secondsBetweenChecks - elapsedTime) : double.PositiveInfinity;
         }
 
         /// <summary>
@@ -350,28 +358,32 @@ namespace Snacks
             if (!IsTimeToCheck(elapsedTime))
                 return;
 
-            switch (affectedKerbals)
+            do
             {
-                case KerbalsAffectedTypes.affectsAllAssigned:
-                    processAllAssignedEvent();
-                    break;
+                switch (affectedKerbals)
+                {
+                    case KerbalsAffectedTypes.affectsAllAssigned:
+                        processAllAssignedEvent();
+                        break;
 
-                case KerbalsAffectedTypes.affectsRandomAssigned:
-                    processRandomAssignedEvent();
-                    break;
+                    case KerbalsAffectedTypes.affectsRandomAssigned:
+                        processRandomAssignedEvent();
+                        break;
 
-                case KerbalsAffectedTypes.affectsRandomCrewPerVessel:
-                    processRandomCrewPerVesselEvent();
-                    break;
+                    case KerbalsAffectedTypes.affectsRandomCrewPerVessel:
+                        processRandomCrewPerVesselEvent();
+                        break;
 
-                case KerbalsAffectedTypes.affectsAllAvailable:
-                    processAllAvailableEvent();
-                    break;
+                    case KerbalsAffectedTypes.affectsAllAvailable:
+                        processAllAvailableEvent();
+                        break;
 
-                case KerbalsAffectedTypes.affectsRandomAvailable:
-                    processRandomAvailableEvent();
-                    break;
-            }
+                    case KerbalsAffectedTypes.affectsRandomAvailable:
+                        processRandomAvailableEvent();
+                        break;
+                }
+                //Replay missed scheduled checks while retaining the fractional remainder.
+            } while (secondsBetweenChecks > 0 && IsTimeToCheck(0));
         }
 
         /// <summary>
@@ -381,7 +393,7 @@ namespace Snacks
         public void Load(ConfigNode node)
         {
             if (node.HasValue(SnacksEventElapsedTime))
-                double.TryParse(node.GetValue(SnacksEventDaysBetweenChecks), out elapsedTime);
+                double.TryParse(node.GetValue(SnacksEventElapsedTime), out elapsedTime);
         }
 
         /// <summary>

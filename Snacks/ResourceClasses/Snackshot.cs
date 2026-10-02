@@ -102,22 +102,22 @@ namespace Snacks
             //Duration
             if (simulatorInterrupted)
             {
-                status.AppendLine("<color=white>Duration: Unavailable</color>");
+                status.AppendLine(SnacksText.Get("#LOC_Snacks_DURATION1", "<color=white>Duration: Unavailable</color>"));
             }
             else if (estimatedTimeRemaining < 0)
             {
-                status.AppendLine("<color=white>Duration: Indefinite</color>");
+                status.AppendLine(SnacksText.Get("#LOC_Snacks_DURATION2", "<color=white>Duration: Indefinite</color>"));
             }
             else if (isSimulatorRunning)
             {
-                status.AppendLine("<color=white>Duration: Calculating...</color>");
+                status.AppendLine(SnacksText.Get("#LOC_Snacks_DURATION3", "<color=white>Duration: Calculating...</color>"));
             }
             else
             {
                 string timeString = SnacksScenario.FormatTime(estimatedTimeRemaining);
                 if (amount < 0.0001)
-                    timeString = "0 Seconds";
-                status.AppendLine(colorTag + "Duration: " + timeString + endTag);
+                    timeString = SnacksText.Get("#LOC_Snacks_GUI_ZEROSECONDS", "0 Seconds");
+                status.AppendLine(colorTag + SnacksText.Get("#LOC_Snacks_DURATION4", "Duration: ") + timeString + endTag);
             }
 
             return status.ToString();
